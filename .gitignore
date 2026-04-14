@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.DS_Store
+*.swp
+*.swo
+*~
+
+.env
+.env.*
+!.env.example
+
+*.log
+npm-debug.log*

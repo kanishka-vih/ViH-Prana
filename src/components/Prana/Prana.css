@@ -1,0 +1,21 @@
+.prana { position: relative; padding: 130px 56px; background: #000; text-align: center; overflow: hidden; }
+.prana__glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 700px; height: 700px; background: radial-gradient(ellipse at center, rgba(195,14,255,0.08) 0%, transparent 60%); pointer-events: none; }
+.prana__big { font-size: clamp(50px, 9vw, 110px); letter-spacing: -3px; margin-bottom: 8px; }
+.prana__sub { font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.38); margin-bottom: 28px; }
+.prana__desc { font-size: clamp(15px,1.7vw,18px); color: rgba(255,255,255,0.45); max-width: 700px; margin: 0 auto 56px; line-height: 1.8; position: relative; z-index: 1; }
+.prana__desc strong { color: rgba(195,14,255,0.85); }
+.prana__dash { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 880px; margin: 0 auto 56px; position: relative; z-index: 1; }
+.prana__dc { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px; text-align: left; transition: border-color 0.3s; }
+.prana__dc:hover { border-color: rgba(195,14,255,0.28); }
+.prana__dc-lbl { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+.prana__dc-val { font-family: "Clash Display","Inter",sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -1px; margin-bottom: 6px; }
+.prana__dc-sub { font-size: 12px; color: rgba(255,255,255,0.38); line-height: 1.5; margin-bottom: 8px; }
+.prana__dc-trend { font-size: 11px; font-weight: 600; }
+.prana__dc-trend--up { color: #6ee7b7; }
+.prana__dc-trend--dn { color: #fca5a5; }
+.prana__flow { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+.prana__fp { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 8px 18px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6); }
+.prana__fa { color: rgba(195,14,255,0.6); font-size: 18px; }
+.prana__fc { background: linear-gradient(135deg, rgba(30,146,255,0.85), rgba(195,14,255,0.85)); border-radius: 20px; padding: 8px 22px; font-size: 13px; font-weight: 700; color: #fff; }
+
+@media (max-width: 768px) { .prana { padding: 80px 20px; } .prana__dash { grid-template-columns: 1fr; } }

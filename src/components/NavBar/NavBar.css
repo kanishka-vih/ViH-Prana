@@ -1,0 +1,45 @@
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  padding: 18px 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+.navbar__logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.navbar__logo-name { font-family: "Clash Display", "Inter", sans-serif; font-size: 22px; font-weight: 700; color: #fff; }
+.navbar__links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.navbar__link {
+  font-family: "Clash Display", "Inter", sans-serif; font-size: 14px; font-weight: 500;
+  color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;
+}
+.navbar__link:hover { color: #fff; }
+.navbar__drop { position: relative; }
+.navbar__drop-trigger {
+  font-family: "Clash Display", "Inter", sans-serif; font-size: 14px; font-weight: 500;
+  color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 5px; padding: 0;
+}
+.navbar__drop-trigger:hover { color: #fff; }
+.navbar__dropdown {
+  position: absolute; top: calc(100% + 14px); left: 0;
+  background: rgba(8,0,16,0.97); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px; padding: 8px; min-width: 210px;
+  opacity: 0; pointer-events: none; transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+  backdrop-filter: blur(20px);
+}
+.navbar__dropdown--open { opacity: 1; pointer-events: all; transform: none; }
+.navbar__dropdown-link {
+  display: block; padding: 10px 16px; font-size: 13px; border-radius: 8px;
+  color: rgba(255,255,255,0.65); text-decoration: none; transition: background 0.2s, color 0.2s;
+}
+.navbar__dropdown-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.navbar__right { display: flex; align-items: center; gap: 20px; }
+.navbar__icon { color: rgba(255,255,255,0.55); cursor: pointer; background: none; border: none; padding: 0; }
+.navbar__icon:hover { color: #fff; }
+.navbar__icon svg { width: 22px; height: 22px; }
+.navbar__hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 0; }
+.navbar__hamburger span { display: block; width: 22px; height: 1.5px; background: rgba(255,255,255,0.6); }
+
+@media (max-width: 768px) { .navbar { padding: 16px 20px; } .navbar__links { display: none; } }
