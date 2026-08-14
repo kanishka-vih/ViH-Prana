@@ -70,13 +70,13 @@ jobs:
           set -e
           sudo nginx -t
           sudo systemctl reload nginx
-          code=$(curl -sS -o /dev/null -w '%{http_code}' -m 10 http://127.0.0.1/)
-          echo "local_http:$code"
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -m 10 --resolve dev.vihmetaverse.com:443:127.0.0.1 https://dev.vihmetaverse.com/)
+          echo "local_https:$code"
           test "$code" = "200"
           EOF
 
       - name: Public HTTPS check
         run: |
-          code=$(curl -sS -o /dev/null -w '%{http_code}' -m 15 -L https://vihmetaverse.com/ || true)
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -m 15 -L https://dev.vihmetaverse.com/ || true)
           echo "public_https:$code"
           test "$code" = "200"
