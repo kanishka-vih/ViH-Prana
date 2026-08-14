@@ -1,0 +1,229 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;600&family=Roboto+Mono:wght@400;600&display=swap");
+
+@theme {
+  --font-roboto: "Roboto", sans-serif;
+  --font-roboto-condensed: "Roboto Condensed", sans-serif;
+  --font-roboto-mono: "Roboto Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  /* The page's width-based CSS scale transform (ScaledCanvas) can land on a
+     sub-pixel scale factor depending on the browser's actual viewport width
+     and OS display scaling (e.g. Windows at 125%/150%) — something headless
+     testing at 100% OS scale doesn't reproduce. That rounding can tip the
+     scaled content a fraction of a pixel past the viewport edge, which
+     Chrome then shows as a full horizontal scrollbar even though there's
+     nothing actually meant to overflow. This is the standard guard against
+     that class of 1px scroll-container bug. */
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  background: #f7f7f8;
+}
+
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+}
+
+.marquee-track {
+  animation: marquee 22s linear infinite;
+}
+
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+@keyframes shruti-orb-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  80% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Runs once when the outcomes section scrolls into view (see
+   ShrutiOutcomes.tsx's IntersectionObserver). Each of the three card icons
+   gets a staggered `animationDelay` so they pop in one after another
+   (left to right) rather than together — the two small overshoots here
+   are what make it read as an actual bounce, like an app icon landing,
+   rather than a single scale-in. */
+.shruti-orb-bounce {
+  animation: shruti-orb-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes shruti-ring-rise {
+  /* Rises from below up toward 0 (each ring's exact measured Figma
+     position) and settles there with a couple of decaying dips — never
+     overshooting PAST 0, since the outermost ring rests flush with the
+     section's top edge and anything above that gets clipped by its
+     `overflow: hidden` (this used to overshoot to translateY(-14px) and
+     got visibly flattened off mid-bounce). */
+  0% {
+    transform: translateY(90px);
+    opacity: 0;
+  }
+  45% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+  62% {
+    transform: translateY(24px);
+  }
+  80% {
+    transform: translateY(12px);
+  }
+  92% {
+    transform: translateY(18px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+/* The three background domes rise up from below with a staggered
+   `animationDelay` per ring (outer first) so it reads as each layer
+   arriving one after another rather than the whole background sliding
+   up as one flat image. */
+.shruti-ring-rise {
+  animation: shruti-ring-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes shruti-ring-loop {
+  /* 0%/100% is each ring's exact measured Figma position — the highest
+     point it's ever allowed to reach. Every other stop is a POSITIVE
+     translateY (downward only): the outermost ring rests flush with the
+     section's top edge, so any upward motion pushes it past the
+     `overflow: hidden` clip and gets flattened off. Bouncing down from
+     the matched position instead — like a dropped ball settling, several
+     decaying hops per cycle — reads as a springy, energetic jiggle
+     without ever risking that clip. */
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  18% {
+    transform: translateY(26px);
+  }
+  36% {
+    transform: translateY(4px);
+  }
+  50% {
+    transform: translateY(17px);
+  }
+  64% {
+    transform: translateY(8px);
+  }
+  78% {
+    transform: translateY(12px);
+  }
+  90% {
+    transform: translateY(9px);
+  }
+}
+/* Takes over from .shruti-ring-rise once the one-shot entrance finishes
+   (see ShrutiOutcomes.tsx). Staggered per ring via the same
+   animationDelay, so they keep bouncing out of sync with each other. */
+.shruti-ring-loop {
+  animation: shruti-ring-loop 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes voicechat-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.voicechat-panel-in {
+  animation: voicechat-panel-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes vihprana-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.vihprana-card-in {
+  animation: vihprana-card-in 0.25s ease;
+}
+
+@keyframes voicechat-ring-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+.voicechat-ring-pulse::before,
+.voicechat-ring-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(177, 91, 252, 0.55);
+  animation: voicechat-ring-pulse 1.8s ease-out infinite;
+}
+.voicechat-ring-pulse::after {
+  animation-delay: 0.6s;
+}
+
+@keyframes voicechat-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+}
+.voicechat-dot-pulse {
+  animation: voicechat-dot-pulse 1s ease-in-out infinite;
+}

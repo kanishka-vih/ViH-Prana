@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Roboto:wght@400;500;600&amp;family=Roboto+Condensed:wght@600;700&amp;family=Roboto+Mono:wght@400;500;600&amp;family=Roboto+Serif:wght@300&amp;display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: rgb(23,24,24); }
+  * { box-sizing: border-box; }
+  a { color: rgb(177,91,252); text-decoration: none; }
+  a:hover { color: rgb(221,84,249); }
+
+  @media (max-width: 760px) {
+    .hero-block {
+      left: 50% !important;
+      top: auto !important;
+      bottom: 190px !important;
+      width: 88vw !important;
+      transform: translateX(-50%) !important;
+    }
+    .hero-kicker, .hero-title { text-align: center !important; white-space: normal !important; }
+    .hero-title { font-size: clamp(24px, 7.5vw, 34px) !important; line-height: 1.25 !important; }
+    .hero-cta { align-self: center !important; width: min(280px, 90vw) !important; }
+
+    .intro-text { top: 96px !important; font-size: 13px !important; line-height: 20px !important; }
+
+    .product-card {
+      right: auto !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: min(320px, 88vw) !important;
+    }
+
+    .letters-row { font-size: 95px !important; gap: 9.64px !important; line-height: 22px !important; }
+    .ccc-caption {
+      position: static !important;
+      left: auto !important;
+      top: auto !important;
+      transform: none !important;
+      margin-top: 24px !important;
+      width: min(361px, 88vw) !important;
+      font-size: 15px !important;
+      line-height: 1.5 !important;
+    }
+
+    .proof-section { padding: 90px 16px 70px !important; }
+    .proof-wrap { gap: 60px !important; }
+    .proof-inner { align-items: center !important; gap: 32px !important; }
+    .testimonial-card { flex-direction: column !important; padding: 24px 20px !important; gap: 20px !important; border-width: 1.5px !important; border-color: rgba(255,255,255,0.22) !important; }
+    .testimonial-side { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 16px !important; }
+    .testimonial-name { font-size: 14px !important; line-height: 22px !important; }
+    .testimonial-quote { font-size: 15px !important; line-height: 1.5 !important; }
+
+    .logos-desktop { display: none !important; }
+    .logos-mobile { display: flex !important; }
+
+    .contact-card { grid-template-columns: 1fr !important; padding: 24px 20px !important; gap: 20px !important; }
+
+    .site-footer { padding: 40px 20px 32px !important; }
+
+    .nav-pill { top: 20px !important; height: 52px !important; width: min(452px, 94vw) !important; padding: 0 16px 0 18px !important; }
+    .ccc-track { height: 220vh !important; }
+    .nav-pill span { height: 32px !important; font-size: 14px !important; padding: 0 16px !important; }
+    .nav-pill img { width: 46px !important; height: 25px !important; }
+
+    html { scroll-snap-type: y proximity; }
+    .mobile-hero-page { scroll-snap-align: start; scroll-snap-stop: always; }
+    .mobile-globe-track { scroll-snap-align: start; }
+  }
+
+  .logos-mobile { display: none; flex-direction: column; gap: 20px; }
+  .logo-marquee { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .logo-marquee::-webkit-scrollbar { display: none; }
+  .logo-marquee-track { display: flex; flex-wrap: nowrap; align-items: center; gap: 40px; width: max-content; }
+  .logo-marquee-track img { height: 40px; width: auto; flex-shrink: 0; }
+  .logo-more-mobile { text-align: center; font-family: 'Roboto Mono', monospace; font-weight: 600; font-size: 28px; letter-spacing: -1px; color: rgb(177,91,252); }
+
+  @keyframes cardPop {
+    from { transform: translateX(-50%) scale(0.88); }
+    to { transform: translateX(-50%) scale(1); }
+  }
+  .card-pop { animation: cardPop 0.4s cubic-bezier(.2,.8,.2,1); }
+
+  @keyframes cardGlow {
+    0%, 100% { filter: brightness(1) saturate(1); }
+    50% { filter: brightness(1.08) saturate(1.2); }
+  }
+  .slide-card { animation: cardGlow 7s ease-in-out infinite; }
+</style>
+</helmet>
+<div ref="{{ navMenuRef }}" class="nav-pill" style="position: fixed; top: 47px; left: 50%; transform: translateX(-50%); width: min(452px, 92vw); height: 44px; border-radius: 12px; background: rgba(247,247,247,0.25); backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3); border: 1px solid rgba(255,255,255,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 12px 30px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 14px; opacity: 0; pointer-events: none; z-index: 999;">
+  <img ref="{{ logoRef }}" src="images/vih-logo.svg" alt="ViH Messenger" style="width: 40px; height: 22px; display: block; flex-shrink: 0;">
+  <div style="display: flex; align-items: center; gap: 13px;">
+    <span ref="{{ navProductsRef }}" style="height: 28px; padding: 0 14px; border-radius: 6px; background: rgb(0,0,0); display: flex; align-items: center; justify-content: center; font-family: Roboto, sans-serif; font-size: 13px; color: rgb(255,255,255); cursor: pointer; letter-spacing: 0.12px; transition: background .25s ease, color .25s ease;">Products</span>
+    <span ref="{{ navContactRef }}" style="height: 28px; padding: 0 14px; border-radius: 6px; background: transparent; display: flex; align-items: center; justify-content: center; font-family: Roboto, sans-serif; font-size: 13px; color: rgb(172,172,172); cursor: pointer; letter-spacing: 0.12px; transition: background .25s ease, color .25s ease;">Contact us</span>
+  </div>
+</div>
+<sc-if value="{{ !isMobile }}">
+<div ref="{{ trackRef }}" style="position: relative; width: 100%; height: 420vh; background: rgb(23,24,24);">
+  <div ref="{{ stageRef }}" style="position: sticky; top: 0; height: 100vh; overflow: hidden; font-family: Inter, sans-serif;">
+    <div style="position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgb(23,23,23) 0%, rgb(26,31,37) 43.26%, rgb(23,24,24) 100%);"></div>
+    <div ref="{{ bgRef }}" style="position: absolute; inset: 0; z-index: 0; opacity: 0; background: linear-gradient(180.713deg, rgb(23,23,23) 0.72%, rgb(26,31,37) 45.15%, rgb(3,10,52) 89.57%, rgb(20,52,105) 178.43%);"></div>
+    <canvas ref="{{ canvasRef }}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1;"></canvas>
+
+    <div ref="{{ heroRef }}" class="hero-block" style="position: absolute; left: 48.9%; top: 61.4%; width: 42.2%; z-index: 5; display: flex; flex-direction: column; gap: 20px; align-items: flex-end; pointer-events: none;">
+      <div class="hero-title-group" style="align-self: stretch; display: flex; flex-direction: column; gap: 3px;">
+        <span class="hero-kicker" style="font-family: 'Roboto Serif', serif; font-weight: 300; font-size: clamp(15px, 1.39vw, 20px); line-height: 1.5; letter-spacing: -0.18px; text-align: right; color: rgb(225,225,225);">One brain. Every conversation</span>
+        <span class="hero-title" style="font-family: Roboto, sans-serif; font-weight: 400; font-size: clamp(28px, 2.92vw, 42px); line-height: 1.35; letter-spacing: -1px; text-align: right; white-space: nowrap; color: rgb(232,232,232);">Your Left Brain, Reimagined</span>
+      </div>
+      <div ref="{{ heroCtaRef }}" class="hero-cta" style="width: 312px; max-width: 100%; height: 44px; border-radius: 12px; background: rgba(170,172,176,0.43); display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; cursor: pointer; pointer-events: auto;">
+        <span style="font-family: Inter, sans-serif; font-size: 14px; letter-spacing: 0.12px; color: rgb(232,232,232);">Products</span>
+        <span style="width: 28px; height: 28px; border-radius: 26px; background: rgb(148,148,148); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255);"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+      </div>
+    </div>
+
+    <p ref="{{ introRef }}" class="intro-text" style="position: absolute; left: 50%; top: 132px; transform: translateX(-50%); width: min(566px, 84vw); text-align: center; font-family: Roboto, sans-serif; color: rgb(177,177,177); opacity: 0; z-index: 5; margin: 0; pointer-events: none; font-size: clamp(15px, 1.39vw, 20px); line-height: 26px; letter-spacing: -1px;">ViH Metaverse is a state-of-the-art customer experience ecosystem that connects enterprises with their customers at every touchpoint — delivering unparalleled experiences from first contact to lasting loyalty. Our ecosystem leverages AI to redefine how enterprises understand, engage, and serve their customers — through and through.</p>
+
+    <div ref="{{ cardRef }}" class="product-card" style="position: absolute; right: 5.4%; top: 112px; bottom: 44px; width: min(420px, 33vw); opacity: 0; pointer-events: none; z-index: 8; display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+      <div style="border-radius: 24px; background: linear-gradient(155deg, rgba(255,255,255,0.14) 0%, rgba(122,123,127,0.30) 45%, rgba(20,52,105,0.28) 100%); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 0 40px rgba(255,255,255,0.04), 0 20px 40px rgba(0,0,0,0.25); padding: 22px 20px 18px; flex: 0 1 auto; min-height: 0; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span ref="{{ cardTitleRef }}" style="font-family: Roboto, sans-serif; font-size: 24px; color: rgb(255,255,255);">ViH Prana</span>
+          <span style="width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.38); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255);"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+        </div>
+        <div style="height: 1px; background: rgba(179,179,179,0.8); margin: 10px 0 16px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 22px; color: rgb(196,196,196);">Type</div>
+            <div ref="{{ cardSubRef }}" style="font-family: Roboto, sans-serif; font-size: 15px; line-height: 22px; color: rgb(255,255,255);">Omnichannel Orchestration</div>
+          </div>
+          <div style="text-align: left; min-width: 84px; flex: 0 0 auto;">
+            <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 22px; color: rgb(196,196,196);">Tech</div>
+            <div ref="{{ cardTagRef }}" style="font-family: Roboto, sans-serif; font-size: 15px; line-height: 22px; color: rgb(255,255,255);">AI</div>
+          </div>
+        </div>
+        <div style="height: 1px; background: rgba(179,179,179,0.8); margin: 14px 0 16px;"></div>
+        <div ref="{{ cardBodyRef }}" style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 18px; color: rgb(255,255,255);">Prana is the AI orchestration layer that fuses every email, call, chat, and meeting your customers leave behind into a single coherent reality — so your support, sales, and ops teams stop chasing ghosts across silos and start acting on one truth</div>
+      </div>
+      <img ref="{{ cardImgRef }}" src="images/prana-visual.png" alt="ViH Prana" style="width: 100%; border-radius: 12px; display: block; height: clamp(210px, 20vw, 260px); object-fit: cover; object-position: center; background: rgb(255,255,255); flex: 0 0 auto; min-height: 0;">
+    </div>
+
+    <div ref="{{ ctaRef }}" style="position: absolute; left: 6.3%; bottom: 6.6%; display: flex; gap: 4px; opacity: 0; z-index: 6;">
+      <span style="border-radius: 8px; background: rgba(255,255,255,0.14); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); border: 1px solid rgba(255,255,255,0.24); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 8px 20px rgba(0,0,0,0.2); padding: 12px 16px; font-family: Inter, sans-serif; font-size: 14px; letter-spacing: 0.12px; color: rgb(255,255,255); cursor: pointer;">Contact us</span>
+    </div>
+
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMobile }}">
+<div class="mobile-hero-page" style="position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: linear-gradient(180deg, rgb(23,23,23) 0%, rgb(26,31,37) 43.26%, rgb(23,24,24) 100%); font-family: Inter, sans-serif;">
+  <canvas ref="{{ mobileFieldCanvasRef }}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1;"></canvas>
+  <div ref="{{ mobileHubLabelRef }}" style="position: absolute; top: 0; left: 0; z-index: 4; pointer-events: none; opacity: 0; display: flex; gap: 6px; white-space: nowrap;"></div>
+  <div ref="{{ heroRef }}" style="position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); width: 88vw; z-index: 5; display: flex; flex-direction: column; gap: 16px; align-items: center; text-align: center;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-family: 'Roboto Serif', serif; font-weight: 300; font-size: 14px; line-height: 1.5; letter-spacing: -0.18px; color: rgb(225,225,225);">One brain. Every conversation</span>
+      <span style="font-family: Roboto, sans-serif; font-weight: 400; font-size: clamp(24px, 7.5vw, 34px); line-height: 1.25; letter-spacing: -1px; color: rgb(232,232,232);">Your Left Brain, Reimagined</span>
+    </div>
+    <div ref="{{ heroCtaRef }}" style="width: min(260px, 82vw); height: 44px; border-radius: 12px; background: rgba(170,172,176,0.43); display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; cursor: pointer; pointer-events: auto;">
+      <span style="font-family: Roboto, sans-serif; font-size: 14px; letter-spacing: 0.12px; color: rgb(232,232,232);">Products</span>
+      <span style="width: 28px; height: 28px; border-radius: 26px; background: rgb(148,148,148); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255);"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+    </div>
+  </div>
+</div>
+
+<div ref="{{ mobileGlobeTrackRef }}" class="mobile-globe-track" style="position: relative; width: 100%; height: 190vh; height: 190dvh; background: rgb(23,24,24);">
+  <div style="position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; font-family: Inter, sans-serif;">
+    <div style="position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgb(23,23,23) 0%, rgb(26,31,37) 43.26%, rgb(23,24,24) 100%);"></div>
+    <div ref="{{ bgRef }}" style="position: absolute; inset: 0; z-index: 0; opacity: 0; background: linear-gradient(180.713deg, rgb(23,23,23) 0.72%, rgb(26,31,37) 45.15%, rgb(3,10,52) 89.57%, rgb(20,52,105) 178.43%);"></div>
+    <canvas ref="{{ mobileGlobeCanvasRef }}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1;"></canvas>
+
+    <p ref="{{ globeIntroRef }}" style="position: absolute; left: 50%; top: 112px; transform: translateX(-50%); width: min(322px, 86vw); text-align: center; font-family: Roboto, sans-serif; color: rgb(177,177,177); margin: 0; z-index: 5; font-size: 14px; line-height: 20px; letter-spacing: -0.3px; pointer-events: none; opacity: 0;">A state-of-the-art customer experience ecosystem that connects enterprises with their customers at every touchpoint — delivering unparalleled experiences from first contact to lasting loyalty.</p>
+
+    <div ref="{{ cardRef }}" style="position: absolute; left: 50%; top: 230px; bottom: 40px; transform: translateX(-50%); width: min(320px, 88vw); opacity: 0; pointer-events: none; z-index: 8; display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+      <div style="border-radius: 24px; background: linear-gradient(155deg, rgba(255,255,255,0.14) 0%, rgba(122,123,127,0.30) 45%, rgba(20,52,105,0.28) 100%); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 0 40px rgba(255,255,255,0.04), 0 20px 40px rgba(0,0,0,0.25); padding: 22px 20px 18px; flex: 0 1 auto; min-height: 0; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span ref="{{ cardTitleRef }}" style="font-family: Roboto, sans-serif; font-size: 22px; color: rgb(255,255,255);">ViH Prana</span>
+          <span style="width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.38); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255);"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+        </div>
+        <div style="height: 1px; background: rgba(179,179,179,0.8); margin: 10px 0 16px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 22px; color: rgb(196,196,196);">Type</div>
+            <div ref="{{ cardSubRef }}" style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 20px; color: rgb(255,255,255);">Omnichannel Orchestration</div>
+          </div>
+          <div style="text-align: left; min-width: 70px; flex: 0 0 auto;">
+            <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 22px; color: rgb(196,196,196);">Tech</div>
+            <div ref="{{ cardTagRef }}" style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 20px; color: rgb(255,255,255);">AI</div>
+          </div>
+        </div>
+        <div style="height: 1px; background: rgba(179,179,179,0.8); margin: 14px 0 16px;"></div>
+        <div ref="{{ cardBodyRef }}" style="font-family: Roboto, sans-serif; font-size: 13px; line-height: 17px; color: rgb(255,255,255);">Prana is the AI orchestration layer that fuses every email, call, chat, and meeting your customers leave behind into a single coherent reality — so your support, sales, and ops teams stop chasing ghosts across silos and start acting on one truth</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px;">
+          <span ref="{{ productPrevRef }}" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.38); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); cursor: pointer; pointer-events: auto;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(-90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+          <span ref="{{ productNextRef }}" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.38); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); cursor: pointer; pointer-events: auto;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ !isMobile }}">
+<div ref="{{ slideTrackRef }}" class="slide-track" style="position: relative; width: 100%; height: 320vh;">
+  <div ref="{{ slideStageRef }}" style="position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 116px; box-sizing: border-box; font-family: Inter, sans-serif;">
+    <div style="position: absolute; inset: 0; z-index: 0; background: radial-gradient(60% 55% at 50% 45%, rgba(177,91,252,0.14) 0%, rgba(94,140,255,0.08) 40%, rgba(0,0,0,0) 75%), linear-gradient(180deg, rgb(23,24,24) 0%, rgb(19,21,26) 45%, rgb(0,0,0) 100%);"></div>
+    <span style="position: relative; z-index: 1; margin-bottom: 34px; padding: 8px 20px; border-radius: 20px; background: rgba(255,255,255,0.14); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); border: 1px solid rgba(255,255,255,0.24); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3); font-family: Roboto, sans-serif; font-size: 13px; letter-spacing: 0.5px; color: rgb(235,235,235);">Products</span>
+    <div style="position: relative; z-index: 1; width: 100%; height: 460px; perspective: 1800px; margin-top: -60px;">
+      <div ref="{{ slideRowRef }}" style="position: absolute; inset: -40px 0 -180px 0;">
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: 380px; will-change: transform, opacity; border-radius: 24px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(38px) saturate(1.6); -webkit-backdrop-filter: blur(38px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 26px 22px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 22px; color: rgb(255,255,255);">ViH Viveka</span>
+            <span style="width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 16px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">Conversational Intelligence</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">NLU</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 20px; color: rgb(220,220,220);">Viveka listens across every channel and turns raw conversation into structured intent, sentiment, and next-best-action — so your teams always know what the customer actually means.</div>
+        </div>
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: 380px; will-change: transform, opacity; border-radius: 24px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(38px) saturate(1.6); -webkit-backdrop-filter: blur(38px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 26px 22px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 22px; color: rgb(255,255,255);">ViH Shruti</span>
+            <span style="width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 16px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">Voice &amp; Speech</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">ASR</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 20px; color: rgb(220,220,220);">Shruti transcribes and understands calls in real time across languages and accents, surfacing the moments that matter while the conversation is still live.</div>
+        </div>
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: 380px; will-change: transform, opacity; border-radius: 24px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(38px) saturate(1.6); -webkit-backdrop-filter: blur(38px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 26px 22px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 22px; color: rgb(255,255,255);">ViH Prana</span>
+            <span style="width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 16px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">Omnichannel Orchestration</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">AI</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 20px; color: rgb(220,220,220);">Prana is the AI orchestration layer that fuses every email, call, chat, and meeting your customers leave behind into a single coherent reality — so your support, sales, and ops teams stop chasing ghosts across silos and start acting on one truth.</div>
+        </div>
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: 380px; will-change: transform, opacity; border-radius: 24px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(38px) saturate(1.6); -webkit-backdrop-filter: blur(38px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 26px 22px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 22px; color: rgb(255,255,255);">ViH Messenger</span>
+            <span style="width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 16px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">Unified Inbox</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 14px; color: rgb(255,255,255);">Messaging</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 14px; line-height: 20px; color: rgb(220,220,220);">Messenger unifies WhatsApp, email, chat, and social into one thread per customer, so every agent picks up exactly where the last conversation left off.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMobile }}">
+<div ref="{{ slideTrackRef }}" class="slide-track" style="position: relative; width: 100%; height: 210vh; height: 210dvh;">
+  <div ref="{{ slideStageRef }}" style="position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 84px; box-sizing: border-box; font-family: Inter, sans-serif;">
+    <div style="position: absolute; inset: 0; z-index: 0; background: radial-gradient(60% 55% at 50% 45%, rgba(177,91,252,0.14) 0%, rgba(94,140,255,0.08) 40%, rgba(0,0,0,0) 75%), linear-gradient(180deg, rgb(23,24,24) 0%, rgb(19,21,26) 45%, rgb(0,0,0) 100%);"></div>
+    <span style="position: relative; z-index: 1; margin-bottom: 34px; padding: 7px 18px; border-radius: 20px; background: rgba(255,255,255,0.14); backdrop-filter: blur(14px) saturate(1.5); -webkit-backdrop-filter: blur(14px) saturate(1.5); border: 1px solid rgba(255,255,255,0.24); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3); font-family: Roboto, sans-serif; font-size: 12px; letter-spacing: 0.5px; color: rgb(235,235,235);">Products</span>
+    <div style="position: relative; z-index: 1; width: 100%; height: 400px; perspective: 1200px;">
+      <div ref="{{ slideRowRef }}" style="position: absolute; inset: -20px 0 -230px 0;">
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: min(270px, 74vw); will-change: transform, opacity; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 18px; color: rgb(255,255,255);">ViH Viveka</span>
+            <span style="width: 26px; height: 26px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 14px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 10px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">Conversational Intelligence</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">NLU</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 17px; color: rgb(220,220,220);">Viveka listens across every channel and turns raw conversation into structured intent, sentiment, and next-best-action.</div>
+        </div>
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: min(270px, 74vw); will-change: transform, opacity; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 18px; color: rgb(255,255,255);">ViH Shruti</span>
+            <span style="width: 26px; height: 26px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 14px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 10px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">Voice &amp; Speech</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">ASR</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 17px; color: rgb(220,220,220);">Shruti transcribes and understands calls in real time across languages and accents, surfacing what matters live.</div>
+        </div>
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: min(270px, 74vw); will-change: transform, opacity; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 18px; color: rgb(255,255,255);">ViH Prana</span>
+            <span style="width: 26px; height: 26px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 14px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 10px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">Omnichannel Orchestration</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">AI</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 17px; color: rgb(220,220,220);">Prana fuses every email, call, chat, and meeting into a single coherent reality across silos.</div>
+        </div>
+        <div class="slide-card" style="position: absolute; left: 50%; top: 50%; width: min(270px, 74vw); will-change: transform, opacity; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%), linear-gradient(155deg, rgba(177,91,252,0.14) 0%, rgba(255,255,255,0.05) 45%, rgba(94,140,255,0.14) 100%); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6); border: 1px solid rgba(255,255,255,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 50px rgba(177,91,252,0.06), 0 22px 48px rgba(0,0,0,0.4); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: Roboto, sans-serif; font-size: 18px; color: rgb(255,255,255);">ViH Messenger</span>
+            <span style="width: 26px; height: 26px; border-radius: 50%; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); font-size: 14px;">→</span>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="display: flex; justify-content: space-between; gap: 10px;">
+            <div><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Type</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">Unified Inbox</div></div>
+            <div style="text-align: left;"><div style="font-family: Roboto, sans-serif; font-size: 11px; color: rgb(196,196,196);">Tech</div><div style="font-family: Roboto, sans-serif; font-size: 12px; color: rgb(255,255,255);">Messaging</div></div>
+          </div>
+          <div style="height: 1px; background: rgba(179,179,179,0.5);"></div>
+          <div style="font-family: Roboto, sans-serif; font-size: 12px; line-height: 17px; color: rgb(220,220,220);">Messenger unifies WhatsApp, email, chat, and social into one thread per customer.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<div ref="{{ cccTrackRef }}" class="ccc-track" style="position: relative; background: linear-gradient(0deg, rgb(0,0,0) 40.7%, rgb(0,0,0) 66.77%, rgb(3,12,50) 99.86%, rgb(4,13,56) 145%); height: 360vh;">
+  <div style="position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div ref="{{ lettersRowRef }}" class="letters-row" style="position: relative; display: flex; gap: clamp(6px, 1.94vw, 28px); font-family: 'Roboto Condensed', Roboto, sans-serif; font-weight: 600; font-size: clamp(96px, 19.2vw, 276px); line-height: 0.24; white-space: nowrap;">
+      <span style="color: rgb(255,255,255); transition: color .4s ease;">C</span>
+      <span style="color: rgb(51,51,51); transition: color .4s ease;">c</span>
+      <span style="color: rgb(51,51,51); transition: color .4s ease;">C</span>
+      <span style="color: rgb(51,51,51); transition: color .4s ease;">A</span>
+      <span style="color: rgb(51,51,51); transition: color .4s ease;">A</span>
+      <span style="color: rgb(51,51,51); transition: color .4s ease;">a</span>
+    </div>
+    <div ref="{{ captionRef }}" class="ccc-caption" style="position: absolute; left: 50%; top: 76%; width: min(523px, 80vw); transform: translateX(-50%); text-align: left; font-family: Roboto, sans-serif; font-weight: 400; font-size: 20px; line-height: 33px; letter-spacing: -1px;">
+      <span ref="{{ capLabelRef }}" style="color: rgb(255,255,255); font-weight: 600;">Capture Content : </span><span ref="{{ capBodyRef }}" style="color: #dddddd; font-weight: 400;">Collect messages, emails, calls, meetings, documents, and tickets from every communication channel.</span>
+    </div>
+  </div>
+</div>
+
+<section class="proof-section" style="position: relative; overflow: hidden; background: radial-gradient(140% 120% at 20% -10%, rgba(35,80,180,0.4) 0%, rgba(14,28,64,0.55) 35%, rgba(6,10,22,0.85) 65%, rgba(3,6,14,1) 100%); padding: 160px 24px 120px;">
+  <div style="position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5; mix-blend-mode: overlay; background-image: url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>&quot;);"></div>
+  <div class="proof-wrap" style="position: relative; max-width: 1208px; margin: 0 auto; display: flex; flex-direction: column; gap: 144px;">
+    <div class="proof-inner" style="display: flex; flex-direction: column; gap: 75px; align-items: flex-end;">
+    <h2 style="align-self: stretch; max-width: 1181px; font-family: Roboto, sans-serif; font-weight: 400; font-size: clamp(24px, 2.22vw, 32px); line-height: 1.5; letter-spacing: -1px; color: rgb(232,232,232); margin: 0;">We’re proud to partner with industry leaders and global innovators here’s what they’re saying about working with ViH Metaverse</h2>
+    <div class="testimonial-card" style="position: relative; overflow: hidden; width: min(756px, 100%); border-radius: 18px; background: radial-gradient(60% 80% at 15% 10%, rgba(70,120,220,0.16) 0%, rgba(23,23,23,0) 60%), rgba(15,15,15,0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 42px rgba(0,0,0,0.35); backdrop-filter: blur(22px) saturate(1.3); -webkit-backdrop-filter: blur(22px) saturate(1.3); padding: 24px 45px; display: flex; gap: 32px; align-items: flex-start; justify-content: space-between;">
+      <div class="testimonial-side" style="flex-shrink: 0; width: 161px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px;">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="rgb(177,91,252)"><path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849h-4v-10h9.983zm14.017 0v7.391c0 5.704-3.748 9.571-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983v-10h9.983z"></path></svg>
+        <div style="text-align: left;">
+          <div class="testimonial-name" style="font-family: 'Roboto Mono', monospace; font-size: 18px; line-height: 41px; letter-spacing: -1px; color: rgb(232,232,232);">Mukesh Ambani</div>
+          <div class="testimonial-name" style="font-family: 'Roboto Mono', monospace; font-size: 18px; line-height: 41px; letter-spacing: -1px; color: rgb(232,232,232);">Chairman of RIL</div>
+        </div>
+        <div style="display: flex; gap: 13px;">
+          <span style="width: 32px; height: 32px; border-radius: 26px; background: rgba(191,191,191,0.25); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(-90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+          <span style="width: 32px; height: 32px; border-radius: 26px; background: rgba(191,191,191,0.25); display: flex; align-items: center; justify-content: center; color: rgb(255,255,255); cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;"><g transform="rotate(90 10 10) translate(4.359 2.709)"><path d="M 5.199 0.183 C 5.316 0.066 5.475 0 5.641 0 C 5.806 0 5.965 0.066 6.082 0.183 L 11.082 5.183 C 11.144 5.24 11.193 5.309 11.227 5.386 C 11.261 5.462 11.28 5.545 11.281 5.629 C 11.283 5.713 11.267 5.796 11.236 5.874 C 11.204 5.952 11.157 6.023 11.098 6.082 C 11.039 6.141 10.968 6.188 10.89 6.22 C 10.812 6.251 10.729 6.266 10.645 6.265 C 10.561 6.263 10.478 6.245 10.402 6.211 C 10.325 6.177 10.256 6.128 10.199 6.066 L 6.266 2.133 L 6.266 13.958 C 6.266 14.124 6.2 14.283 6.083 14.4 C 5.965 14.517 5.806 14.583 5.641 14.583 C 5.475 14.583 5.316 14.517 5.199 14.4 C 5.081 14.283 5.016 14.124 5.016 13.958 L 5.016 2.133 L 1.082 6.066 C 1.025 6.128 0.956 6.177 0.879 6.211 C 0.803 6.245 0.72 6.263 0.636 6.265 C 0.552 6.266 0.469 6.251 0.391 6.22 C 0.313 6.188 0.242 6.141 0.183 6.082 C 0.124 6.023 0.077 5.952 0.045 5.874 C 0.014 5.796 -0.001 5.713 0 5.629 C 0.002 5.545 0.02 5.462 0.054 5.386 C 0.088 5.309 0.138 5.24 0.199 5.183 L 5.199 0.183 Z" fill="currentColor" fill-rule="evenodd"></path></g></svg></span>
+        </div>
+      </div>
+      <p class="testimonial-quote" style="width: min(476px, 100%); text-align: center; font-family: Roboto, sans-serif; font-size: clamp(17px, 1.67vw, 24px); line-height: 1.375; letter-spacing: -1px; color: rgb(230,230,230); margin: 0">ViH’s integration of the Reliance Research Suite was simple, enjoyable, and impactful. Their team has a deep technical understanding and knows the AI market inside out, which made the entire process smooth and fun.</p>
+    </div>
+    </div>
+    <div style="padding: 8px 20px; display: flex; flex-direction: column; gap: 40px;">
+      <div class="logos-desktop" style="display: flex; flex-direction: column; gap: 40px;">
+        <div class="logo-row" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 40px; min-height: 106px;">
+          <img src="images/logo-star.png" alt="Star Health Insurance" style="filter: brightness(0) invert(1); opacity: 0.92; height: 84px; width: auto; object-fit: contain;">
+          <img src="images/logo-chola.png" alt="Chola" style="filter: brightness(0) invert(1); opacity: 0.92; height: 68px; width: auto; object-fit: contain;">
+          <img src="images/logo-jgi.png" alt="JGI Jain Deemed-to-be University" style="filter: brightness(0) invert(1); opacity: 0.92; height: 44px; width: auto; object-fit: contain;">
+          <img src="images/logo-kapston.png" alt="Kapston Services Limited" style="filter: brightness(0) invert(1); opacity: 0.92; height: 62px; width: auto; object-fit: contain;">
+        </div>
+        <div class="logo-row" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 40px; min-height: 87px;">
+          <img src="images/logo-tataplay.png" alt="Tata Play Fiber" style="filter: brightness(0) invert(1); opacity: 0.92; height: 66px; width: auto; object-fit: contain;">
+          <img src="images/logo-smc.png" alt="SMC Insurance" style="filter: brightness(0) invert(1); opacity: 0.92; height: 52px; width: auto; object-fit: contain;">
+          <img src="images/logo-bsnl.png" alt="BSNL" style="filter: brightness(0) invert(1); opacity: 0.92; height: 74px; width: auto; object-fit: contain;">
+          <span style="font-family: 'Roboto Mono', monospace; font-weight: 600; font-size: clamp(26px, 2.78vw, 40px); letter-spacing: -1px; color: rgb(177,91,252);">and 100+</span>
+        </div>
+      </div>
+
+      <div class="logos-mobile">
+        <div ref="{{ logoScrollRef }}" class="logo-marquee">
+          <div class="logo-marquee-track">
+            <img src="images/logo-star.png" alt="Star Health Insurance" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-chola.png" alt="Chola" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-jgi.png" alt="JGI Jain Deemed-to-be University" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-kapston.png" alt="Kapston Services Limited" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-tataplay.png" alt="Tata Play Fiber" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-smc.png" alt="SMC Insurance" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-bsnl.png" alt="BSNL" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-star.png" alt="Star Health Insurance" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-chola.png" alt="Chola" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-jgi.png" alt="JGI Jain Deemed-to-be University" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-kapston.png" alt="Kapston Services Limited" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-tataplay.png" alt="Tata Play Fiber" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-smc.png" alt="SMC Insurance" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+            <img src="images/logo-bsnl.png" alt="BSNL" style="filter: brightness(0) invert(1); opacity: 0.92; object-fit: contain;">
+          </div>
+        </div>
+        <div class="logo-more-mobile">and 100+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section ref="{{ contactSectionRef }}" style="position: relative; overflow: hidden; min-height: 100vh; display: flex; align-items: center; background: rgba(0,0,0,0.2), radial-gradient(150% 140% at 50% 160%, rgba(45,105,225,0.55) 0%, rgba(18,40,90,0.5) 40%, rgba(6,10,22,0.75) 70%, rgba(3,6,14,0.95) 100%); padding: 40px 24px;">
+  <div style="position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5; mix-blend-mode: overlay; background-image: url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>&quot;);"></div>
+  <div style="position: absolute; right: -220px; bottom: -260px; width: 900px; height: 900px; max-width: 90vw; max-height: 90vw; border-radius: 50%; pointer-events: none; z-index: 0; background: radial-gradient(circle at 35% 30%, rgba(110,165,255,0.55) 0%, rgba(55,105,220,0.35) 35%, rgba(20,45,110,0.12) 60%, transparent 75%); filter: blur(10px);"></div>
+  <div class="contact-card" style="position: relative; overflow: hidden; max-width: 1208px; margin: 0 auto; width: 100%; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 30%), rgba(10,10,10,0.82); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), inset 0 0 90px rgba(90,140,255,0.05), 0 26px 54px rgba(0,0,0,0.4); backdrop-filter: blur(24px) saturate(1.15); -webkit-backdrop-filter: blur(24px) saturate(1.15); padding: 28px 40px; display: grid; grid-template-columns: 1fr minmax(0, 560px); gap: 24px; align-items: start;">
+    <h2 style="font-family: 'Roboto Mono', monospace; font-weight: 400; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.3; letter-spacing: -1px; white-space: nowrap; color: rgb(232,232,232); margin: 0;">Get in touch</h2>
+    <form style="display: flex; flex-direction: column; gap: 18px;" onsubmit="{{ onSubmit }}">
+      <label style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-family: Roboto, sans-serif; font-size: clamp(13px, 1.1vw, 16px); line-height: 1.4; letter-spacing: -0.3px; color: rgb(232,232,232);">Email</span>
+        <input type="email" style="background: transparent; border: none; border-bottom: 1px solid rgb(74,74,87); padding: 0 0 4px; font-family: Roboto, sans-serif; font-size: 15px; color: rgb(232,232,232); outline: none;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-family: Roboto, sans-serif; font-size: clamp(13px, 1.1vw, 16px); line-height: 1.4; letter-spacing: -0.3px; color: rgb(232,232,232);">Full Name</span>
+        <input type="text" style="background: transparent; border: none; border-bottom: 1px solid rgb(74,74,87); padding: 0 0 4px; font-family: Roboto, sans-serif; font-size: 15px; color: rgb(232,232,232); outline: none;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-family: Roboto, sans-serif; font-size: clamp(13px, 1.1vw, 16px); line-height: 1.4; letter-spacing: -0.3px; color: rgb(232,232,232);">Company Name</span>
+        <input type="text" style="background: transparent; border: none; border-bottom: 1px solid rgb(74,74,87); padding: 0 0 4px; font-family: Roboto, sans-serif; font-size: 15px; color: rgb(232,232,232); outline: none;">
+      </label>
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-family: Roboto, sans-serif; font-size: clamp(13px, 1.1vw, 16px); line-height: 1.4; letter-spacing: -0.3px; color: rgb(232,232,232);">How did you know about us ?</span>
+          <span style="font-family: Roboto, sans-serif; font-size: 11px; letter-spacing: -0.3px; color: rgb(109,108,108);">OPTIONAL</span>
+        </div>
+        <input type="text" style="background: transparent; border: none; border-bottom: 1px solid rgb(74,74,87); padding: 0 0 4px; font-family: Roboto, sans-serif; font-size: 15px; color: rgb(232,232,232); outline: none;">
+      </div>
+      <button type="submit" style="margin-top: 8px; align-self: stretch; height: 42px; border: 1px solid rgb(177,91,252); background: rgba(177,91,252,0.14); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); border-radius: 10px; font-family: Inter, sans-serif; font-size: 15px; letter-spacing: 0.12px; color: rgb(255,255,255); cursor: pointer; transition: background .2s ease;" style-hover="background: rgb(177,91,252);">Send</button>
+    </form>
+  </div>
+</section>
+
+<footer class="site-footer" style="position: relative; overflow: hidden; background: rgba(0,0,0,0.2), radial-gradient(160% 200% at 50% 30%, rgba(50,115,235,0.6) 0%, rgba(24,55,120,0.55) 40%, rgba(9,16,32,0.6) 75%, rgba(3,6,14,0.85) 100%); padding: 56px 24px 48px;">
+  <div style="max-width: 1208px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 32px;">
+    <div style="width: min(608px, 100%); font-family: 'Roboto Mono', monospace; font-weight: 400; font-size: clamp(24px, 2.22vw, 32px); line-height: 53px; text-align: center; letter-spacing: -1px; color: rgb(232,232,232);">Communication Intelligence, Reimagined.</div>
+    <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+      <img src="images/vih-logo.svg" alt="ViH Messenger" style="width: 68px; height: 37px; display: block; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; gap: 24px;">
+        <a href="#" style="font-family: Inter, sans-serif; font-size: 24px; color: rgb(255,255,255);">Products</a>
+        <a href="#" style="font-family: Inter, sans-serif; font-size: 24px; color: rgb(255,255,255);">Contact us</a>
+      </div>
+    </div>
+  </div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: &quot;100%&quot;, &quot;height&quot;: &quot;100vh&quot; },
+  &quot;linkRadius&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 210, &quot;min&quot;: 90, &quot;max&quot;: 400, &quot;step&quot;: 10, &quot;unit&quot;: &quot;px&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Node field&quot; },
+  &quot;fieldDensity&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 1, &quot;min&quot;: 0.5, &quot;max&quot;: 1.8, &quot;step&quot;: 0.1, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Node field&quot; },
+  &quot;globeSpin&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 1, &quot;min&quot;: 0.2, &quot;max&quot;: 3, &quot;step&quot;: 0.1, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Globe&quot; },
+  &quot;defaultProduct&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Prana&quot;, &quot;options&quot;: [&quot;Viveka&quot;, &quot;Shruti&quot;, &quot;Prana&quot;, &quot;Messenger&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Globe&quot; }
+}">
+const DOT = '245,245,245';
+const PURPLE = '177,91,252';
+const LABEL_GROUPS = [
+  ['Calls', 'Emails'],
+  ['WhatsApp'],
+  ['Meetings', 'CRM', 'Documents'],
+  ['Brain Drain'],
+  ['Paperwork', 'Whiteboards'],
+  ['Notes'],
+  ['Brain Drain'],
+  ['Customer History', 'Knowledge Base', 'Decisions'],
+  ['Context', 'Expertise'],
+  ['Brain Drain'],
+  ['Team Handoffs'],
+  ['Attrition', 'Institutional Amnesia'],
+  ['Repeat Mistakes', 'Lost Context'],
+  ['Brain Drain'],
+  ['Knowledge Silos'],
+  ['Enterprise Memory', 'AI Intelligence']
+];
+const LABELS = LABEL_GROUPS.map(g => g.join(' · '));
+const hash32 = (x) => {
+  x = ((x >> 16) ^ x) * 0x45d9f3b;
+  x = ((x >> 16) ^ x) * 0x45d9f3b;
+  x = (x >> 16) ^ x;
+  return x >>> 0;
+};
+const downscaleTile = (im) => {
+  let cv = document.createElement('canvas');
+  cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+  cv.getContext('2d').drawImage(im, 0, 0);
+  const targetMax = 280;
+  while (Math.max(cv.width, cv.height) > targetMax * 2) {
+    const nw = Math.max(1, Math.round(cv.width / 2)), nh = Math.max(1, Math.round(cv.height / 2));
+    const next = document.createElement('canvas');
+    next.width = nw; next.height = nh;
+    next.getContext('2d').drawImage(cv, 0, 0, nw, nh);
+    cv = next;
+  }
+  im._scaled = cv;
+};
+const tileAR = (img) => {
+  const src = (img && img._scaled) || img;
+  const w = src && (src.naturalWidth || src.width), h = src && (src.naturalHeight || src.height);
+  return (w && h) ? h / w : 0.75;
+};
+const ss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const roundRect = (c, x, y, w, h, r) => {
+  c.beginPath(); c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+};
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    // Computed synchronously in the constructor (before the first render) so
+    // the very first paint already picks the right sc-if branch, and so
+    // this._tiles/_products exist before any ref-triggered engine start —
+    // refs attach during this component's own commit, which happens before
+    // componentDidMount fires.
+    this._isMobile = window.matchMedia('(max-width: 760px)').matches;
+
+    this._tiles = [
+      'images/_88823279_hires.jpg.jpeg', 'images/6993fe5fd6f32805d67fbd30_blog cover image size.jpg.jpeg',
+      'images/1685938982379 (1).png', 'images/pano_braindrain_0.webp'
+    ].map(src => {
+      const im = new Image();
+      im.onload = () => downscaleTile(im);
+      im.src = src;
+      return im;
+    });
+
+    this._products = [
+      { name: 'Viveka', sub: 'Conversational Intelligence', tag: 'NLU', lat: 0.55, lon: 0.4,
+        body: 'Viveka listens across every channel and turns raw conversation into structured intent, sentiment, and next-best-action — so your teams always know what the customer actually means.' },
+      { name: 'Shruti', sub: 'Voice & Speech', tag: 'ASR', lat: 0.05, lon: 2.3,
+        body: 'Shruti transcribes and understands calls in real time across languages and accents, surfacing the moments that matter while the conversation is still live.' },
+      { name: 'Prana', sub: 'Omnichannel Orchestration', tag: 'AI', lat: -0.02, lon: 4.1,
+        body: 'Prana is the AI orchestration layer that fuses every email, call, chat, and meeting your customers leave behind into a single coherent reality — so your support, sales, and ops teams stop chasing ghosts across silos and start acting on one truth.' },
+      { name: 'Messenger', sub: 'Unified Inbox', tag: 'Messaging', lat: -0.62, lon: 5.4,
+        body: 'Messenger unifies WhatsApp, email, chat, and social into one thread per customer, so every agent picks up exactly where the last conversation left off.' }
+    ];
+    this._labelHits = [];
+    this._hoveredProduct = null;
+    if (this._selected == null) {
+      const want = this.props.defaultProduct ?? 'Prana';
+      const ix = this._products.findIndex(p => p.name === want);
+      this._selected = ix < 0 ? 2 : ix;
+    }
+
+    this._cccStages = [
+      { letters: [0, 1], label: 'Capture Content :', body: 'Collect messages, emails, calls, meetings, documents, and tickets from every communication channel.' },
+      { letters: [2], label: 'Context :', body: 'Connect conversations into a unified timeline, preserving relationships and business context.' },
+      { letters: [3], label: 'Analyze :', body: 'Extract insights, identify intent, detect risks, and surface the next best actions.' },
+      { letters: [4, 5], label: 'Agentic Action :', body: 'AI agents autonomously execute workflows, automate tasks, update systems, and resolve repetitive work with human oversight.' }
+    ];
+    this._cccStage = -1;
+  }
+
+  // Ref callbacks receive a fresh arrow function from renderVals() on every
+  // re-render, so React detaches the old ref and reattaches the new one each
+  // time — calling addEventListener unconditionally in a ref callback stacks
+  // a duplicate listener per re-render (e.g. one tap firing the handler N
+  // times). Track bound (element, event) pairs so each one only binds once.
+  bindOnce(el, event, handler) {
+    if (!el) return;
+    if (!this._boundEls) this._boundEls = new WeakMap();
+    let set = this._boundEls.get(el);
+    if (!set) { set = new Set(); this._boundEls.set(el, set); }
+    if (set.has(event)) return;
+    set.add(event);
+    el.addEventListener(event, handler);
+  }
+
+  componentDidMount() {
+    this._mounted = true;
+    this._mq = window.matchMedia('(max-width: 760px)');
+    this._onMqChange = () => {
+      const now = this._mq.matches;
+      if (now !== this._isMobile) { this._isMobile = now; this.forceUpdate(); }
+    };
+    if (this._mq.addEventListener) this._mq.addEventListener('change', this._onMqChange);
+    else this._mq.addListener(this._onMqChange);
+
+    this.startCccEngine();
+    this.startSlideEngine();
+
+    const boot = () => {
+      if (this._isMobile) {
+        if (this._mobileFieldCanvas) this.startMobileHeroEngine();
+        if (this._mobileGlobeCanvas) this.startMobileGlobeEngine();
+        if (this._mobileFieldCanvas && this._mobileGlobeCanvas) { this._bootRaf = null; return; }
+      } else if (this._canvas) {
+        this._bootRaf = null; this.startEngine(); return;
+      }
+      this._bootRaf = requestAnimationFrame(boot);
+    };
+    boot();
+  }
+
+  bindCardSwipe(el) {
+    if (!this._boundEls) this._boundEls = new WeakMap();
+    let set = this._boundEls.get(el);
+    if (set && set.has('swipe')) return;
+    if (!set) { set = new Set(); this._boundEls.set(el, set); }
+    set.add('swipe');
+    let startX = 0, startY = 0, tracking = false;
+    const onStart = (e) => {
+      const t = e.touches ? e.touches[0] : e;
+      startX = t.clientX; startY = t.clientY; tracking = true;
+    };
+    const onEnd = (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const t = e.changedTouches ? e.changedTouches[0] : e;
+      const dx = t.clientX - startX, dy = t.clientY - startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        this.cycleProduct(dx < 0 ? 1 : -1);
+      }
+    };
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchend', onEnd, { passive: true });
+  }
+
+  cycleProduct(delta) {
+    if (!this._products || !this._products.length) return;
+    const n = this._products.length;
+    const cur = this._selected == null ? 0 : this._selected;
+    const next = ((cur + delta) % n + n) % n;
+    this.openProduct(next);
+  }
+
+  goToProducts() {
+    if (this._isMobile && this._mobileGlobeTrack) {
+      const tr = this._mobileGlobeTrack;
+      const total = Math.max(0, tr.offsetHeight - window.innerHeight);
+      window.scrollTo({ top: tr.offsetTop + total * 0.6, behavior: 'smooth' });
+    } else if (this._track) {
+      const tr = this._track;
+      const total = Math.max(0, tr.offsetHeight - window.innerHeight);
+      window.scrollTo({ top: tr.offsetTop + total * 0.86, behavior: 'smooth' });
+    }
+  }
+
+  startLogoMarquee() {
+    const el = this._logoScroll;
+    if (!el || this._logoMarqueeOn) return;
+    this._logoMarqueeOn = true;
+    let paused = false;
+    // Position is tracked in this float, not read back from el.scrollLeft —
+    // browsers round scrollLeft to whole pixels, so a sub-pixel-per-frame
+    // increment (needed for a "very slow" crawl) would truncate to 0 forever
+    // if we accumulated onto the read-back value instead.
+    let pos = el.scrollLeft;
+    const onDown = () => { paused = true; };
+    const onUp = () => { setTimeout(() => { pos = el.scrollLeft; paused = false; }, 1200); };
+    el.addEventListener('touchstart', onDown, { passive: true });
+    el.addEventListener('touchend', onUp, { passive: true });
+    el.addEventListener('mousedown', onDown);
+    window.addEventListener('mouseup', onUp);
+    const loop = () => {
+      this._logoMarqueeRaf = requestAnimationFrame(loop);
+      if (paused) return;
+      const half = el.scrollWidth / 2;
+      if (half <= el.clientWidth) return;
+      pos += 0.35;
+      if (pos >= half) pos -= half;
+      el.scrollLeft = pos;
+    };
+    this._logoMarqueeRaf = requestAnimationFrame(loop);
+    this._cleanupLogoMarquee = () => {
+      cancelAnimationFrame(this._logoMarqueeRaf);
+      el.removeEventListener('touchstart', onDown);
+      el.removeEventListener('touchend', onUp);
+      el.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }
+
+  startCccEngine() {
+    if (this._cccEngineOn) return;
+    this._cccEngineOn = true;
+    const loop = () => {
+      this._cccRaf = requestAnimationFrame(loop);
+      const cTrack = this._cccTrack, lrow = this._lettersRow;
+      if (cTrack && lrow && lrow.children.length === 6) {
+        const cr = cTrack.getBoundingClientRect();
+        const ctotal = cTrack.offsetHeight - window.innerHeight;
+        let cp = 0; if (ctotal > 0) cp = Math.max(0, Math.min(1, -cr.top / ctotal));
+        const ST = this._cccStages;
+        const stage = Math.min(ST.length - 1, Math.floor(cp * ST.length * 0.999));
+        const act = ST[stage].letters;
+        const kids = lrow.children;
+        for (let i = 0; i < 6; i++) kids[i].style.color = act.indexOf(i) >= 0 ? 'rgb(255,255,255)' : 'rgb(51,51,51)';
+        if (this._cccStage !== stage) {
+          this._cccStage = stage;
+          if (this._capLabel) this._capLabel.textContent = ST[stage].label + ' ';
+          if (this._capBody) this._capBody.textContent = ST[stage].body;
+        }
+      }
+    };
+    this._cccRaf = requestAnimationFrame(loop);
+  }
+
+  startSlideEngine() {
+    if (this._slideEngineOn) return;
+    this._slideEngineOn = true;
+    const loop = () => {
+      this._slideRaf = requestAnimationFrame(loop);
+      const track = this._slideTrack, row = this._slideRow;
+      if (track && row) {
+        const cards = row.children;
+        const n = cards.length;
+        if (!n) return;
+        const cardW = cards[0].offsetWidth || 380;
+        const isNarrow = cardW < 320;
+        const THETA = isNarrow ? 52 : 42;
+        const RADIUS = cardW * (isNarrow ? 1.4 : 1.5), DROP = cardW * (isNarrow ? 1.15 : 0.75);
+        const tr = track.getBoundingClientRect();
+        const total = track.offsetHeight - window.innerHeight;
+        let p = 0; if (total > 0) p = Math.max(0, Math.min(1, -tr.top / total));
+        const eased = ss(0.04, 0.96, p);
+        const active = eased * (n - 1);
+        for (let i = 0; i < n; i++) {
+          const rel = i - active;
+          const angle = Math.max(-90, Math.min(90, rel * THETA));
+          const rad = angle * Math.PI / 180;
+          const x = Math.sin(rad) * RADIUS;
+          const z = Math.cos(rad) * RADIUS - RADIUS;
+          const y = DROP * (1 - Math.cos(rad));
+          const scale = 0.62 + 0.38 * Math.cos(rad);
+          const opacity = Math.max(0, 1 - Math.min(1, Math.abs(rel)) * 0.7);
+          cards[i].style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${-angle}deg) scale(${scale})`;
+          cards[i].style.opacity = opacity;
+          cards[i].style.zIndex = String(1000 - Math.round(Math.abs(rel) * 10));
+        }
+      }
+    };
+    this._slideRaf = requestAnimationFrame(loop);
+  }
+
+  startMobileHeroEngine() {
+    const canvas = this._mobileFieldCanvas;
+    if (!canvas) return;
+    if (this._mobileFieldEngineOn && this._mobileFieldEngineCanvas === canvas) return;
+    if (this._mobileFieldRaf) cancelAnimationFrame(this._mobileFieldRaf);
+    this._mobileFieldRaf = null;
+    this._mobileFieldEngineOn = true;
+    this._mobileFieldEngineCanvas = canvas;
+
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    let W = 0, H = 0;
+    let field = [], stars = [];
+    const revealed = new Set();
+
+    const buildField = () => {
+      if (!W || !H) { field = []; return; }
+      const gap = Math.max(50, Math.min(70, W / 6));
+      const cols = Math.ceil(W / gap) + 2, rows = Math.ceil(H / gap) + 2;
+      const pts = [];
+      let i = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          pts.push({
+            hx: (c - 0.5) * gap + (Math.random() - 0.5) * gap * 0.95,
+            hy: (r - 0.5) * gap + (Math.random() - 0.5) * gap * 0.95,
+            x: 0, y: 0,
+            ph: Math.random() * Math.PI * 2,
+            dim: 0.55 + Math.random() * 0.65,
+            a: 0, glow: 0,
+            img: hash32(i) % this._tiles.length,
+            words: LABEL_GROUPS[(i * 7) % LABEL_GROUPS.length],
+            purple: Math.random() < 0.07
+          });
+          i++;
+        }
+      }
+      field = pts;
+      const starCount = Math.round((W * H) / 5200);
+      const st = [];
+      for (let k = 0; k < starCount; k++) {
+        st.push({ x: Math.random() * W, y: Math.random() * H, r: 0.4 + Math.random() * 1.3, a: 0.12 + Math.random() * 0.7, ph: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.02 });
+      }
+      stars = st;
+      revealed.clear();
+    };
+
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      W = r.width; H = r.height;
+      canvas.width = Math.max(1, Math.round(W * dpr));
+      canvas.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      buildField();
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    this._cleanupMobileHero = () => window.removeEventListener('resize', resize);
+
+    let t = 0, angle = 0;
+    const K = Math.min(5, this._tiles.length);
+    const frame = () => {
+      this._mobileFieldRaf = requestAnimationFrame(frame);
+      this._mobileFieldLastFrame = performance.now();
+      const rect = canvas.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      t += 1;
+      // one full lap roughly every ~14s at 60fps — a lively, continuous
+      // auto-orbit since this canvas never receives touch/mouse input
+      angle += 0.0075;
+      ctx.clearRect(0, 0, W, H);
+
+      for (const s of stars) {
+        const tw = 0.55 + 0.45 * Math.sin(t * s.spd + s.ph);
+        const al = s.a * tw;
+        ctx.fillStyle = 'rgba(' + DOT + ',' + al.toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+      if (!field.length) return;
+
+      for (const d of field) {
+        d.x = d.hx + Math.cos(t * 0.012 + d.ph) * 7;
+        d.y = d.hy + Math.sin(t * 0.009 + d.ph) * 6;
+      }
+
+      const cx = W * 0.5, cy = H * 0.5;
+      const Rx = W * 0.44, Ry = H * 0.42;
+      const hubX = cx + Math.cos(angle) * Rx;
+      const hubY = cy + Math.sin(angle) * Ry;
+
+      const dropR = 300, joinR = 260, minSep = 110;
+      for (const d of [...revealed]) {
+        if (Math.hypot(d.x - hubX, d.y - hubY) > dropR) revealed.delete(d);
+      }
+      if (revealed.size < K) {
+        const usedImgs = new Set([...revealed].map(r => r.curImg));
+        const cands = field.filter(d => !revealed.has(d))
+          .map(d => ({ d, dist: Math.hypot(d.x - hubX, d.y - hubY) }))
+          .filter(o => o.dist < joinR)
+          .sort((a, b) => a.dist - b.dist);
+        for (const o of cands) {
+          if (revealed.size >= K) break;
+          let ok = true;
+          for (const r of revealed) { if (Math.hypot(r.x - o.d.x, r.y - o.d.y) < minSep) { ok = false; break; } }
+          if (ok) {
+            let idx = o.d.img, tries = 0;
+            while (usedImgs.has(idx) && tries < this._tiles.length) { idx = (idx + 1) % this._tiles.length; tries++; }
+            o.d.curImg = idx; usedImgs.add(idx);
+            revealed.add(o.d);
+          }
+        }
+      }
+      for (const d of field) {
+        const ta = revealed.has(d) ? 1 : 0;
+        d.a += (ta - d.a) * 0.12;
+        d.glow += (ta - d.glow) * 0.16;
+      }
+
+      for (const d of field) {
+        const al = (0.24 + d.glow * 0.66) * d.dim;
+        const sizeShift = 0.9 + (Math.sin(d.ph * 4.3 + t * 0.015) + 1) * 0.8;
+        ctx.fillStyle = 'rgba(' + (d.purple ? PURPLE : DOT) + ',' + al.toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.ellipse(d.x, d.y, 1.2 + d.glow * 0.9 + sizeShift * 0.45, 0.8 + d.glow * 0.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // The hero text sits mid-orbit at z-index above this canvas, so the
+      // hub/lines/tiles simply pass beneath it in the stacking order — no
+      // masking, clipping, or fading needed here at all; the orbit runs
+      // continuously and is never hidden or dimmed.
+      const neigh = [...revealed]
+        .map(d => ({ d, dist: Math.hypot(d.x - hubX, d.y - hubY) }))
+        .sort((a, b) => a.dist - b.dist);
+      const focus = neigh.length ? neigh[0].d : null;
+
+      if (revealed.size) {
+        ctx.lineWidth = 1;
+        for (const r of revealed) {
+          const strength = 0.5 * r.a;
+          if (strength < 0.01) continue;
+          ctx.strokeStyle = 'rgba(' + DOT + ',' + strength.toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(hubX, hubY); ctx.lineTo(r.x, r.y); ctx.stroke();
+        }
+      }
+
+      // hub label — a real DOM element (not canvas) so it can use genuine
+      // backdrop-filter glass blur, anchored at the hub dot and extending
+      // to the right of it, matching the kunuminst.org reference
+      const hubA = Math.min(1, [...revealed].reduce((m, r) => Math.max(m, r.a), 0));
+      const label = this._mobileHubLabel;
+      if (label) {
+        if (hubA > 0.02 && focus) {
+          const hubWords = (focus.words || ['Explore']).slice(0, 2);
+          const sig = hubWords.join('|');
+          if (this._mobileHubLabelSig !== sig) {
+            this._mobileHubLabelSig = sig;
+            label.innerHTML = hubWords.map(w =>
+              '<span style="display:inline-block; padding:5px 11px; border-radius:14px; background:rgba(255,255,255,0.14); backdrop-filter:blur(10px) saturate(1.4); -webkit-backdrop-filter:blur(10px) saturate(1.4); border:1px solid rgba(255,255,255,0.3); box-shadow:0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25); color:rgba(255,255,255,0.98); font:600 11px Inter, sans-serif; letter-spacing:0.2px;">' + w + '</span>'
+            ).join('');
+          }
+          label.style.opacity = hubA.toFixed(3);
+          label.style.transform = 'translate(' + (hubX + 10).toFixed(1) + 'px, ' + (hubY - 11).toFixed(1) + 'px)';
+        } else {
+          label.style.opacity = '0';
+        }
+      }
+
+      // small image tiles for the revealed nodes — auto-shown, never touch-driven.
+      // If a tile happens to land over the hero text, blur it (rather than
+      // hiding it, per "never cut" feedback) so the title stays readable.
+      {
+        let heroRect = null;
+        if (this._hero) {
+          const cr = canvas.getBoundingClientRect();
+          const hr = this._hero.getBoundingClientRect();
+          heroRect = { x: hr.left - cr.left - 10, y: hr.top - cr.top - 10, w: hr.width + 20, h: hr.height + 20 };
+        }
+        ctx.textBaseline = 'middle';
+        for (const d of field) {
+          if (d.a <= 0.02) continue;
+          const a = d.a;
+          const side = d.x < W * 0.55 ? 1 : -1;
+          const connectorLen = 56;
+          const tile = this._tiles[d.curImg ?? d.img];
+          const w = 50 * (0.82 + d.a * 0.12), h = w * tileAR(tile);
+          const cardX = d.x + side * (connectorLen + 24);
+          const cardY = d.y + 2;
+          const ix = side > 0 ? cardX : cardX - w;
+          const iy = cardY - h / 2;
+          const overText = heroRect && ix < heroRect.x + heroRect.w && ix + w > heroRect.x && iy < heroRect.y + heroRect.h && iy + h > heroRect.y;
+          ctx.save();
+          if (overText) ctx.filter = 'blur(5px)';
+          ctx.globalAlpha = overText ? a * 0.55 : a * 0.9;
+          ctx.strokeStyle = 'rgba(' + DOT + ',0.5)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(d.x, d.y);
+          ctx.lineTo(d.x + side * (connectorLen + 8), d.y + 1);
+          ctx.lineTo(ix + (side > 0 ? 0 : w), iy + h / 2);
+          ctx.stroke();
+          ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4;
+          roundRect(ctx, ix, iy, w, h, 4); ctx.fill();
+          ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+          ctx.clip();
+          if (tile && tile.complete && tile.naturalWidth) ctx.drawImage(tile._scaled || tile, ix, iy, w, h);
+          ctx.restore();
+        }
+      }
+    };
+    this._mobileFieldLastFrame = performance.now();
+    this._mobileFieldRaf = requestAnimationFrame(frame);
+    if (this._mobileFieldWatch) clearInterval(this._mobileFieldWatch);
+    this._mobileFieldWatch = setInterval(() => {
+      if (!this._mobileFieldEngineOn) return;
+      if (performance.now() - this._mobileFieldLastFrame > 700) {
+        if (this._mobileFieldRaf) cancelAnimationFrame(this._mobileFieldRaf);
+        this._mobileFieldRaf = requestAnimationFrame(frame);
+      }
+    }, 500);
+  }
+
+  startMobileGlobeEngine() {
+    const canvas = this._mobileGlobeCanvas;
+    if (!canvas) return;
+    if (this._mobileGlobeEngineOn && this._mobileGlobeEngineCanvas === canvas) return;
+    if (this._mobileGlobeRaf) cancelAnimationFrame(this._mobileGlobeRaf);
+    this._mobileGlobeRaf = null;
+    this._mobileGlobeEngineOn = true;
+    this._mobileGlobeEngineCanvas = canvas;
+
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    let W = 0, H = 0;
+    let shell = [], stars = [];
+
+    const build = () => {
+      if (!W || !H) { shell = []; return; }
+      const EN = 1200;
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      const ex = [];
+      for (let k = 0; k < EN; k++) {
+        const y = 1 - (k / (EN - 1)) * 2;
+        const rr = Math.sqrt(Math.max(0, 1 - y * y));
+        const th = k * golden;
+        ex.push({ bx: Math.cos(th) * rr, by: y, bz: Math.sin(th) * rr, sx: Math.random(), sy: Math.random(), sz: 0.28 + Math.random() * 0.55, purple: Math.random() < 0.05 });
+      }
+      shell = ex;
+      const starCount = Math.round((W * H) / 4200);
+      const st = [];
+      for (let k = 0; k < starCount; k++) {
+        st.push({ x: Math.random() * W, y: Math.random() * H, r: 0.4 + Math.random() * 1.3, a: 0.12 + Math.random() * 0.7, ph: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.02 });
+      }
+      stars = st;
+    };
+
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      W = r.width; H = r.height;
+      canvas.width = Math.max(1, Math.round(W * dpr));
+      canvas.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      build();
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const onTap = (e) => {
+      const touch = e.changedTouches && e.changedTouches[0];
+      const clientX = touch ? touch.clientX : e.clientX;
+      const clientY = touch ? touch.clientY : e.clientY;
+      const r = canvas.getBoundingClientRect();
+      const mx = clientX - r.left, my = clientY - r.top;
+      for (const L of this._labelHits) {
+        if (mx >= L.x && mx <= L.x + L.w && my >= L.y - L.h / 2 && my <= L.y + L.h / 2) {
+          this.openProduct(L.i);
+          return;
+        }
+      }
+    };
+    canvas.addEventListener('touchend', onTap, { passive: true });
+    canvas.addEventListener('click', onTap);
+
+    this._cleanupMobileGlobe = () => {
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('touchend', onTap);
+      canvas.removeEventListener('click', onTap);
+    };
+
+    let spin = 0;
+    const frame = () => {
+      this._mobileGlobeRaf = requestAnimationFrame(frame);
+      this._mobileGlobeLastFrame = performance.now();
+      const rect = canvas.getBoundingClientRect();
+      if (rect.bottom < -200 || rect.top > window.innerHeight + 200) return;
+      ctx.clearRect(0, 0, W, H);
+
+      let p2 = 0;
+      const track = this._mobileGlobeTrack;
+      if (track) {
+        const tr = track.getBoundingClientRect();
+        const total = track.offsetHeight - window.innerHeight;
+        if (total > 0) p2 = Math.max(0, Math.min(1, -tr.top / total));
+      }
+      const morph = ss(0, 0.5, p2);
+      const prod = ss(0.5, 0.8, p2);
+      spin += (0.00012 + morph * 0.0002) * (this.props.globeSpin ?? 1);
+      const scale = Math.max(0.62, Math.min(1.15, W / 1440));
+      // intro paragraph: visible immediately as page 2 begins (no fade-in
+      // wait for the dots-to-sphere morph), only fading as the card (the
+      // "3rd page") starts taking over
+      if (this._globeIntro) this._globeIntro.style.opacity = (1 - ss(0.42, 0.52, p2)).toFixed(3);
+
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const navShow = scrollY > window.innerHeight * 0.5;
+      if (this._navMenu) { this._navMenu.style.opacity = navShow ? '1' : '0'; this._navMenu.style.pointerEvents = navShow ? 'auto' : 'none'; }
+      if (this._navProducts && this._navContact) {
+        const contactActive = this._contactSection ? this._contactSection.getBoundingClientRect().top < window.innerHeight * 0.5 : false;
+        this._navProducts.style.background = contactActive ? 'transparent' : 'rgb(0,0,0)';
+        this._navProducts.style.color = contactActive ? 'rgb(172,172,172)' : 'rgb(255,255,255)';
+        this._navContact.style.background = contactActive ? 'rgb(0,0,0)' : 'transparent';
+        this._navContact.style.color = contactActive ? 'rgb(255,255,255)' : 'rgb(172,172,172)';
+      }
+      if (this._bg) this._bg.style.opacity = morph.toFixed(3);
+      if (this._card) { this._card.style.opacity = prod.toFixed(3); this._card.style.pointerEvents = prod > 0.5 ? 'auto' : 'none'; }
+      if (this._cta) this._cta.style.opacity = prod.toFixed(3);
+
+      const sxc = W * 0.5, syc = H * 0.53;
+      const R = Math.min(W, H) * 0.58;
+      const fov = 4.0, tilt = -0.20, ct = Math.cos(tilt), stt = Math.sin(tilt);
+      const cs = Math.cos(spin), sn = Math.sin(spin);
+      const project = (bx, by, bz) => {
+        const x1 = bx * cs - bz * sn, z1 = bx * sn + bz * cs;
+        const y2 = by * ct - z1 * stt, z2 = by * stt + z1 * ct;
+        const pr = fov / (fov + z2);
+        return { x: sxc + x1 * R * pr, y: syc + y2 * R * pr, front: 1 - (z2 + 1) / 2 };
+      };
+
+      for (const s of stars) {
+        const tw = 0.55 + 0.45 * Math.sin(performance.now() * 0.002 * s.spd * 60 + s.ph);
+        const al = s.a * tw * (1 - morph * 0.4);
+        ctx.fillStyle = 'rgba(' + DOT + ',' + al.toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+
+      if (morph > 0.02) {
+        const me = morph * morph * (3 - 2 * morph);
+        for (const s of shell) {
+          const pj = project(s.bx, s.by, s.bz);
+          const x = lerp(s.sx * W, pj.x, me), y = lerp(s.sy * H, pj.y, me);
+          const sz = (0.35 + pj.front * 1.35) * s.sz;
+          const al = (0.1 + pj.front * 0.72) * morph;
+          ctx.fillStyle = 'rgba(' + (s.purple ? PURPLE : DOT) + ',' + al.toFixed(3) + ')';
+          ctx.beginPath(); ctx.arc(x, y, Math.max(0.35, sz), 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      this._labelHits = [];
+      if (morph > 0.5) {
+        const appear = ss(0.5, 0.7, morph);
+        const minFront = 0.12;
+        ctx.font = '500 ' + Math.round(15 * scale) + 'px Inter, sans-serif';
+        ctx.textBaseline = 'middle';
+        this._products.forEach((prd, idx) => {
+          const t2 = performance.now() * 0.001;
+          const lat = prd.lat + Math.sin(t2 * 0.7 + idx) * 0.035;
+          const lon = prd.lon + Math.sin(t2 * 0.35 + idx * 1.7) * 0.04;
+          const clat = Math.cos(lat);
+          const pj = project(Math.cos(lon) * clat, Math.sin(lat), Math.sin(lon) * clat);
+          if (pj.front < -0.18) return;
+          const frontBias = Math.max(0, minFront - pj.front);
+          const px = pj.x + (pj.x - sxc) * (frontBias * 0.6);
+          const py = pj.y + (pj.y - syc) * (frontBias * 0.6);
+          const visibleFront = Math.max(minFront, pj.front);
+          const sel = this._selected === idx;
+          const la = (0.45 + visibleFront * 0.55) * appear;
+          const dotR = (sel ? 8.5 : 6.5) * scale;
+          const tw = ctx.measureText(prd.name).width;
+          const pad = 12 * scale, h = 32 * scale, w = tw + pad * 2;
+          const bx = px + 14 * scale, by = py;
+          ctx.save(); ctx.globalAlpha = la;
+          ctx.shadowColor = 'rgba(177,91,252,0.85)'; ctx.shadowBlur = sel ? 22 : 12;
+          ctx.fillStyle = sel ? 'rgb(221,84,249)' : 'rgb(177,91,252)';
+          ctx.beginPath(); ctx.arc(px, py, dotR, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+          ctx.save(); ctx.globalAlpha = la;
+          ctx.fillStyle = sel ? 'rgb(202,202,202)' : 'rgb(133,134,136)';
+          roundRect(ctx, bx, by - h / 2, w, h, 8 * scale); ctx.fill();
+          ctx.fillStyle = 'rgb(0,0,0)'; ctx.textAlign = 'left';
+          ctx.fillText(prd.name, bx + pad, by + 1);
+          ctx.restore();
+          this._labelHits.push({ i: idx, x: px - dotR, y: by, w: (bx + w) - (px - dotR), h: h });
+        });
+      }
+    };
+    this._mobileGlobeLastFrame = performance.now();
+    this._mobileGlobeRaf = requestAnimationFrame(frame);
+    if (this._mobileGlobeWatch) clearInterval(this._mobileGlobeWatch);
+    this._mobileGlobeWatch = setInterval(() => {
+      if (!this._mobileGlobeEngineOn) return;
+      if (performance.now() - this._mobileGlobeLastFrame > 700) {
+        if (this._mobileGlobeRaf) cancelAnimationFrame(this._mobileGlobeRaf);
+        this._mobileGlobeRaf = requestAnimationFrame(frame);
+      }
+    }, 500);
+  }
+
+  startEngine() {
+    const canvas = this._canvas;
+    if (!canvas || this._isMobile) return;
+    if (this._engineOn && this._engineCanvas === canvas) return;
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._cleanupEvents) this._cleanupEvents();
+    this._raf = null;
+    this._engineOn = true;
+    this._engineCanvas = canvas;
+
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    let W = 0, H = 0;
+    const mouse = { x: -9999, y: -9999, active: false, ex: -9999, ey: -9999 };
+
+    const buildField = () => {
+      if (!W || !H) { this._field = []; return; }
+      const dens = this.props.fieldDensity ?? 1;
+      const gap = Math.max(46, Math.min(64, W / 24)) / dens;
+      const cols = Math.ceil(W / gap) + 2, rows = Math.ceil(H / gap) + 2;
+      const pts = [];
+      let i = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          pts.push({
+            hx: (c - 0.5) * gap + (Math.random() - 0.5) * gap * 0.95,
+            hy: (r - 0.5) * gap + (Math.random() - 0.5) * gap * 0.95,
+            x: 0, y: 0,
+            ph: Math.random() * Math.PI * 2,
+            dim: 0.55 + Math.random() * 0.65,
+            amp: 1.4 + Math.random() * 3.2,
+            spd: 0.007 + Math.random() * 0.014,
+            a: 0, glow: 0,
+            img: hash32(i) % this._tiles.length,
+            label: LABELS[(i * 7) % LABELS.length],
+            words: LABEL_GROUPS[(i * 7) % LABEL_GROUPS.length],
+            kind: 'img',
+            purple: Math.random() < 0.07,
+            ex: Math.random() * Math.PI * 2,
+            er: 0.6 + Math.random() * 0.9
+          });
+          i++;
+        }
+      }
+      const n = pts.length;
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      for (let k = 0; k < n; k++) {
+        const y = 1 - (k / (n - 1)) * 2;
+        const rr = Math.sqrt(Math.max(0, 1 - y * y));
+        const th = k * golden;
+        pts[k].bx = Math.cos(th) * rr; pts[k].by = y; pts[k].bz = Math.sin(th) * rr;
+        pts[k].sz = 0.32 + Math.random() * 0.5;
+      }
+      this._field = pts;
+
+      const EN = 1700;
+      const ex = [];
+      for (let k = 0; k < EN; k++) {
+        const y = 1 - (k / (EN - 1)) * 2;
+        const rr = Math.sqrt(Math.max(0, 1 - y * y));
+        const th = k * golden;
+        ex.push({
+          bx: Math.cos(th) * rr, by: y, bz: Math.sin(th) * rr,
+          sx: Math.random(), sy: Math.random(),
+          sz: 0.28 + Math.random() * 0.55,
+          purple: Math.random() < 0.05
+        });
+      }
+      this._extra = ex;
+
+      const starCount = Math.round((W * H) / 5200);
+      const stars = [];
+      for (let k = 0; k < starCount; k++) {
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: 0.4 + Math.random() * 1.3,
+          a: 0.12 + Math.random() * 0.7,
+          ph: Math.random() * Math.PI * 2,
+          spd: 0.004 + Math.random() * 0.02,
+          sparkle: Math.random() < 0.025
+        });
+      }
+      this._stars = stars;
+      if (this._revealed) this._revealed.clear();
+    };
+    this._buildField = buildField;
+
+    const computeHeroZone = () => {
+      if (!this._hero) { this._heroZone = null; return; }
+      const r = canvas.getBoundingClientRect();
+      const hr = this._hero.getBoundingClientRect();
+      const pad = 14 * Math.max(0.62, Math.min(1.15, (W || r.width) / 1440));
+      this._heroZone = { x: hr.left - r.left - pad, y: hr.top - r.top - pad, w: hr.width + pad * 2, h: hr.height + pad * 2 };
+    };
+    this._computeHeroZone = computeHeroZone;
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      W = r.width; H = r.height;
+      canvas.width = Math.max(1, Math.round(W * dpr));
+      canvas.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      buildField();
+      computeHeroZone();
+    };
+    resize();
+    this._onResize = resize;
+    window.addEventListener('resize', resize);
+
+    const inHeroZone = (x, y) => {
+      const z = this._heroZone;
+      if (!z) return false;
+      return x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h;
+    };
+    this._inHeroZone = inHeroZone;
+    const heroFadeNow = () => this._heroFade ?? 1;
+    const rectHitsHeroZone = (rx, ry, rw, rh) => {
+      const z = this._heroZone;
+      if (!z) return false;
+      return rx < z.x + z.w && rx + rw > z.x && ry < z.y + z.h && ry + rh > z.y;
+    };
+    this._rectHitsHeroZone = rectHitsHeroZone;
+    this._labelHits = [];
+
+    const onMove = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
+      const blocked = this._inHeroZone(mx, my) && heroFadeNow() > 0.35;
+      if (blocked) {
+        mouse.active = false; mouse.x = -9999; mouse.y = -9999;
+        canvas.style.cursor = 'default';
+        return;
+      }
+      mouse.x = mx; mouse.y = my; mouse.active = true;
+      let hovered = null;
+      let over = false;
+      for (const L of this._labelHits) {
+        if (mouse.x >= L.x && mouse.x <= L.x + L.w && mouse.y >= L.y - L.h / 2 && mouse.y <= L.y + L.h / 2) {
+          hovered = L.i; over = true; break;
+        }
+      }
+      if (hovered !== null && hovered !== this._hoveredProduct) {
+        this._hoveredProduct = hovered;
+        this.openProduct(hovered);
+      } else if (hovered === null && this._hoveredProduct !== null) {
+        this._hoveredProduct = null;
+      }
+      canvas.style.cursor = over ? 'pointer' : 'default';
+    };
+    const onLeave = () => { mouse.active = false; mouse.x = -9999; mouse.y = -9999; this._hoveredProduct = null; };
+    const onClick = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
+      for (const L of this._labelHits) {
+        if (mx >= L.x && mx <= L.x + L.w && my >= L.y - L.h / 2 && my <= L.y + L.h / 2) {
+          this._hoveredProduct = L.i;
+          this.openProduct(L.i);
+          return;
+        }
+      }
+    };
+    canvas.addEventListener('mousemove', onMove);
+    canvas.addEventListener('mouseleave', onLeave);
+    canvas.addEventListener('click', onClick);
+    this._cleanupEvents = () => {
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('mousemove', onMove);
+      canvas.removeEventListener('mouseleave', onLeave);
+      canvas.removeEventListener('click', onClick);
+    };
+
+    let t = 0, spin = 0;
+    const frame = () => {
+      this._raf = requestAnimationFrame(frame);
+      this._lastFrame = performance.now();
+      t += 1;
+      window.__frameCount = (window.__frameCount || 0) + 1;
+      ctx.clearRect(0, 0, W, H);
+
+      const stars = this._stars;
+      if (stars && stars.length) {
+        for (const s of stars) {
+          const tw = 0.55 + 0.45 * Math.sin(t * s.spd + s.ph);
+          const al = s.a * tw;
+          if (s.sparkle) {
+            const len = (s.r + 1.6) * 2.2;
+            ctx.save();
+            ctx.globalAlpha = al;
+            ctx.strokeStyle = 'rgba(' + DOT + ',' + al.toFixed(3) + ')';
+            ctx.lineWidth = 0.7;
+            ctx.beginPath(); ctx.moveTo(s.x - len, s.y); ctx.lineTo(s.x + len, s.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y + len); ctx.stroke();
+            ctx.fillStyle = 'rgba(' + DOT + ',' + Math.min(1, al * 1.4).toFixed(3) + ')';
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+          } else {
+            ctx.fillStyle = 'rgba(' + DOT + ',' + al.toFixed(3) + ')';
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+          }
+        }
+      }
+
+      const field = this._field;
+      if (!field || !field.length) return;
+
+      let p = 0;
+      const track = this._track;
+      if (track) {
+        const tr = track.getBoundingClientRect();
+        const total = track.offsetHeight - window.innerHeight;
+        if (total > 0) p = Math.max(0, Math.min(1, -tr.top / total));
+      }
+      const navP = ss(0.30, 0.50, p);
+      const heroFade = 1 - ss(0.22, 0.42, p);
+      this._heroFade = heroFade;
+      if (!this._heroZone && this._hero) this._computeHeroZone();
+      const explode = ss(0.24, 0.50, p) * (1 - ss(0.46, 0.72, p));
+      const morph = ss(0.42, 0.78, p);
+      const prod = ss(0.80, 0.94, p);
+      spin += (0.00012 + morph * 0.0002) * (this.props.globeSpin ?? 1);
+
+      const scale = Math.max(0.62, Math.min(1.15, W / 1440));
+
+      if (this._navMenu) { this._navMenu.style.opacity = navP.toFixed(3); this._navMenu.style.pointerEvents = navP > 0.5 ? 'auto' : 'none'; }
+      if (this._navProducts && this._navContact) {
+        const contactActive = this._contactSection ? this._contactSection.getBoundingClientRect().top < window.innerHeight * 0.5 : false;
+        this._navProducts.style.background = contactActive ? 'transparent' : 'rgb(0,0,0)';
+        this._navProducts.style.color = contactActive ? 'rgb(172,172,172)' : 'rgb(255,255,255)';
+        this._navContact.style.background = contactActive ? 'rgb(0,0,0)' : 'transparent';
+        this._navContact.style.color = contactActive ? 'rgb(255,255,255)' : 'rgb(172,172,172)';
+      }
+      if (this._hero) { this._hero.style.opacity = heroFade.toFixed(3); this._hero.style.pointerEvents = heroFade > 0.6 ? 'auto' : 'none'; }
+      if (this._bg) this._bg.style.opacity = morph.toFixed(3);
+      if (this._intro) this._intro.style.opacity = (ss(0.30, 0.46, p) * (1 - ss(0.56, 0.70, p))).toFixed(3);
+      if (this._card) { this._card.style.opacity = prod.toFixed(3); this._card.style.pointerEvents = prod > 0.5 ? 'auto' : 'none'; }
+      if (this._cta) this._cta.style.opacity = prod.toFixed(3);
+      if (this._hint) this._hint.style.opacity = (1 - ss(0.02, 0.12, p)).toFixed(3);
+
+      const cx = W * 0.5, cy = H * 0.52;
+
+      // ---------- phase 1: interactive node field ----------
+      const linkR = (this.props.linkRadius ?? 280) * scale;
+      const smooth = 0.14;
+      mouse.ex = mouse.ex < -9000 ? mouse.x : mouse.ex + (mouse.x - mouse.ex) * 0.22;
+      mouse.ey = mouse.ey < -9000 ? mouse.y : mouse.ey + (mouse.y - mouse.ey) * 0.22;
+
+      const sxc = W * 0.46, syc = H * 0.56;
+      const R = Math.min(W, H) * 0.31;
+      const fov = 3.2, tilt = -0.30, ct = Math.cos(tilt), stt = Math.sin(tilt);
+      const cs = Math.cos(spin), sn = Math.sin(spin);
+      const project = (bx, by, bz) => {
+        const x1 = bx * cs - bz * sn, z1 = bx * sn + bz * cs;
+        const y2 = by * ct - z1 * stt, z2 = by * stt + z1 * ct;
+        const pr = fov / (fov + z2);
+        return { x: sxc + x1 * R * pr, y: syc + y2 * R * pr, front: 1 - (z2 + 1) / 2 };
+      };
+
+      const active = mouse.active && heroFade > 0.35 && morph < 0.3;
+      const clusterOn = heroFade > 0.35 && morph < 0.3;
+
+      for (const d of field) {
+        let x = d.hx + Math.cos(t * d.spd + d.ph) * d.amp;
+        let y = d.hy + Math.sin(t * d.spd * 1.27 + d.ph) * d.amp;
+        if (!active) {
+          x += Math.cos(t * 0.012 + d.ph) * 6.5;
+          y += Math.sin(t * 0.009 + d.ph) * 5.5;
+        }
+        if (active) {
+          const dx = mouse.ex - x, dy = mouse.ey - y, dd = Math.hypot(dx, dy) || 1;
+          if (dd < linkR) { const f = 1 - dd / linkR; x += dx * f * f * 0.22; y += dy * f * f * 0.22; }
+        }
+        if (explode > 0.001) {
+          const vx = x - cx, vy = y - cy, m = Math.hypot(vx, vy) || 1;
+          const push = explode * (70 + d.er * 130);
+          x += (vx / m) * push + Math.cos(d.ex + t * 0.01) * explode * 40;
+          y += (vy / m) * push + Math.sin(d.ex + t * 0.01) * explode * 40;
+        }
+        if (morph > 0.001) {
+          const pj = project(d.bx, d.by, d.bz);
+          const me = morph * morph * (3 - 2 * morph);
+          x = lerp(x, pj.x, me); y = lerp(y, pj.y, me);
+          d.front = pj.front;
+        }
+        d.x = x; d.y = y;
+      }
+
+      // the hub always tracks the cursor — falls back to a gentle idle drift
+      // near the centre when the pointer hasn't touched the canvas yet
+      let hubX = null, hubY = null;
+      if (clusterOn) {
+        if (mouse.active) {
+          hubX = mouse.ex; hubY = mouse.ey;
+        } else {
+          hubX = W * 0.5 + Math.cos(t * 0.0006) * W * 0.05;
+          hubY = H * 0.42 + Math.sin(t * 0.0005) * H * 0.04;
+        }
+      }
+
+      // nodes nearest the hub form the revealed, interconnected cluster.
+      // membership is sticky (persisted on `this`) so a node already
+      // revealed only drops out once it's genuinely far from the hub —
+      // otherwise picking "nearest K" fresh every frame flickers whenever
+      // the hub sits near the boundary between two similar candidate sets.
+      if (!this._revealed) this._revealed = new Set();
+      const revealed = this._revealed;
+      const K = Math.min(6, this._tiles.length), minSep = 100 * scale, dropR = linkR * 1.9, joinR = linkR * 1.7;
+      const assignUniqueImg = (d, usedImgs) => {
+        let idx = d.img, tries = 0;
+        while (usedImgs.has(idx) && tries < this._tiles.length) { idx = (idx + 1) % this._tiles.length; tries++; }
+        d.curImg = idx;
+        usedImgs.add(idx);
+      };
+      if (clusterOn) {
+        for (const d of [...revealed]) {
+          if (Math.hypot(d.x - hubX, d.y - hubY) > dropR) revealed.delete(d);
+        }
+        if (revealed.size < K) {
+          const usedImgs = new Set([...revealed].map(r => r.curImg));
+          const cands = field
+            .filter(d => !revealed.has(d))
+            .map(d => ({ d, dist: Math.hypot(d.x - hubX, d.y - hubY) }))
+            .filter(o => o.dist < joinR)
+            .sort((a, b) => a.dist - b.dist);
+          for (const o of cands) {
+            if (revealed.size >= K) break;
+            let ok = true;
+            for (const r of revealed) { if (Math.hypot(r.x - o.d.x, r.y - o.d.y) < minSep) { ok = false; break; } }
+            if (ok) { assignUniqueImg(o.d, usedImgs); revealed.add(o.d); }
+          }
+        }
+        if (!revealed.size && field.length) {
+          const fb = field[Math.floor(field.length * 0.42)];
+          assignUniqueImg(fb, new Set());
+          revealed.add(fb);
+        }
+      } else {
+        revealed.clear();
+      }
+      const revealSet = revealed;
+      window.__dbg = { hubX, hubY, mouseActive: mouse.active, mx: mouse.x, my: mouse.y, revealedSize: revealed.size, clusterOn };
+      const neigh = [...revealed]
+        .map(d => ({ d, dist: Math.hypot(d.x - hubX, d.y - hubY) }))
+        .sort((a, b) => a.dist - b.dist);
+      const focus = neigh.length ? neigh[0].d : null;
+      const glowSet = new Set(revealSet);
+      for (const d of field) {
+        const ta = revealSet.has(d) ? 1 : 0;
+        d.a += (ta - d.a) * smooth;
+        const tg = glowSet.has(d) ? 1 : 0;
+        d.glow += (tg - d.glow) * 0.18;
+      }
+
+      // dots
+      for (const d of field) {
+        if (heroFade > 0.35 && this._inHeroZone(d.x, d.y)) continue;
+        if (morph > 0.02) {
+          const fr = d.front == null ? 0.5 : d.front;
+          const sizeShift = (Math.sin(d.ph * 3.1 + t * 0.02) + 1) * 0.5;
+          const sz = (0.5 + fr * 1.6) * (d.sz + 0.35 + sizeShift) * morph + (1 - morph) * 1.15;
+          const al = (0.16 + fr * 0.68) * morph + (1 - morph) * 0.36;
+          ctx.fillStyle = 'rgba(' + (d.purple ? PURPLE : DOT) + ',' + al.toFixed(3) + ')';
+          ctx.beginPath(); ctx.arc(d.x, d.y, Math.max(0.4, sz), 0, Math.PI * 2); ctx.fill();
+        } else {
+          const al = (0.24 + d.glow * 0.66) * d.dim;
+          const sizeShift = 0.9 + (Math.sin(d.ph * 4.3 + t * 0.015) + 1) * 0.8;
+          ctx.fillStyle = 'rgba(' + (d.purple ? PURPLE : DOT) + ',' + al.toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.ellipse(d.x, d.y, 1.2 + d.glow * 0.9 + sizeShift * 0.45, 0.8 + d.glow * 0.8, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // dense globe shell (only present once the sphere starts forming)
+      if (morph > 0.02 && this._extra) {
+        const me = morph * morph * (3 - 2 * morph);
+        for (const s of this._extra) {
+          const pj = project(s.bx, s.by, s.bz);
+          const x = lerp(s.sx * W, pj.x, me), y = lerp(s.sy * H, pj.y, me);
+          const sz = (0.35 + pj.front * 1.35) * s.sz;
+          const al = (0.1 + pj.front * 0.72) * morph;
+          ctx.fillStyle = 'rgba(' + (s.purple ? PURPLE : DOT) + ',' + al.toFixed(3) + ')';
+          ctx.beginPath(); ctx.arc(x, y, Math.max(0.35, sz), 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      // connection lines — everything converges on the cursor-tracking hub
+      const hubBlocked = heroFade > 0.35 && this._inHeroZone(hubX, hubY);
+      if (clusterOn && revealSet.size && heroFade > 0.05 && !hubBlocked) {
+        ctx.lineWidth = 1;
+        for (const r of revealSet) {
+          const strength = 0.5 * r.a * heroFade;
+          if (strength < 0.01) continue;
+          ctx.strokeStyle = 'rgba(' + DOT + ',' + strength.toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(hubX, hubY); ctx.lineTo(r.x, r.y); ctx.stroke();
+        }
+        for (let i = 0; i < neigh.length; i++) {
+          for (let j = i + 1; j < neigh.length; j++) {
+            const A = neigh[i].d, B = neigh[j].d;
+            const dd = Math.hypot(A.x - B.x, A.y - B.y);
+            if (dd > 160 * scale) continue;
+            const sv = (1 - dd / (160 * scale)) * Math.min(A.a, B.a) * heroFade;
+            if (sv < 0.01) continue;
+            ctx.strokeStyle = 'rgba(' + DOT + ',' + (sv * 0.28).toFixed(3) + ')';
+            ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+          }
+        }
+        const hubA = Math.min(1, [...revealSet].reduce((m, r) => Math.max(m, r.a), 0)) * heroFade;
+        if (hubA > 0.02 && focus) {
+          const hubWords = (focus.words || [focus.label || 'Explore']).slice(0, 3);
+          ctx.save();
+          ctx.font = '600 ' + Math.round(13 * scale) + 'px Inter, sans-serif';
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+          const padX = 16 * scale, ph = 32 * scale, boxGap = 8 * scale;
+          const boxes = hubWords.map(word => ({ word, pw: ctx.measureText(word).width + padX * 2 }));
+          const rowW = boxes.reduce((s, b) => s + b.pw, 0) + boxGap * (boxes.length - 1);
+          const pop = 0.85 + 0.15 * ss(0, 1, hubA);
+          ctx.globalAlpha = hubA;
+          ctx.translate(hubX, hubY); ctx.scale(pop, pop); ctx.translate(-hubX, -hubY);
+          let bx = hubX - rowW / 2;
+          for (const box of boxes) {
+            const by = hubY - ph / 2;
+            ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = 16 * scale; ctx.shadowOffsetY = 6 * scale;
+            ctx.fillStyle = 'rgba(20,98,110,0.92)';
+            roundRect(ctx, bx, by, box.pw, ph, 9 * scale); ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 1;
+            roundRect(ctx, bx, by, box.pw, ph, 9 * scale); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,0.98)';
+            ctx.fillText(box.word, bx + box.pw / 2, hubY + 1);
+            bx += box.pw + boxGap;
+          }
+          ctx.restore();
+        }
+      }
+
+      // revealed payloads: image tiles
+      if (heroFade > 0.02 && morph < 0.3 && !hubBlocked) {
+        ctx.textBaseline = 'middle';
+        for (const d of field) {
+          if (d.a <= 0.02) continue;
+          if (heroFade > 0.35 && this._inHeroZone(d.x, d.y)) continue;
+          const isFocus = d === focus;
+          const a = d.a * heroFade;
+          const side = d.x < W * 0.55 ? 1 : -1;
+          const connectorLen = 110 * scale;
+
+          if (d.kind === 'img') {
+            const tile = this._tiles[d.curImg ?? d.img];
+            const w = 64 * scale * (0.82 + d.a * 0.12), h = w * tileAR(tile);
+            const cardX = d.x + side * (connectorLen + 42 * scale);
+            const cardY = d.y + 4 * scale;
+            const ix = side > 0 ? cardX : cardX - w;
+            const iy = cardY - h / 2;
+            if (heroFade > 0.35 && this._rectHitsHeroZone(ix, iy, w, h)) continue;
+
+            ctx.save();
+            ctx.globalAlpha = a * 0.9;
+            ctx.strokeStyle = 'rgba(' + DOT + ',0.52)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(d.x, d.y);
+            ctx.lineTo(d.x + side * (connectorLen + 18 * scale), d.y + 2 * scale);
+            ctx.lineTo(ix + (side > 0 ? 0 : w), iy + h / 2);
+            ctx.stroke();
+            ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 8;
+            roundRect(ctx, ix, iy, w, h, 6 * scale); ctx.fill();
+            ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+            ctx.clip();
+            if (tile && tile.complete && tile.naturalWidth) ctx.drawImage(tile._scaled || tile, ix, iy, w, h);
+            ctx.restore();
+            ctx.save(); ctx.globalAlpha = a * 0.5;
+            ctx.strokeStyle = 'rgba(' + DOT + ',0.45)'; ctx.lineWidth = 1;
+            roundRect(ctx, ix, iy, w, h, 6 * scale); ctx.stroke(); ctx.restore();
+          }
+        }
+      }
+
+      // ---------- product markers on the globe ----------
+      this._labelHits = [];
+      if (morph > 0.5) {
+        const appear = ss(0.5, 0.7, morph);
+        const minFront = 0.12;
+        ctx.font = '500 ' + Math.round(15 * scale) + 'px Inter, sans-serif';
+        ctx.textBaseline = 'middle';
+        this._products.forEach((prd, idx) => {
+          const lat = prd.lat + Math.sin(t * 0.0007 + idx) * 0.035;
+          const lon = prd.lon + Math.sin(t * 0.00035 + idx * 1.7) * 0.04;
+          const clat = Math.cos(lat);
+          const pj = project(Math.cos(lon) * clat, Math.sin(lat), Math.sin(lon) * clat);
+          if (pj.front < -0.18) return;
+
+          const frontBias = Math.max(0, minFront - pj.front);
+          const px = pj.x + (pj.x - sxc) * (frontBias * 0.6);
+          const py = pj.y + (pj.y - syc) * (frontBias * 0.6);
+          const visibleFront = Math.max(minFront, pj.front);
+          const sel = this._selected === idx;
+          const la = (0.45 + visibleFront * 0.55) * appear;
+          const dotR = (sel ? 8.5 : 6.5) * scale;
+          const tw = ctx.measureText(prd.name).width;
+          const pad = 12 * scale, h = 32 * scale, w = tw + pad * 2;
+          const bx = px + 14 * scale, by = py;
+          ctx.save(); ctx.globalAlpha = la;
+          ctx.shadowColor = 'rgba(177,91,252,0.85)'; ctx.shadowBlur = sel ? 22 : 12;
+          ctx.fillStyle = sel ? 'rgb(221,84,249)' : 'rgb(177,91,252)';
+          ctx.beginPath(); ctx.arc(px, py, dotR, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+          ctx.save(); ctx.globalAlpha = la;
+          ctx.fillStyle = sel ? 'rgb(202,202,202)' : 'rgb(133,134,136)';
+          roundRect(ctx, bx, by - h / 2, w, h, 8 * scale); ctx.fill();
+          ctx.fillStyle = 'rgb(0,0,0)'; ctx.textAlign = 'left';
+          ctx.fillText(prd.name, bx + pad, by + 1);
+          ctx.restore();
+          this._labelHits.push({ i: idx, x: px - dotR, y: by, w: (bx + w) - (px - dotR), h: h });
+        });
+      }
+    };
+    this._lastFrame = performance.now();
+    this._raf = requestAnimationFrame(frame);
+    if (this._watch) clearInterval(this._watch);
+    this._watch = setInterval(() => {
+      if (!this._engineOn || this._engineCanvas !== this._canvas) return;
+      if (performance.now() - this._lastFrame > 400) {
+        if (this._raf) cancelAnimationFrame(this._raf);
+        this._raf = requestAnimationFrame(frame);
+      }
+    }, 450);
+  }
+
+  openProduct(i) {
+    const p = this._products && this._products[i];
+    if (!p) return;
+    this._selected = i;
+    if (this._cardTitle) this._cardTitle.textContent = 'ViH ' + p.name;
+    if (this._cardSub) this._cardSub.textContent = p.sub;
+    if (this._cardTag) this._cardTag.textContent = p.tag;
+    if (this._cardBody) this._cardBody.textContent = p.body;
+    if (this._card && this._isMobile) {
+      this._card.classList.remove('card-pop');
+      void this._card.offsetWidth;
+      this._card.classList.add('card-pop');
+    }
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+    this._engineOn = false;
+    this._mobileFieldEngineOn = false;
+    this._mobileGlobeEngineOn = false;
+    this._cccEngineOn = false;
+    this._slideEngineOn = false;
+    if (this._watch) { clearInterval(this._watch); this._watch = null; }
+    if (this._mobileFieldWatch) { clearInterval(this._mobileFieldWatch); this._mobileFieldWatch = null; }
+    if (this._mobileGlobeWatch) { clearInterval(this._mobileGlobeWatch); this._mobileGlobeWatch = null; }
+    if (this._bootRaf) cancelAnimationFrame(this._bootRaf);
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._mobileFieldRaf) cancelAnimationFrame(this._mobileFieldRaf);
+    if (this._mobileGlobeRaf) cancelAnimationFrame(this._mobileGlobeRaf);
+    if (this._cccRaf) cancelAnimationFrame(this._cccRaf);
+    if (this._slideRaf) cancelAnimationFrame(this._slideRaf);
+    if (this._cleanupEvents) this._cleanupEvents();
+    if (this._cleanupMobileHero) this._cleanupMobileHero();
+    if (this._cleanupMobileGlobe) this._cleanupMobileGlobe();
+    if (this._cleanupLogoMarquee) this._cleanupLogoMarquee();
+    if (this._mq) {
+      if (this._mq.removeEventListener) this._mq.removeEventListener('change', this._onMqChange);
+      else this._mq.removeListener(this._onMqChange);
+    }
+  }
+
+  renderVals() {
+    if (!this._isMobile && !this._engineOn && !this._bootRaf) {
+      this._bootRaf = requestAnimationFrame(() => { this._bootRaf = null; this.startEngine(); });
+    }
+    return {
+      isMobile: this._isMobile,
+      trackRef: (el) => { this._track = el; },
+      stageRef: (el) => { this._stage = el; },
+      canvasRef: (el) => { this._canvas = el; if (el) this.startEngine(); },
+      mobileFieldCanvasRef: (el) => { this._mobileFieldCanvas = el; if (el) this.startMobileHeroEngine(); },
+      mobileGlobeTrackRef: (el) => { this._mobileGlobeTrack = el; },
+      globeIntroRef: (el) => { this._globeIntro = el; },
+      mobileHubLabelRef: (el) => { this._mobileHubLabel = el; },
+      mobileGlobeCanvasRef: (el) => { this._mobileGlobeCanvas = el; if (el) this.startMobileGlobeEngine(); },
+      navMenuRef: (el) => { this._navMenu = el; },
+      navProductsRef: (el) => { this._navProducts = el; this.bindOnce(el, 'click', () => this.goToProducts()); },
+      navContactRef: (el) => { this._navContact = el; },
+      contactSectionRef: (el) => { this._contactSection = el; },
+      logoScrollRef: (el) => { this._logoScroll = el; if (el) this.startLogoMarquee(); },
+      productPrevRef: (el) => { this._productPrev = el; this.bindOnce(el, 'click', () => this.cycleProduct(-1)); },
+      productNextRef: (el) => { this._productNext = el; this.bindOnce(el, 'click', () => this.cycleProduct(1)); },
+      bgRef: (el) => { this._bg = el; },
+      introRef: (el) => { this._intro = el; },
+      ctaRef: (el) => { this._cta = el; },
+      heroCtaRef: (el) => { this._heroCta = el; this.bindOnce(el, 'click', () => this.goToProducts()); },
+      cardImgRef: (el) => { this._cardImg = el; },
+      logoRef: (el) => { this._logo = el; },
+      heroRef: (el) => { this._hero = el; },
+      hintRef: (el) => { this._hint = el; },
+      cardRef: (el) => { this._card = el; if (el) this.bindCardSwipe(el); },
+      cardTitleRef: (el) => { this._cardTitle = el; },
+      cardSubRef: (el) => { this._cardSub = el; },
+      cardTagRef: (el) => { this._cardTag = el; },
+      cardBodyRef: (el) => { this._cardBody = el; if (el && this._selected != null) this.openProduct(this._selected); },
+      slideTrackRef: (el) => { this._slideTrack = el; },
+      slideStageRef: (el) => { this._slideStage = el; },
+      slideRowRef: (el) => { this._slideRow = el; },
+      cccTrackRef: (el) => { this._cccTrack = el; },
+      lettersRowRef: (el) => { this._lettersRow = el; },
+      captionRef: (el) => { this._caption = el; },
+      capLabelRef: (el) => { this._capLabel = el; },
+      capBodyRef: (el) => { this._capBody = el; },
+      onSubmit: (e) => { e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>
