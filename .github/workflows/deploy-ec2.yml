@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - dev
-      - update/initial-commit
-      - main
     paths-ignore:
       - "**/*.md"
       - ".gitignore"
