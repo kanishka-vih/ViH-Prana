@@ -1,0 +1,82 @@
+name: Build and Deploy to EC2
+
+on:
+  push:
+    branches:
+      - update/initial-commit
+      - main
+    paths-ignore:
+      - "**/*.md"
+      - ".gitignore"
+  workflow_dispatch:
+
+concurrency:
+  group: landing-page-ec2
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      EC2_PORT: ${{ secrets.EC2_PORT }}
+      EC2_TARGET_DIR: ${{ secrets.EC2_TARGET_DIR }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deploy secrets
+        run: |
+          test -n "$EC2_HOST" || { echo "EC2_HOST secret is empty"; exit 1; }
+          test -n "$EC2_USER" || { echo "EC2_USER secret is empty"; exit 1; }
+          test -n "$EC2_TARGET_DIR" || { echo "EC2_TARGET_DIR secret is empty"; exit 1; }
+          test -n "${{ secrets.EC2_SSH_PRIVATE_KEY }}" || { echo "EC2_SSH_PRIVATE_KEY secret is empty"; exit 1; }
+          echo "Deploy target: ${EC2_USER}@${EC2_HOST}:${EC2_TARGET_DIR}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/ec2_key
+          chmod 700 ~/.ssh
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keyscan -p "${EC2_PORT:-22}" "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Sync dist to nginx root
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/ec2_key -o IdentitiesOnly=yes -p ${EC2_PORT:-22}" \
+            --exclude '.git' \
+            dist/ "${EC2_USER}@${EC2_HOST}:${EC2_TARGET_DIR}/"
+
+      - name: Reload nginx and verify
+        run: |
+          ssh -i ~/.ssh/ec2_key -o IdentitiesOnly=yes -p "${EC2_PORT:-22}" \
+            "${EC2_USER}@${EC2_HOST}" bash -s <<'EOF'
+          set -e
+          sudo nginx -t
+          sudo systemctl reload nginx
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -m 10 http://127.0.0.1/)
+          echo "local_http:$code"
+          test "$code" = "200"
+          EOF
+
+      - name: Public HTTPS check
+        run: |
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -m 15 -L https://vihmetaverse.com/ || true)
+          echo "public_https:$code"
+          test "$code" = "200"
