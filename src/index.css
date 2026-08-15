@@ -227,3 +227,184 @@ body {
 .voicechat-dot-pulse {
   animation: voicechat-dot-pulse 1s ease-in-out infinite;
 }
+
+/* Orb: a slowly rotating conic shimmer plus three independently drifting
+   blurred blobs layered inside a clipped circle, so it reads as a live,
+   organic 3D sphere rather than a flat gradient dot. */
+@keyframes shruti-orb-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.shruti-orb-spin {
+  animation: shruti-orb-spin 12s linear infinite;
+}
+.shruti-orb-spin.shruti-orb-fast {
+  animation-duration: 4s;
+}
+
+@keyframes shruti-orb-blob-a {
+  0%,
+  100% {
+    transform: translate(-8%, -10%) scale(1);
+  }
+  50% {
+    transform: translate(12%, 14%) scale(1.2);
+  }
+}
+@keyframes shruti-orb-blob-b {
+  0%,
+  100% {
+    transform: translate(14%, 8%) scale(1.05);
+  }
+  50% {
+    transform: translate(-14%, -12%) scale(0.85);
+  }
+}
+@keyframes shruti-orb-blob-c {
+  0%,
+  100% {
+    transform: translate(-6%, 14%) scale(0.95);
+  }
+  50% {
+    transform: translate(10%, -14%) scale(1.15);
+  }
+}
+.shruti-orb-blob-a {
+  animation: shruti-orb-blob-a 6s ease-in-out infinite;
+}
+.shruti-orb-blob-b {
+  animation: shruti-orb-blob-b 7.5s ease-in-out infinite;
+}
+.shruti-orb-blob-c {
+  animation: shruti-orb-blob-c 5.2s ease-in-out infinite;
+}
+.shruti-orb-blob-a.shruti-orb-fast {
+  animation-duration: 2.4s;
+}
+.shruti-orb-blob-b.shruti-orb-fast {
+  animation-duration: 2.9s;
+}
+.shruti-orb-blob-c.shruti-orb-fast {
+  animation-duration: 2.1s;
+}
+
+/* Frosted-glass widget shell, matching the elevenlabs.io concierge look. */
+.shruti-glass-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.62));
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 25px 70px rgba(20, 10, 40, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.shruti-glass-pill {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Gives the react-ai-orb sphere extra presence: a soft pulsing glow behind
+   it (depth against the flat page background) and a gentle vertical bob
+   (so it reads as "alive" even while just listening, not only while its
+   own internal shapes are spinning). */
+@keyframes shruti-orb-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.shruti-orb-float {
+  animation: shruti-orb-float 4.5s ease-in-out infinite;
+}
+.shruti-orb-float.shruti-orb-fast {
+  animation-duration: 2s;
+}
+
+@keyframes shruti-orb-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+}
+.shruti-orb-halo-pulse {
+  animation: shruti-orb-halo-pulse 3.5s ease-in-out infinite;
+}
+.shruti-orb-halo-pulse.shruti-orb-fast {
+  animation-duration: 1.6s;
+}
+
+/* Contact form -> success-state swap: the gradient panel fades/rises in,
+   then the "Thank you" card pops in on top a beat later. */
+@keyframes contact-success-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.contact-success-in {
+  animation: contact-success-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes contact-card-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.7);
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+.contact-card-pop {
+  animation: contact-card-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+/* All 3 circles of the "Get in touch" success illustration pop in with the
+   same bounce, at the same time — a single synchronized bounce rather than
+   a static fade. Scale-only so it composes cleanly with each circle's own
+   positioning transform (translateX for centering, plain left/top for the
+   offset accent circles). */
+@keyframes contact-circle-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  65% {
+    transform: scale(0.94);
+  }
+  85% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.contact-circle-bounce {
+  animation: contact-circle-bounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}

@@ -152,11 +152,69 @@ export default function HomeBottomSections() {
           Get in touch
         </h2>
         {submitted ? (
-          <div className="absolute flex flex-col gap-[12px] items-start left-[534px] top-[60px] w-[612px]">
-            <p className="text-[#040404] text-[28px] tracking-[-1px] m-0">Thanks — got it!</p>
-            <p className="text-[#5a5a5a] text-[18px] m-0 leading-[26px]">
-              We'll be in touch with {values.email} shortly.
-            </p>
+          <div className="contact-success-in absolute left-[534px] top-[60px] h-[578px] w-[612px] overflow-hidden rounded-[24px]">
+            {/* The real Figma illustration: 3 identical 1043.107px circles
+                (confirmed via dev-mode inspector on "Ellipse 2290"), each a
+                radial-gradient from the page's own #EDEDED out to a
+                different end color (#7E0DE1 violet, #3084F1 blue, #B15BFC
+                lilac), stacked at different vertical offsets so each one's
+                cap peeks out by a different amount — that's what builds up
+                the layered color bands, not a single flat gradient. */}
+            <div className="absolute inset-0 bg-[#EDEDED]" />
+            {/* Each circle's own wrapper handles centering (translateX)
+                separately from the bounce (scale-only) animation, so the
+                bounce doesn't clobber the centering transform. All 3 share
+                the exact same animation, unstaggered, so they pop in as one
+                synchronized moment. A soft blur on each circle (plus tight
+                overlap between them) blends the seams into gradients
+                instead of hard-edged rainbow rings. */}
+            <div className="absolute left-1/2 size-[1043px] -translate-x-1/2 blur-[70px]" style={{ top: 40 }}>
+              <div
+                className="contact-circle-bounce size-full rounded-full"
+                style={{ background: "radial-gradient(circle at 50% 30%, #EDEDED 0%, #B15BFC 100%)" }}
+              />
+            </div>
+            <div className="absolute left-1/2 size-[1043px] -translate-x-1/2 blur-[70px]" style={{ top: 95 }}>
+              <div
+                className="contact-circle-bounce size-full rounded-full"
+                style={{ background: "radial-gradient(circle at 50% 30%, #EDEDED 0%, #7E0DE1 100%)" }}
+              />
+            </div>
+            <div className="absolute left-1/2 size-[1043px] -translate-x-1/2 blur-[70px]" style={{ top: 150 }}>
+              <div
+                className="contact-circle-bounce size-full rounded-full"
+                style={{ background: "radial-gradient(circle at 50% 30%, #EDEDED 0%, #3084F1 100%)" }}
+              />
+            </div>
+            <div className="contact-card-pop absolute left-1/2 top-1/2 flex items-center gap-[14px] rounded-[16px] bg-white px-[22px] py-[18px] shadow-[0_20px_45px_rgba(0,0,0,0.25)]">
+              <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#040404]">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                  <path
+                    d="M1.5 6.5L5.5 10.5L14.5 1.5"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <div className="text-left">
+                <p className="m-0 text-[16px] font-semibold text-[#040404]">
+                  Thank you {values.fullName.trim() || "there"} !!
+                </p>
+                <p className="m-0 text-[14px] text-[#5a5a5a]">Our sales team shall connect with you soon</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitted(false);
+                setValues({ email: "", fullName: "", companyName: "", source: "" });
+              }}
+              className="absolute bottom-[24px] left-1/2 -translate-x-1/2 cursor-pointer border-none bg-transparent text-[14px] text-[#5a3d99] underline"
+            >
+              Send another message
+            </button>
           </div>
         ) : (
           <>
