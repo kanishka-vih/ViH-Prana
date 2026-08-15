@@ -1,0 +1,384 @@
+/* ── Section ───────────────────────────────────────── */
+.products {
+  position: relative;
+  padding: 130px 56px 80px;
+  background: linear-gradient(180deg, #030108 0%, #000 100%);
+}
+
+.products__gc {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(30,146,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.products__header {
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.products__header p {
+  color: rgba(255,255,255,0.45);
+  max-width: 480px;
+  margin: 12px auto 0;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── Solar System Container ────────────────────────── */
+.solar {
+  position: relative;
+  width: 700px;
+  height: 700px;
+  margin: 0 auto;
+}
+
+.solar__bg-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 500px;
+  background: radial-gradient(ellipse at center,
+    rgba(195,14,255,0.07) 0%,
+    rgba(30,146,255,0.04) 30%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.solar__rings {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* ── Center / Prana (the Sun) ──────────────────────── */
+.solar__center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110px; height: 110px;
+  z-index: 10;
+}
+
+.solar__core {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 30% 30%,
+    rgba(195,14,255,0.3),
+    rgba(30,146,255,0.15) 60%,
+    rgba(0,0,0,0.5)
+  );
+  border: 1.5px solid rgba(195,14,255,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow:
+    0 0 40px rgba(195,14,255,0.15),
+    0 0 80px rgba(195,14,255,0.08),
+    inset 0 0 30px rgba(195,14,255,0.1);
+  animation: core-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes core-glow {
+  0%   { box-shadow: 0 0 40px rgba(195,14,255,0.15), 0 0 80px rgba(195,14,255,0.08), inset 0 0 30px rgba(195,14,255,0.1); }
+  100% { box-shadow: 0 0 60px rgba(195,14,255,0.25), 0 0 120px rgba(195,14,255,0.12), inset 0 0 40px rgba(195,14,255,0.15); }
+}
+
+.solar__core-sub {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+.solar__core-name {
+  font-family: "Clash Display", "Inter", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #C30EFF, #1E92FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulsing rings */
+.solar__pulse {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 110px; height: 110px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(195,14,255,0.25);
+  animation: pulse-ring 4s ease-out infinite;
+  pointer-events: none;
+}
+.solar__pulse--2 { animation-delay: 1.33s; }
+.solar__pulse--3 { animation-delay: 2.66s; }
+
+@keyframes pulse-ring {
+  0%   { width: 110px; height: 110px; opacity: 0.5; }
+  100% { width: 260px; height: 260px; opacity: 0; }
+}
+
+/* ── Orbit Containers ──────────────────────────────── */
+.solar__orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  border-radius: 50%;
+  animation: spin linear infinite;
+  pointer-events: none;
+  transition: z-index 0s;
+}
+
+/* Lift the hovered orbit above everything (including Prana) */
+.solar__orbit:has(.solar__planet:hover) {
+  z-index: 50;
+}
+
+@keyframes spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ── Data Beam ─────────────────────────────────────── */
+.solar__beam {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 50%;
+}
+
+.solar__beam-line {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--beam-color), transparent);
+  opacity: 0.1;
+  border-radius: 1px;
+  transition: opacity 0.4s;
+}
+
+.solar__orbit:has(.solar__planet:hover) .solar__beam-line {
+  opacity: 0.35;
+}
+
+/* Data particles */
+.solar__dot {
+  position: absolute;
+  left: 50%;
+  width: 4px; height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--beam-color);
+  box-shadow: 0 0 6px var(--beam-color);
+  opacity: 0;
+  animation: dot-up 3s linear infinite;
+}
+
+.solar__dot--rev {
+  animation-name: dot-down;
+  width: 3px; height: 3px;
+  margin-left: -1.5px;
+  box-shadow: 0 0 4px var(--beam-color);
+}
+
+@keyframes dot-up {
+  0%   { bottom: 0; opacity: 0; }
+  8%   { opacity: 0.9; }
+  92%  { opacity: 0.5; }
+  100% { bottom: 100%; opacity: 0; }
+}
+
+@keyframes dot-down {
+  0%   { bottom: 100%; opacity: 0; }
+  8%   { opacity: 0.6; }
+  92%  { opacity: 0.25; }
+  100% { bottom: 0; opacity: 0; }
+}
+
+/* ── Planet (product node) ─────────────────────────── */
+.solar__planet {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: unspin linear infinite;
+  pointer-events: all;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+@keyframes unspin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+.solar__planet-ico {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s, background 0.3s, filter 0.3s;
+  will-change: filter;
+}
+
+.solar__planet-ico svg {
+  width: 22px; height: 22px;
+  color: var(--planet-color);
+}
+
+.solar__planet-lbl {
+  font-family: "Clash Display", "Inter", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+}
+
+/* Planet hover — pure CSS, no React re-render */
+.solar__planet:hover .solar__planet-ico {
+  border-color: var(--planet-color);
+  background: rgba(255,255,255,0.06);
+  filter: drop-shadow(0 0 12px var(--planet-color));
+}
+
+.solar__planet:hover .solar__planet-lbl {
+  color: var(--planet-color);
+}
+
+/* ── Tooltip Card (overlay next to planet) ─────────── */
+.solar__card {
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  width: 260px;
+  padding: 18px 20px;
+  background: rgba(8, 0, 16, 0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 60;
+}
+
+.solar__planet:hover .solar__card {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Arrow pointing to planet */
+.solar__card-arrow {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border: 7px solid transparent;
+  border-right-color: rgba(255,255,255,0.1);
+}
+
+.solar__card-arrow::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 2px;
+  width: 0; height: 0;
+  border: 6px solid transparent;
+  border-right-color: rgba(8, 0, 16, 0.92);
+}
+
+.solar__card-name {
+  font-family: "Clash Display", "Inter", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px;
+}
+
+.solar__card-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--planet-color);
+  margin-bottom: 10px;
+}
+
+.solar__card-desc {
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.solar__card-feats {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0;
+  margin: 0;
+}
+
+.solar__card-feats li {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  padding-left: 12px;
+  position: relative;
+}
+
+.solar__card-feats li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--planet-color);
+  opacity: 0.6;
+}
+
+/* ── Responsive ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .solar {
+    transform: scale(0.7);
+    transform-origin: top center;
+    margin-bottom: calc(-700px * 0.3);
+  }
+}
+
+@media (max-width: 768px) {
+  .products { padding: 80px 20px 60px; }
+  .solar {
+    transform: scale(0.5);
+    transform-origin: top center;
+    margin-bottom: calc(-700px * 0.5);
+  }
+  .solar__card { width: 220px; padding: 14px 16px; }
+  .solar__card-name { font-size: 15px; }
+  .solar__card-desc { font-size: 11px; }
+}
