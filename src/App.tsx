@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./components/home/Home";
 import Shruti from "./components/shruti/Shruti";
+import MessengerPage from "./components/messenger/MessengerPage";
 import ScaledCanvas from "./components/ScaledCanvas";
 import VoiceChatWidget from "./components/home/VoiceChatWidget";
 import FixedHeader from "./components/FixedHeader";
@@ -19,6 +20,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/shruti" element={<Shruti />} />
+            <Route path="/messenger" element={<MessengerPage />} />
           </Routes>
         </ScaledCanvas>
         <VoiceChatWidget />

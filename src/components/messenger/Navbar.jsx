@@ -1,5 +1,5 @@
 import logo from '../../assets/messenger-figma/logo.svg'
-import { scrollToContact } from '../utils/scrollToContact'
+import { scrollToContact } from './utils/scrollToContact'
 
 const NAV_LINKS = ['ViH Shruti', 'ViH Viveka', 'ViH Messenger', 'Our Team']
 

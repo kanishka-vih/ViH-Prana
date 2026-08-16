@@ -15,7 +15,7 @@ import { scrollToContactForm } from "../lib/scrollToContact";
 const navLinks: { label: string; to: string | null }[] = [
   { label: "ViH Shruti", to: "/shruti" },
   { label: "ViH Viveka", to: null },
-  { label: "ViH Messenger", to: null },
+  { label: "ViH Messenger", to: "/messenger" },
   { label: "Our Team", to: null },
 ];
 

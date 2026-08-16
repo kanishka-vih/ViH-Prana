@@ -1,5 +1,5 @@
 import arrowOutlined from '../../assets/messenger-figma/icon-arrow-outlined.svg'
-import { scrollToContact } from '../utils/scrollToContact'
+import { scrollToContact } from './utils/scrollToContact'
 
 export default function Hero() {
   return (

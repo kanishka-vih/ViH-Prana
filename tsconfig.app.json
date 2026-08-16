@@ -7,6 +7,11 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    // Lets .tsx files import the plain .jsx components under
+    // src/components/messenger/ (ported in from a teammate's JS project)
+    // without a "could not find a declaration file" error. checkJs stays
+    // off (default) — these files aren't type-checked, just allowed in.
+    "allowJs": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",

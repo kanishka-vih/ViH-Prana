@@ -8,7 +8,7 @@ import logoKapston from '../../assets/messenger-figma/logo-kapston.webp'
 import logoTataplay from '../../assets/messenger-figma/logo-tataplay.webp'
 import logoSmc from '../../assets/messenger-figma/logo-smc.webp'
 import logoBsnl from '../../assets/messenger-figma/logo-bsnl.webp'
-import { scrollToContact } from '../utils/scrollToContact'
+import { scrollToContact } from './utils/scrollToContact'
 
 // Each source file has a different amount of built-in padding/canvas shape
 // (some are tightly-cropped wide logos, others are square with a lot of
