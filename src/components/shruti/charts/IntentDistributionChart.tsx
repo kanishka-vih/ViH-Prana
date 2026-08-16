@@ -3,24 +3,39 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useCountUp } from "./useCountUp";
 import { useLiveJitter } from "./useLiveJitter";
 
-const baseSegments = [
-  { name: "No Contact", value: 42, color: "#3b49df" },
-  { name: "Call Back", value: 12, color: "#f5a742" },
-  { name: "Call Disconnected", value: 18, color: "#d7d9e8" },
-  { name: "Promise to Pay", value: 9, color: "#aec6f2" },
-  { name: "Refuse to Pay", value: 11, color: "#c6b6f5" },
-  { name: "Already Paid", value: 8, color: "#a6e3c1" },
-];
+const TABS = ["Intent", "Fresh/Retry"] as const;
+type Tab = (typeof TABS)[number];
 
-const TABS = ["Intent", "Fresh/Retry"];
+// Both tabs slice the same 157K total interactions, just by a different
+// dimension — call outcome intent vs. whether it was a fresh attempt or a
+// retry — so the donut's segments (and legend) change but the headline
+// total doesn't.
+const SEGMENTS_BY_TAB: Record<Tab, { name: string; value: number; color: string }[]> = {
+  Intent: [
+    { name: "No Contact", value: 42, color: "#3b49df" },
+    { name: "Call Back", value: 12, color: "#f5a742" },
+    { name: "Call Disconnected", value: 18, color: "#d7d9e8" },
+    { name: "Promise to Pay", value: 9, color: "#aec6f2" },
+    { name: "Refuse to Pay", value: 11, color: "#c6b6f5" },
+    { name: "Already Paid", value: 8, color: "#a6e3c1" },
+  ],
+  "Fresh/Retry": [
+    { name: "Fresh Call", value: 58, color: "#3b49df" },
+    { name: "Retry 1", value: 24, color: "#f5a742" },
+    { name: "Retry 2", value: 11, color: "#aec6f2" },
+    { name: "Retry 3+", value: 7, color: "#c6b6f5" },
+  ],
+};
 
 export default function IntentDistributionChart({ active }: { active: boolean }) {
-  const [tab, setTab] = useState(TABS[0]);
+  const [tab, setTab] = useState<Tab>(TABS[0]);
   const total = useCountUp(157, active);
   // Nudges each slice's share by a point or two every few seconds so the
   // donut visibly redraws instead of sitting static after it first appears.
+  // Resets to the new tab's segments immediately on switch (via the `tab`
+  // resetKey) instead of continuing to jitter the previous tab's shares.
   const segments = useLiveJitter(
-    baseSegments,
+    SEGMENTS_BY_TAB[tab],
     (prev) =>
       prev.map((s) => ({
         ...s,
@@ -28,6 +43,7 @@ export default function IntentDistributionChart({ active }: { active: boolean })
       })),
     active,
     3800,
+    tab,
   );
 
   return (

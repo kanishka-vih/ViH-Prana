@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   vector,
   group2,
@@ -19,30 +19,30 @@ const navLinks: { label: string; to: string | null }[] = [
   { label: "Our Team", to: null },
 ];
 
-export default function Header() {
-  return (
-    <div className="absolute contents left-0 top-0">
-      <div
-        className="absolute flex flex-col items-start left-0 overflow-clip px-[444px] py-[13px] top-0 w-[1440px]"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgb(255, 222, 254) 0%, rgb(255, 103, 249) 16.177%, rgb(172, 57, 248) 32.354%, rgb(149, 44, 246) 56.991%, rgb(99, 40, 241) 78.495%, rgb(234, 225, 255) 100%)",
-        }}
-      >
-        <div className="flex gap-[12px] items-center font-normal text-[20px] text-white tracking-[-1px] w-full">
-          <p className="leading-[26px] w-[442px]">
-            Meet us at the Bharat tex event in Delhi on 22nd August{" "}
-          </p>
-          <p className="leading-[26px] underline decoration-solid [text-underline-position:from-font] w-[97px]">
-            Know More
-          </p>
-        </div>
-      </div>
+export default function Header({ floating = false }: { floating?: boolean }) {
+  const location = useLocation();
 
-      <div className="absolute flex h-[75px] items-center justify-between left-[101px] top-[40px] w-[1237px]">
+  return (
+    // Nav sits close under the banner (small top offset) and is shorter
+    // than the original in-page design (which had a much bigger top-40 gap
+    // that only made sense when banner+nav shared one absolute coordinate
+    // space — now that they're two separately-stacked blocks, that same
+    // offset would land nav well below where the banner actually ends).
+    <div className="relative h-[76px] w-[1440px]">
+      <div
+        className={`absolute flex h-[60px] items-center justify-between left-[101px] top-[8px] w-[1237px] rounded-[24px] transition-all duration-300 ease-out ${
+          floating
+            ? "bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-black/5 px-[24px]"
+            : "border border-transparent px-[24px]"
+        }`}
+      >
         {/* Aligned with the hero heading/video below at this same left-101
             inset, per design. */}
-        <Link to="/" className="relative shrink-0" data-name="logo">
+        <Link
+          to="/"
+          className="relative shrink-0 transition-transform duration-150 ease-out active:scale-90"
+          data-name="logo"
+        >
           <div className="relative h-[42px] w-[130px]">
             <div className="absolute h-[27.347px] left-0 top-[0.85px] w-[27.646px]">
               <img alt="" className="block max-w-none size-full" src={vector} />
@@ -72,34 +72,49 @@ export default function Header() {
         </Link>
 
         <nav className="flex gap-[12px] items-center shrink-0">
-          {navLinks.map(({ label, to }) =>
-            to ? (
+          {navLinks.map(({ label, to }) => {
+            if (!to) {
+              return (
+                <span
+                  key={label}
+                  className="flex h-[31px] items-center justify-center p-[10px] rounded-[55px] shrink-0 w-[117px] text-[#999] cursor-default"
+                  title="Coming soon"
+                >
+                  <span className="font-normal text-[16px] whitespace-nowrap">{label}</span>
+                </span>
+              );
+            }
+            // Only the route actually being viewed gets the highlighted
+            // "selected tab" treatment — otherwise every enabled link used to
+            // render in the same solid-black text as the active one, which
+            // read as permanently highlighted regardless of what page you
+            // were on.
+            const isActive = location.pathname === to;
+            return (
               <Link
                 key={label}
                 to={to}
-                className="flex h-[31px] items-center justify-center p-[10px] rounded-[55px] shrink-0 w-[117px] cursor-pointer"
+                className={`flex h-[31px] items-center justify-center p-[10px] rounded-[55px] shrink-0 w-[117px] cursor-pointer transition-all duration-200 ease-out active:scale-95 ${
+                  isActive ? "bg-black" : "hover:bg-black/5"
+                }`}
               >
-                <span className="font-normal text-[16px] text-black whitespace-nowrap">
+                <span
+                  className={`font-normal text-[16px] whitespace-nowrap transition-colors duration-200 ${
+                    isActive ? "text-white" : "text-black"
+                  }`}
+                >
                   {label}
                 </span>
               </Link>
-            ) : (
-              <span
-                key={label}
-                className="flex h-[31px] items-center justify-center p-[10px] rounded-[55px] shrink-0 w-[117px] text-[#999] cursor-default"
-                title="Coming soon"
-              >
-                <span className="font-normal text-[16px] whitespace-nowrap">{label}</span>
-              </span>
-            ),
-          )}
+            );
+          })}
         </nav>
 
         <div className="flex items-start shrink-0">
           <button
             type="button"
             onClick={scrollToContactForm}
-            className="bg-[#232323] flex h-[36px] items-center justify-center px-[16px] py-[8px] rounded-[8px] shrink-0 cursor-pointer"
+            className="bg-[#232323] flex h-[36px] items-center justify-center px-[16px] py-[8px] rounded-[8px] shrink-0 cursor-pointer transition-all duration-150 ease-out hover:bg-black active:scale-95"
           >
             <span className="font-medium text-[16px] text-white whitespace-nowrap">
               Contact sales

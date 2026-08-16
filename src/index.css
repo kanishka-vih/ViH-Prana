@@ -87,6 +87,50 @@ body {
   animation: shruti-orb-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* Runs once when the ViH Prana product cards scroll into view (see
+   ProductOverviewCards.tsx's IntersectionObserver). All three cards share
+   the exact same animation with no stagger, so they read as one
+   synchronized bounce rather than a one-after-another cascade. */
+@keyframes product-card-bounce {
+  0% {
+    transform: translateY(40px) scale(0.92);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.03);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(4px) scale(0.99);
+  }
+  85% {
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+.product-card-bounce {
+  animation: product-card-bounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Generic scroll-reveal for large static panels (dashboard chart cards,
+   etc.) — a subtler fade+rise than the bounce above, sized for bigger
+   elements where a bounce/scale would look excessive. */
+@keyframes panel-fade-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.panel-fade-rise-in {
+  animation: panel-fade-rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @keyframes shruti-ring-rise {
   /* Rises from below up toward 0 (each ring's exact measured Figma
      position) and settles there with a couple of decaying dips — never
@@ -121,45 +165,6 @@ body {
    up as one flat image. */
 .shruti-ring-rise {
   animation: shruti-ring-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes shruti-ring-loop {
-  /* 0%/100% is each ring's exact measured Figma position — the highest
-     point it's ever allowed to reach. Every other stop is a POSITIVE
-     translateY (downward only): the outermost ring rests flush with the
-     section's top edge, so any upward motion pushes it past the
-     `overflow: hidden` clip and gets flattened off. Bouncing down from
-     the matched position instead — like a dropped ball settling, several
-     decaying hops per cycle — reads as a springy, energetic jiggle
-     without ever risking that clip. */
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  18% {
-    transform: translateY(26px);
-  }
-  36% {
-    transform: translateY(4px);
-  }
-  50% {
-    transform: translateY(17px);
-  }
-  64% {
-    transform: translateY(8px);
-  }
-  78% {
-    transform: translateY(12px);
-  }
-  90% {
-    transform: translateY(9px);
-  }
-}
-/* Takes over from .shruti-ring-rise once the one-shot entrance finishes
-   (see ShrutiOutcomes.tsx). Staggered per ring via the same
-   animationDelay, so they keep bouncing out of sync with each other. */
-.shruti-ring-loop {
-  animation: shruti-ring-loop 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
 @keyframes voicechat-panel-in {
@@ -347,64 +352,33 @@ body {
   animation-duration: 1.6s;
 }
 
-/* Contact form -> success-state swap: the gradient panel fades/rises in,
-   then the "Thank you" card pops in on top a beat later. */
-@keyframes contact-success-in {
+/* Contact form -> success-state swap, matching Figma frame 2043683740's
+   motion spec (get_motion_context): each layer rises 60px while fading in
+   over 0.8s ease, staggered 150ms apart — arc, then the 3 accent circles,
+   then the notification card. Figma's export loops this forever, but that
+   would keep re-hiding/re-showing the confirmation message, so it plays once. */
+@keyframes contact-layer-in {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.97);
+    transform: translateY(60px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
-.contact-success-in {
-  animation: contact-success-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+.contact-layer-in {
+  animation: contact-layer-in 0.8s ease both;
 }
-
-@keyframes contact-card-pop {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -40%) scale(0.7);
-  }
-  70% {
-    transform: translate(-50%, -50%) scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+.contact-layer-in.contact-delay-1 {
+  animation-delay: 0.15s;
 }
-.contact-card-pop {
-  animation: contact-card-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+.contact-layer-in.contact-delay-2 {
+  animation-delay: 0.3s;
 }
-
-/* All 3 circles of the "Get in touch" success illustration pop in with the
-   same bounce, at the same time — a single synchronized bounce rather than
-   a static fade. Scale-only so it composes cleanly with each circle's own
-   positioning transform (translateX for centering, plain left/top for the
-   offset accent circles). */
-@keyframes contact-circle-bounce {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  45% {
-    transform: scale(1.12);
-    opacity: 1;
-  }
-  65% {
-    transform: scale(0.94);
-  }
-  85% {
-    transform: scale(1.03);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.contact-layer-in.contact-delay-3 {
+  animation-delay: 0.45s;
 }
-.contact-circle-bounce {
-  animation: contact-circle-bounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+.contact-layer-in.contact-delay-4 {
+  animation-delay: 0.6s;
 }

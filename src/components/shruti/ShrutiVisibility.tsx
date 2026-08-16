@@ -32,16 +32,12 @@ export default function ShrutiVisibility() {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    // The charts only start their draw-in / count-up once this section is
-    // actually on screen — mounting them off-screen already animated would
-    // waste the "coming alive like a live demo" effect scrolling past them.
+    // The charts (and panel/card entrance animations) replay every time
+    // this section re-enters the viewport — scrolling away resets `active`
+    // so scrolling back down to it plays the reveal again, rather than
+    // firing only the first time ever.
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setActive(true);
-          observer.disconnect();
-        }
-      },
+      ([entry]) => setActive(entry.isIntersecting),
       { threshold: 0.3 },
     );
     observer.observe(el);
@@ -66,7 +62,9 @@ export default function ShrutiVisibility() {
         </div>
 
         <div
-          className="absolute h-[570px] left-[100px] overflow-hidden rounded-[24px] top-0 w-[701px]"
+          className={`absolute h-[570px] left-[100px] overflow-hidden rounded-[24px] top-0 w-[701px] ${
+            active ? "panel-fade-rise-in" : "opacity-0"
+          }`}
           style={{
             backgroundImage:
               "linear-gradient(90deg, rgba(235,235,235,0.7) 0%, rgba(235,235,235,0.7) 100%), linear-gradient(90deg, rgba(243,248,255,0.2) 0%, rgba(243,248,255,0.2) 100%)",
@@ -84,10 +82,13 @@ export default function ShrutiVisibility() {
         </div>
 
         <div className="absolute flex items-center justify-between left-[100px] top-[597px] w-[1240px]">
-          {features.map((feature) => (
+          {features.map((feature, i) => (
             <div
               key={feature.title}
-              className="bg-[rgba(235,235,235,0.68)] border border-[#cfcfcf] border-solid flex flex-col items-start overflow-hidden px-[22px] py-[20px] rounded-[24px] w-[401px]"
+              className={`bg-[rgba(235,235,235,0.68)] border border-[#cfcfcf] border-solid flex flex-col items-start overflow-hidden px-[22px] py-[20px] rounded-[24px] w-[401px] ${
+                active ? "product-card-bounce" : "opacity-0"
+              }`}
+              style={{ animationDelay: active ? `${i * 0.15}s` : undefined }}
             >
               <div className="flex flex-col h-[177px] items-start justify-between w-full">
                 <img alt="" className="size-[24px]" src={feature.icon} />
@@ -105,10 +106,13 @@ export default function ShrutiVisibility() {
         </div>
 
         <div
-          className="absolute h-[570px] left-[824px] overflow-hidden rounded-[24px] top-0 w-[516px]"
+          className={`absolute h-[570px] left-[824px] overflow-hidden rounded-[24px] top-0 w-[516px] ${
+            active ? "panel-fade-rise-in" : "opacity-0"
+          }`}
           style={{
             backgroundImage:
               "linear-gradient(90deg, rgba(235,235,235,0.7) 0%, rgba(235,235,235,0.7) 100%), linear-gradient(90deg, rgba(243,248,255,0.2) 0%, rgba(243,248,255,0.2) 100%)",
+            animationDelay: active ? "0.15s" : undefined,
           }}
         >
           <div className="absolute left-[22px] top-[20px]">

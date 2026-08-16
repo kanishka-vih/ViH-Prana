@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   polygon33,
   demoOrbWebp,
@@ -46,6 +48,7 @@ const productCards = [
     orbGradient:
       "linear-gradient(124.95deg, rgb(255,222,254) 20.569%, rgb(255,103,249) 75.309%, rgb(172,57,248) 130.05%, rgb(149,44,246) 213.42%, rgb(99,40,241) 286.19%, rgb(234,225,255) 358.96%)",
     pillLabel: "Hands Free Voice Assistance",
+    route: "/shruti",
   },
   {
     title: "ViH Viveka ",
@@ -54,6 +57,8 @@ const productCards = [
     orbGradient:
       "linear-gradient(124.95deg, rgb(255,222,254) 20.569%, rgb(154,0,255) 82.784%, rgb(255,103,249) 171.2%, rgb(149,44,246) 213.42%, rgb(99,40,241) 286.19%, rgb(234,225,255) 358.96%)",
     pillLabel: "Voice call analytics",
+    // No dedicated ViH Viveka page exists yet — add its route here once one does.
+    route: null as string | null,
   },
   {
     title: "ViH Messenger",
@@ -62,10 +67,42 @@ const productCards = [
     orbGradient:
       "linear-gradient(129.75deg, rgb(234,225,255) 16.142%, rgb(78,30,231) 71.691%, rgb(149,44,246) 124.25%, rgb(172,57,248) 126.14%, rgb(255,103,249) 156.79%, rgb(234,225,255) 356.13%)",
     pillLabel: "SDK ",
+    // No dedicated ViH Messenger page exists yet — add its route here once one does.
+    route: null as string | null,
   },
 ];
 
 export default function ProductOverviewCards() {
+  const navigate = useNavigate();
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const [bounced, setBounced] = useState(false);
+  const teamCardsRef = useRef<HTMLDivElement>(null);
+  const [teamsActive, setTeamsActive] = useState(false);
+
+  useEffect(() => {
+    const el = cardsRef.current;
+    if (!el) return;
+    // Replays every time this section re-enters the viewport — scrolling
+    // away resets it so scrolling back down plays the bounce again.
+    const observer = new IntersectionObserver(
+      ([entry]) => setBounced(entry.isIntersecting),
+      { threshold: 0.3 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = teamCardsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setTeamsActive(entry.isIntersecting),
+      { threshold: 0.3 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="flex flex-col gap-[69px] items-center w-full">
       <div className="flex items-center justify-between w-[1240px]">
@@ -84,32 +121,47 @@ export default function ProductOverviewCards() {
           <img alt="" className="w-[863px] h-[863px]" src={polygon33} />
         </div>
 
-        <div className="absolute flex items-center justify-between left-[100px] top-0 w-[1240px]">
-          {productCards.map((card) => (
-            <div
-              key={card.title}
-              className="bg-[#fafafa] border border-[#ededed] border-solid h-[500px] overflow-hidden relative rounded-[24px] w-[380px]"
-            >
-              <div className="absolute flex flex-col gap-[18px] items-center left-[32px] right-[33px] top-[35px]">
-                <p className="text-[#131313] text-[24px] w-full m-0 leading-[26px]">
-                  {card.title}
-                </p>
-                <p className="text-[#737373] text-[16px] w-full m-0 leading-[19px]">
-                  {card.description}
-                </p>
-              </div>
+        <div ref={cardsRef} className="absolute flex items-center justify-between left-[100px] top-0 w-[1240px]">
+          {productCards.map((card) => {
+            const clickable = card.route !== null;
+            return (
               <div
-                className="absolute left-[130px] rounded-full size-[138px] top-[326px]"
-                style={{ backgroundImage: card.orbGradient }}
-              />
-              <div className="absolute bg-[rgba(255,255,255,0.36)] backdrop-blur-md border border-[#f6f6f6] border-solid flex gap-[10px] h-[38px] items-center justify-center left-[32px] px-[20px] py-[6px] right-[33px] rounded-[24px] top-[426px]">
-                <span className="flex-1 text-[#131313] text-[16px] leading-[26px]">
-                  {card.pillLabel}
-                </span>
-                <img alt="" className="h-[33px] w-[16.5px]" src={weuiArrowOutlined} />
+                key={card.title}
+                role={clickable ? "button" : undefined}
+                tabIndex={clickable ? 0 : undefined}
+                onClick={clickable ? () => navigate(card.route!) : undefined}
+                onKeyDown={
+                  clickable
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") navigate(card.route!);
+                      }
+                    : undefined
+                }
+                className={`bg-[#fafafa] border border-[#ededed] border-solid h-[500px] overflow-hidden relative rounded-[24px] w-[380px] transition-transform ${
+                  bounced ? "product-card-bounce" : "opacity-0"
+                } ${clickable ? "cursor-pointer hover:-translate-y-[4px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" : ""}`}
+              >
+                <div className="absolute flex flex-col gap-[18px] items-center left-[32px] right-[33px] top-[35px]">
+                  <p className="text-[#131313] text-[24px] w-full m-0 leading-[26px]">
+                    {card.title}
+                  </p>
+                  <p className="text-[#737373] text-[16px] w-full m-0 leading-[19px]">
+                    {card.description}
+                  </p>
+                </div>
+                <div
+                  className="absolute left-[130px] rounded-full size-[138px] top-[326px]"
+                  style={{ backgroundImage: card.orbGradient }}
+                />
+                <div className="absolute bg-[rgba(255,255,255,0.36)] backdrop-blur-md border border-[#f6f6f6] border-solid flex gap-[10px] h-[38px] items-center justify-center left-[32px] px-[20px] py-[6px] right-[33px] rounded-[24px] top-[426px]">
+                  <span className="flex-1 text-[#131313] text-[16px] leading-[26px]">
+                    {card.pillLabel}
+                  </span>
+                  <img alt="" className="h-[33px] w-[16.5px]" src={weuiArrowOutlined} />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="absolute flex items-center justify-center left-[100px] top-[677px] w-[1240px]">
@@ -119,9 +171,9 @@ export default function ProductOverviewCards() {
               <br />
               that actually answer.
             </h3>
-            <div className="flex items-center justify-between w-full">
-              {teamCards.map((card) => (
-                <TeamCard key={card.title} card={card} />
+            <div ref={teamCardsRef} className="flex items-center justify-between w-full">
+              {teamCards.map((card, i) => (
+                <TeamCard key={card.title} card={card} active={teamsActive} delay={i * 0.15} />
               ))}
             </div>
           </div>
@@ -131,9 +183,22 @@ export default function ProductOverviewCards() {
   );
 }
 
-function TeamCard({ card }: { card: (typeof teamCards)[number] }) {
+function TeamCard({
+  card,
+  active,
+  delay,
+}: {
+  card: (typeof teamCards)[number];
+  active: boolean;
+  delay: number;
+}) {
   return (
-    <div className="bg-[#fafafa] border border-[#cfcfcf] border-solid flex flex-col items-start overflow-hidden px-[22px] py-[20px] rounded-[24px] shrink-0 w-[401px]">
+    <div
+      className={`bg-[#fafafa] border border-[#cfcfcf] border-solid flex flex-col items-start overflow-hidden px-[22px] py-[20px] rounded-[24px] shrink-0 w-[401px] ${
+        active ? "panel-fade-rise-in" : "opacity-0"
+      }`}
+      style={{ animationDelay: active ? `${delay}s` : undefined }}
+    >
       <div className="flex flex-col gap-[10px] items-start w-full">
         <div className="flex h-[42px] items-start justify-between w-full">
           <p className="font-normal text-[20px] text-black tracking-[0.2px] w-[195px] m-0 leading-[34px]">

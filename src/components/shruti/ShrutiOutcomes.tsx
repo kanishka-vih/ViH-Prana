@@ -50,37 +50,20 @@ const cards = [
 export default function ShrutiOutcomes() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [bounced, setBounced] = useState(false);
-  // Once each ring's one-shot entrance finishes, it switches to a separate
-  // looping class — see the onAnimationEnd handler below.
-  const [looping, setLooping] = useState(false);
 
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    // Fires once, the first time the cards are actually on screen — not on
-    // mount, since this section usually loads well below the fold.
+    // Replays the bounce every time this section re-enters the viewport —
+    // scrolling away resets it (back to opacity-0) so scrolling back down
+    // to it plays the entrance again, rather than firing only once ever.
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setBounced(true);
-          observer.disconnect();
-        }
-      },
+      ([entry]) => setBounced(entry.isIntersecting),
       { threshold: 0.25 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!bounced) return;
-    // Last ring starts its 0.9s rise at a 0.36s delay (index 2 * 0.18s) —
-    // once that's finished, hand off to the looping bounce so the rings
-    // keep gently animating instead of the one-shot entrance just stopping.
-    const lastRingDelay = (RINGS.length - 1) * 0.18;
-    const timer = window.setTimeout(() => setLooping(true), (lastRingDelay + 0.9) * 1000);
-    return () => window.clearTimeout(timer);
-  }, [bounced]);
 
   return (
     <div ref={sectionRef} className="relative w-full h-[769px] overflow-hidden bg-white">
@@ -88,9 +71,7 @@ export default function ShrutiOutcomes() {
         {RINGS.map((ring, i) => (
           <div
             key={ring.color}
-            className={`absolute rounded-full left-1/2 ${
-              looping ? "shruti-ring-loop" : bounced ? "shruti-ring-rise" : "opacity-0"
-            }`}
+            className={`absolute rounded-full left-1/2 ${bounced ? "shruti-ring-rise" : "opacity-0"}`}
             style={{
               width: ring.diameter,
               height: ring.diameter,
@@ -98,9 +79,7 @@ export default function ShrutiOutcomes() {
               marginLeft: -ring.diameter / 2,
               backgroundColor: ring.color,
               // Staggered so the domes rise up one after another (outer to
-              // inner) instead of all snapping into place together — and
-              // keep that same stagger once looping, so they keep bouncing
-              // out of sync with each other rather than in unison.
+              // inner) instead of all snapping into place together.
               animationDelay: bounced ? `${i * 0.18}s` : undefined,
             }}
           />

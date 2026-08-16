@@ -43,6 +43,12 @@ import vector6 from "./vector6.svg";
 import vector7 from "./vector7.svg";
 import group1707491469 from "./group1707491469.svg";
 import vector8 from "./vector8.svg";
+import notificationCheckIcon from "./notification-check-icon.png";
+import contactArcLarge from "./contact-arc-large.svg";
+import contactEllipse2290 from "./contact-ellipse2290.svg";
+import contactArcMid from "./contact-arc-mid.svg";
+import contactArcSmall from "./contact-arc-small.svg";
+import contactCheckVector from "./contact-check-vector.svg";
 
 export {
   polygon33,
@@ -90,4 +96,10 @@ export {
   vector7,
   group1707491469,
   vector8,
+  notificationCheckIcon,
+  contactArcLarge,
+  contactEllipse2290,
+  contactArcMid,
+  contactArcSmall,
+  contactCheckVector,
 };

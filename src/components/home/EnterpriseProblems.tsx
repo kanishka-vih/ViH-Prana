@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { frame2043683721 } from "../../assets";
 import {
   ellipse2323,
@@ -43,8 +44,26 @@ const bubbles = [
 ];
 
 export default function EnterpriseProblems() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    // Replays every time this section re-enters the viewport, same as the
+    // other scroll-reveal sections — scrolling away resets it so scrolling
+    // back down plays the reveal again.
+    const observer = new IntersectionObserver(
+      ([entry]) => setActive(entry.isIntersecting),
+      { threshold: 0.2 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
+      ref={sectionRef}
       className="bg-[#171718] relative w-full h-[732px]"
       style={{
         backgroundImage:
@@ -72,8 +91,10 @@ export default function EnterpriseProblems() {
       ))}
 
       <div
-        className="absolute bg-[rgba(88,88,88,0.68)] backdrop-blur-md border border-white/10 flex flex-col h-[214px] items-start left-[909px] overflow-hidden px-[22px] py-[20px] rounded-[24px] w-[401px]"
-        style={{ top: 372 }}
+        className={`absolute bg-[rgba(88,88,88,0.68)] backdrop-blur-md border border-white/10 flex flex-col h-[214px] items-start left-[909px] overflow-hidden px-[22px] py-[20px] rounded-[24px] w-[401px] ${
+          active ? "panel-fade-rise-in" : "opacity-0"
+        }`}
+        style={{ top: 372, animationDelay: active ? "0.15s" : undefined }}
       >
         <div className="flex flex-col justify-between h-full w-full">
           <div className="flex gap-[8px] items-start">
@@ -90,8 +111,10 @@ export default function EnterpriseProblems() {
       </div>
 
       <div
-        className="absolute bg-[rgba(88,88,88,0.68)] backdrop-blur-md border border-white/10 flex flex-col h-[214px] items-start left-[89px] overflow-hidden px-[22px] py-[20px] rounded-[24px] w-[401px]"
-        style={{ top: -94 }}
+        className={`absolute bg-[rgba(88,88,88,0.68)] backdrop-blur-md border border-white/10 flex flex-col h-[214px] items-start left-[89px] overflow-hidden px-[22px] py-[20px] rounded-[24px] w-[401px] ${
+          active ? "panel-fade-rise-in" : "opacity-0"
+        }`}
+        style={{ top: -94, animationDelay: active ? "0s" : undefined }}
       >
         <div className="flex flex-col justify-between h-full w-full">
           <div className="flex gap-[8px] items-start">

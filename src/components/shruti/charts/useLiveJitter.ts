@@ -9,8 +9,22 @@ import { useEffect, useState } from "react";
  * `jitter` returns a NEW array/object derived from `base` (never mutate
  * base in place, or React won't see a change to animate from).
  */
-export function useLiveJitter<T>(base: T, jitter: (base: T) => T, active: boolean, intervalMs = 3500) {
+export function useLiveJitter<T>(
+  base: T,
+  jitter: (base: T) => T,
+  active: boolean,
+  intervalMs = 3500,
+  // Pass something like the selected tab here when `base` represents a
+  // different dataset per tab — without it, switching tabs wouldn't reset
+  // `data` since useState only reads its initializer once.
+  resetKey?: unknown,
+) {
   const [data, setData] = useState(base);
+
+  useEffect(() => {
+    setData(base);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetKey]);
 
   useEffect(() => {
     if (!active) return;

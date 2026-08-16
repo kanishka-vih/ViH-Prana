@@ -18,6 +18,12 @@ import {
   vector6,
   vector7,
   group1707491469,
+  notificationCheckIcon,
+  contactArcLarge,
+  contactEllipse2290,
+  contactArcMid,
+  contactArcSmall,
+  contactCheckVector,
 } from "../../assets";
 import CccaaaSection from "./CccaaaSection";
 import { scrollToContactForm, CONTACT_FORM_ID } from "../../lib/scrollToContact";
@@ -146,63 +152,55 @@ export default function HomeBottomSections() {
       {/* Contact form */}
       <div
         id={CONTACT_FORM_ID}
-        className="bg-[rgba(208,208,208,0.35)] h-[698px] overflow-hidden relative rounded-[24px] shrink-0 w-[1240px] scroll-mt-[24px]"
+        className="bg-[#f8f9fb] h-[698px] overflow-hidden relative rounded-[24px] shrink-0 w-[1240px] scroll-mt-[24px]"
       >
         <h2 className="-translate-y-1/2 absolute font-normal text-[#040404] text-[42px] left-[33px] top-[60px] tracking-[-1px] w-[274px] m-0 leading-[44px]">
           Get in touch
         </h2>
         {submitted ? (
-          <div className="contact-success-in absolute left-[534px] top-[60px] h-[578px] w-[612px] overflow-hidden rounded-[24px]">
-            {/* The real Figma illustration: 3 identical 1043.107px circles
-                (confirmed via dev-mode inspector on "Ellipse 2290"), each a
-                radial-gradient from the page's own #EDEDED out to a
-                different end color (#7E0DE1 violet, #3084F1 blue, #B15BFC
-                lilac), stacked at different vertical offsets so each one's
-                cap peeks out by a different amount — that's what builds up
-                the layered color bands, not a single flat gradient. */}
-            <div className="absolute inset-0 bg-[#EDEDED]" />
-            {/* Each circle's own wrapper handles centering (translateX)
-                separately from the bounce (scale-only) animation, so the
-                bounce doesn't clobber the centering transform. All 3 share
-                the exact same animation, unstaggered, so they pop in as one
-                synchronized moment. A soft blur on each circle (plus tight
-                overlap between them) blends the seams into gradients
-                instead of hard-edged rainbow rings. */}
-            <div className="absolute left-1/2 size-[1043px] -translate-x-1/2 blur-[70px]" style={{ top: 40 }}>
-              <div
-                className="contact-circle-bounce size-full rounded-full"
-                style={{ background: "radial-gradient(circle at 50% 30%, #EDEDED 0%, #B15BFC 100%)" }}
-              />
-            </div>
-            <div className="absolute left-1/2 size-[1043px] -translate-x-1/2 blur-[70px]" style={{ top: 95 }}>
-              <div
-                className="contact-circle-bounce size-full rounded-full"
-                style={{ background: "radial-gradient(circle at 50% 30%, #EDEDED 0%, #7E0DE1 100%)" }}
-              />
-            </div>
-            <div className="absolute left-1/2 size-[1043px] -translate-x-1/2 blur-[70px]" style={{ top: 150 }}>
-              <div
-                className="contact-circle-bounce size-full rounded-full"
-                style={{ background: "radial-gradient(circle at 50% 30%, #EDEDED 0%, #3084F1 100%)" }}
-              />
-            </div>
-            <div className="contact-card-pop absolute left-1/2 top-1/2 flex items-center gap-[14px] rounded-[16px] bg-white px-[22px] py-[18px] shadow-[0_20px_45px_rgba(0,0,0,0.25)]">
-              <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[6px] bg-[#040404]">
-                <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                  <path
-                    d="M1.5 6.5L5.5 10.5L14.5 1.5"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <div className="text-left">
-                <p className="m-0 text-[16px] font-semibold text-[#040404]">
-                  Thank you {values.fullName.trim() || "there"} !!
-                </p>
-                <p className="m-0 text-[14px] text-[#5a5a5a]">Our sales team shall connect with you soon</p>
+          <>
+            {/* 1:1 port of Figma frame 2043683740 (node 82:396), pulled via
+                get_design_context — white card, radial-arc illustration built
+                from 4 stacked SVG layers (get_motion_context node 82:398/401/
+                402/404), and the notification chip (node 82:406). */}
+            <div className="absolute left-[534px] top-[60px] h-[559px] w-[612px] overflow-hidden rounded-[30px] bg-white">
+              <div className="absolute left-[-457px] top-[-134px] h-[794px] w-[1440px] overflow-hidden bg-gradient-to-t from-[rgba(192,192,192,0.44)] to-white">
+                <div className="contact-layer-in absolute left-[-201px] top-[-156px] size-[1843px]">
+                  <div className="absolute inset-[-6.12%_-6.41%_-5.54%_-6.47%]">
+                    <img alt="" className="block max-w-none size-full" src={contactArcLarge} />
+                  </div>
+                </div>
+                <div className="contact-layer-in contact-delay-1 absolute left-[245px] top-[237px] size-[1043.107px]">
+                  <img alt="" className="absolute inset-0 block size-full max-w-none" src={contactEllipse2290} />
+                </div>
+                <div className="contact-layer-in contact-delay-2 absolute left-[245px] top-[349px] size-[1043.107px]">
+                  <img alt="" className="absolute inset-0 block size-full max-w-none" src={contactArcMid} />
+                </div>
+                <div className="contact-layer-in contact-delay-3 absolute left-[245px] top-[499px] size-[1043.107px]">
+                  <img alt="" className="absolute inset-0 block size-full max-w-none" src={contactArcSmall} />
+                </div>
+                <div className="contact-layer-in contact-delay-4 absolute left-[600px] top-[323px] flex h-[162px] w-[355px] flex-col items-center justify-center rounded-[16px] bg-[rgba(255,255,255,0.55)] px-[24px] py-[10px]">
+                  <div className="flex w-full items-start gap-[18px]">
+                    <div className="relative size-[38px] shrink-0 overflow-hidden rounded-[10px]">
+                      <img alt="" className="pointer-events-none absolute inset-0 size-full object-cover" src={notificationCheckIcon} />
+                      <div className="absolute left-[7.89%] right-[7.89%] top-[3px] aspect-square">
+                        <div className="absolute inset-[29.69%_17.19%_23.44%_17.19%]">
+                          <div className="absolute inset-[-5.79%_-4.13%]">
+                            <img alt="" className="block max-w-none size-full" src={contactCheckVector} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="min-w-px flex-1 overflow-hidden">
+                      <p className="m-0 text-[24px] leading-[28px] text-black">
+                        Thank you {values.fullName.trim() || "there"} !!
+                      </p>
+                      <p className="m-0 text-[24px] font-light leading-[28px] text-black">
+                        Our sales team shall connect with you soon
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <button
@@ -211,11 +209,11 @@ export default function HomeBottomSections() {
                 setSubmitted(false);
                 setValues({ email: "", fullName: "", companyName: "", source: "" });
               }}
-              className="absolute bottom-[24px] left-1/2 -translate-x-1/2 cursor-pointer border-none bg-transparent text-[14px] text-[#5a3d99] underline"
+              className="absolute left-[534px] top-[634px] w-[612px] cursor-pointer border-none bg-transparent text-center text-[14px] text-[#5a3d99] underline"
             >
               Send another message
             </button>
-          </div>
+          </>
         ) : (
           <>
             <form
@@ -240,7 +238,7 @@ export default function HomeBottomSections() {
                     className={`w-full bg-transparent border-0 border-b outline-none text-[20px] text-[#040404] pb-[8px] transition-colors ${
                       errors[field.key]
                         ? "border-[#c0392b]"
-                        : "border-[#8a8a8a]/40 focus:border-[#040404]"
+                        : "border-[#8a8a8a]/40 hover:border-[#040404]/60 focus:border-[#040404]"
                     }`}
                   />
                   {/* Absolutely positioned so an error never pushes the
@@ -259,7 +257,7 @@ export default function HomeBottomSections() {
             <button
               type="button"
               onClick={validateAndSubmit}
-              className="absolute bg-[rgba(0,0,0,0.47)] border border-[#828282] border-solid flex h-[52px] items-center justify-center left-[534px] px-[8px] py-[4px] rounded-[12px] top-[554px] w-[612px] cursor-pointer hover:bg-[rgba(0,0,0,0.6)] transition-colors"
+              className="absolute bg-[#040404] border border-[#040404] border-solid flex h-[52px] items-center justify-center left-[534px] px-[8px] py-[4px] rounded-[12px] top-[554px] w-[612px] cursor-pointer hover:bg-[#232323] hover:scale-[1.01] active:scale-[0.99] transition-all"
             >
               <span className="font-['Roboto_Mono'] font-normal text-[20px] text-white tracking-[0.12px]">
                 Send

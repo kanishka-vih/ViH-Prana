@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   screenshot50914,
   weuiArrowOutlined,
@@ -10,7 +11,6 @@ import {
   images21,
   images31,
   images41,
-  line8,
   vector4,
   group5,
   group6,
@@ -19,18 +19,63 @@ import {
   vector6,
   vector7,
   group1707491469,
+  notificationCheckIcon,
+  contactArcLarge,
+  contactEllipse2290,
+  contactArcMid,
+  contactArcSmall,
+  contactCheckVector,
 } from "../assets";
 
-const formFields = [
-  { label: "Email", optional: false },
-  { label: "Full Name", optional: false },
-  { label: "Company Name", optional: false },
-  { label: "How did you know about us ?", optional: true },
+type FormValues = {
+  email: string;
+  fullName: string;
+  companyName: string;
+  source: string;
+};
+
+const formFields: { key: keyof FormValues; label: string; optional?: boolean; type?: string }[] = [
+  { key: "email", label: "Email", type: "email" },
+  { key: "fullName", label: "Full Name" },
+  { key: "companyName", label: "Company Name" },
+  { key: "source", label: "How did you know about us ?", optional: true },
 ];
 
 const footerLinks = ["About us", "ViH Shruti", "ViH Viveka", "ViH Kshetra "];
 
 export default function BottomSections() {
+  const [values, setValues] = useState<FormValues>({
+    email: "",
+    fullName: "",
+    companyName: "",
+    source: "",
+  });
+  const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange =
+    (key: keyof FormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setValues((v) => ({ ...v, [key]: e.target.value }));
+      setErrors((er) => ({ ...er, [key]: undefined }));
+    };
+
+  const validateAndSubmit = () => {
+    const nextErrors: Partial<Record<keyof FormValues, string>> = {};
+    if (!values.email.trim()) nextErrors.email = "Required";
+    if (!values.fullName.trim()) nextErrors.fullName = "Required";
+    if (!values.companyName.trim()) nextErrors.companyName = "Required";
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+    setSubmitted(true);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    validateAndSubmit();
+  };
+
   return (
     <div className="absolute flex flex-col gap-[135px] items-center left-0 top-[4442px]">
       {/* Product screenshot / "What sets Viveka apart" */}
@@ -129,29 +174,109 @@ export default function BottomSections() {
         <h2 className="-translate-y-1/2 absolute font-normal text-[#040404] text-[42px] left-[33px] top-[60px] tracking-[-1px] w-[274px] m-0 leading-[44px]">
           Get in touch
         </h2>
-        <form className="absolute flex flex-col gap-[56px] items-start left-[534px] top-[60px] w-[612px]">
-          {formFields.map((field) => (
-            <div className="flex flex-col gap-[16px] items-start w-full" key={field.label}>
-              <div className="flex justify-between items-start w-full text-[24px] tracking-[-1px]">
-                <span className="text-[#040404] leading-[44px]">{field.label}</span>
-                {field.optional && (
-                  <span className="text-[#6d6c6c] leading-[44px]">OPTIONAL</span>
-                )}
-              </div>
-              <div className="h-0 w-full relative">
-                <img alt="" className="block max-w-none size-full" src={line8} />
+        {submitted ? (
+          <>
+            {/* 1:1 port of Figma frame 2043683740 (node 82:396) — white card,
+                radial-arc illustration built from 4 stacked SVG layers
+                (get_motion_context node 82:398/401/402/404), and the
+                notification chip (node 82:406). */}
+            <div className="absolute left-[534px] top-[60px] h-[559px] w-[612px] overflow-hidden rounded-[30px] bg-white">
+              <div className="absolute left-[-457px] top-[-134px] h-[794px] w-[1440px] overflow-hidden bg-gradient-to-t from-[rgba(192,192,192,0.44)] to-white">
+                <div className="contact-layer-in absolute left-[-201px] top-[-156px] size-[1843px]">
+                  <div className="absolute inset-[-6.12%_-6.41%_-5.54%_-6.47%]">
+                    <img alt="" className="block max-w-none size-full" src={contactArcLarge} />
+                  </div>
+                </div>
+                <div className="contact-layer-in contact-delay-1 absolute left-[245px] top-[237px] size-[1043.107px]">
+                  <img alt="" className="absolute inset-0 block size-full max-w-none" src={contactEllipse2290} />
+                </div>
+                <div className="contact-layer-in contact-delay-2 absolute left-[245px] top-[349px] size-[1043.107px]">
+                  <img alt="" className="absolute inset-0 block size-full max-w-none" src={contactArcMid} />
+                </div>
+                <div className="contact-layer-in contact-delay-3 absolute left-[245px] top-[499px] size-[1043.107px]">
+                  <img alt="" className="absolute inset-0 block size-full max-w-none" src={contactArcSmall} />
+                </div>
+                <div className="contact-layer-in contact-delay-4 absolute left-[600px] top-[323px] flex h-[162px] w-[355px] flex-col items-center justify-center rounded-[16px] bg-[rgba(255,255,255,0.55)] px-[24px] py-[10px]">
+                  <div className="flex w-full items-start gap-[18px]">
+                    <div className="relative size-[38px] shrink-0 overflow-hidden rounded-[10px]">
+                      <img alt="" className="pointer-events-none absolute inset-0 size-full object-cover" src={notificationCheckIcon} />
+                      <div className="absolute left-[7.89%] right-[7.89%] top-[3px] aspect-square">
+                        <div className="absolute inset-[29.69%_17.19%_23.44%_17.19%]">
+                          <div className="absolute inset-[-5.79%_-4.13%]">
+                            <img alt="" className="block max-w-none size-full" src={contactCheckVector} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="min-w-px flex-1 overflow-hidden">
+                      <p className="m-0 text-[24px] leading-[28px] text-black">
+                        Thank you {values.fullName.trim() || "there"} !!
+                      </p>
+                      <p className="m-0 text-[24px] font-light leading-[28px] text-black">
+                        Our sales team shall connect with you soon
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          ))}
-        </form>
-        <button
-          type="submit"
-          className="absolute bg-[rgba(0,0,0,0.47)] border border-[#828282] border-solid flex h-[52px] items-center justify-center left-[534px] px-[8px] py-[4px] rounded-[12px] top-[554px] w-[612px] cursor-pointer"
-        >
-          <span className="font-['Roboto_Mono'] font-normal text-[20px] text-white tracking-[0.12px]">
-            Send
-          </span>
-        </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitted(false);
+                setValues({ email: "", fullName: "", companyName: "", source: "" });
+              }}
+              className="absolute left-[534px] top-[634px] w-[612px] cursor-pointer border-none bg-transparent text-center text-[14px] text-[#5a3d99] underline"
+            >
+              Send another message
+            </button>
+          </>
+        ) : (
+          <>
+            <form
+              onSubmit={handleFormSubmit}
+              className="absolute flex flex-col gap-[40px] items-start left-[534px] top-[60px] w-[612px]"
+            >
+              {formFields.map((field) => (
+                <div className="relative flex flex-col gap-[8px] items-start w-full" key={field.key}>
+                  <div className="flex justify-between items-start w-full text-[24px] tracking-[-1px]">
+                    <label htmlFor={field.key} className="text-[#040404] leading-[44px]">
+                      {field.label}
+                    </label>
+                    {field.optional && (
+                      <span className="text-[#6d6c6c] leading-[44px] text-[16px]">OPTIONAL</span>
+                    )}
+                  </div>
+                  <input
+                    id={field.key}
+                    type={field.type ?? "text"}
+                    value={values[field.key]}
+                    onChange={handleChange(field.key)}
+                    className={`w-full bg-transparent border-0 border-b outline-none text-[20px] text-[#040404] pb-[8px] transition-colors ${
+                      errors[field.key]
+                        ? "border-[#c0392b]"
+                        : "border-[#8a8a8a]/40 focus:border-[#040404]"
+                    }`}
+                  />
+                  {errors[field.key] && (
+                    <span className="absolute left-0 top-full text-[#c0392b] text-[13px]">
+                      {errors[field.key]}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </form>
+            <button
+              type="button"
+              onClick={validateAndSubmit}
+              className="absolute bg-[rgba(0,0,0,0.47)] border border-[#828282] border-solid flex h-[52px] items-center justify-center left-[534px] px-[8px] py-[4px] rounded-[12px] top-[554px] w-[612px] cursor-pointer hover:bg-[rgba(0,0,0,0.6)] transition-colors"
+            >
+              <span className="font-['Roboto_Mono'] font-normal text-[20px] text-white tracking-[0.12px]">
+                Send
+              </span>
+            </button>
+          </>
+        )}
       </div>
 
       {/* Footer */}

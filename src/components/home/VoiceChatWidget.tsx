@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { weuiArrowOutlined } from "../../assets";
 import { ellipse2328, voicechatAvatarRing, voicechatMic, voicechatSend } from "../../assets/home";
 import { CONTACT_FORM_ID } from "../../lib/scrollToContact";
+import { getSpeechTuning, loadVoice, type SpeechLang } from "../../lib/pickVoice";
 
 type Message = { from: "bot" | "user"; text: string };
 
@@ -14,40 +16,103 @@ type Message = { from: "bot" | "user"; text: string };
 const VISIBLE_FOR_PAGES = 4;
 const GLOBE_SECTION_ID = "vih-prana-section";
 
-const GREETING =
-  "Hi, I'm Prana's voice assistant. Ask me about call intelligence, workflows, or analytics.";
+function buildGreeting(botName: string, lang: SpeechLang) {
+  return lang === "hi"
+    ? `नमस्ते, मैं ${botName} की वॉइस असिस्टेंट हूँ। मुझसे कॉल इंटेलिजेंस, वर्कफ़्लो या एनालिटिक्स के बारे में पूछें।`
+    : `Hi, I'm ${botName}'s voice assistant. Ask me about call intelligence, workflows, or analytics.`;
+}
 
-const DEMO_REPLIES = [
-  "Got it — Prana can pull that up from your call intelligence dashboard in real time.",
-  "Sure thing. Our agents can automate that workflow end-to-end with human oversight.",
-  "That's tracked automatically across every channel, so nothing falls through the cracks.",
-];
+function buildReplies(botName: string, lang: SpeechLang) {
+  return lang === "hi"
+    ? [
+        `समझ गई — ${botName} इसे आपके कॉल इंटेलिजेंस डैशबोर्ड से रीयल टाइम में दिखा सकती है।`,
+        "बिल्कुल। हमारे एजेंट पूरे वर्कफ़्लो को ह्यूमन ओवरसाइट के साथ ऑटोमेट कर सकते हैं।",
+        "यह हर चैनल पर अपने आप ट्रैक होता है, इसलिए कुछ भी छूटता नहीं।",
+      ]
+    : [
+        `Got it — ${botName} can pull that up from your call intelligence dashboard in real time.`,
+        "Sure thing. Our agents can automate that workflow end-to-end with human oversight.",
+        "That's tracked automatically across every channel, so nothing falls through the cracks.",
+      ];
+}
 
-function speak(text: string, onStart: () => void, onEnd: () => void) {
+async function speak(text: string, lang: SpeechLang, onStart: () => void, onEnd: () => void) {
   if (typeof window === "undefined" || !window.speechSynthesis) {
     onStart();
-    window.setTimeout(onEnd, 1200);
+    window.setTimeout(onEnd, Math.min(4000, 800 + text.length * 40));
     return;
   }
+  const voice = await loadVoice(lang);
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 1;
-  utterance.pitch = 1;
+  if (voice) utterance.voice = voice;
+  utterance.lang = lang === "hi" ? "hi-IN" : "en-IN";
+  const tuning = getSpeechTuning(lang);
+  utterance.rate = tuning.rate;
+  utterance.pitch = tuning.pitch;
   utterance.onstart = onStart;
   utterance.onend = onEnd;
   utterance.onerror = onEnd;
   window.speechSynthesis.speak(utterance);
 }
 
+// Chrome ships this under a vendor prefix and it's not in TS's default DOM
+// lib, so this is typed loosely on purpose.
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((e: any) => void) | null;
+  onerror: ((e: any) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+
+function createRecognizer(lang: SpeechLang): SpeechRecognitionLike | null {
+  const Ctor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!Ctor) return null;
+  const rec: SpeechRecognitionLike = new Ctor();
+  rec.continuous = false;
+  rec.interimResults = false;
+  rec.lang = lang === "hi" ? "hi-IN" : "en-IN";
+  return rec;
+}
+
 export default function VoiceChatWidget() {
+  const location = useLocation();
+  // This widget lives outside <Routes> so it persists across navigation, but
+  // it should introduce itself as Shruti on the Shruti page rather than
+  // always as Prana.
+  const botName = location.pathname.startsWith("/shruti") ? "Shruti" : "Prana";
+
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"voice" | "chat">("voice");
+  const [lang, setLang] = useState<SpeechLang>("en");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [speaking, setSpeaking] = useState(false);
+  const [listening, setListening] = useState(false);
   const [visible, setVisible] = useState(true);
   const replyIndex = useRef(0);
   const listRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const recognizerRef = useRef<SpeechRecognitionLike | null>(null);
+  const langRef = useRef<SpeechLang>("en");
+  langRef.current = lang;
+
+  const greeting = useMemo(() => buildGreeting(botName, lang), [botName, lang]);
+
+  const stopListening = () => {
+    try {
+      recognizerRef.current?.abort();
+    } catch {
+      /* already stopped */
+    }
+    recognizerRef.current = null;
+    setListening(false);
+  };
 
   useEffect(() => {
     const updateVisibility = () => {
@@ -85,15 +150,44 @@ export default function VoiceChatWidget() {
     if (!visible) setOpen(false);
   }, [visible]);
 
+  // Whenever the panel closes — via ×, outside click, or scrolling out of
+  // range — stop any speech/listening in flight rather than leaving it
+  // running in the background.
+  useEffect(() => {
+    if (open) return;
+    window.speechSynthesis?.cancel();
+    setSpeaking(false);
+    stopListening();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Clicking anywhere outside the widget (the panel or the toggle button)
+  // closes it, same as clicking the × — so it doesn't just sit open over
+  // the page while the user is doing something else.
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open]);
+
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([{ from: "bot", text: GREETING }]);
+      setMessages([{ from: "bot", text: greeting }]);
       speak(
-        GREETING,
+        greeting,
+        lang,
         () => setSpeaking(true),
         () => setSpeaking(false),
       );
     }
+    // Only fire when the panel first opens — `greeting`/`lang` changing
+    // afterwards shouldn't replay it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, messages.length]);
 
   useEffect(() => {
@@ -103,41 +197,101 @@ export default function VoiceChatWidget() {
   useEffect(() => {
     return () => {
       if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+      stopListening();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const replayGreeting = () => {
-    const lastBotLine = [...messages].reverse().find((m) => m.from === "bot")?.text ?? GREETING;
-    speak(
-      lastBotLine,
-      () => setSpeaking(true),
-      () => setSpeaking(false),
-    );
+  const respond = (userText: string) => {
+    setMessages((m) => [...m, { from: "user", text: userText }]);
+    window.setTimeout(() => {
+      const replies = buildReplies(botName, langRef.current);
+      const reply = replies[replyIndex.current % replies.length];
+      replyIndex.current += 1;
+      setMessages((m) => [...m, { from: "bot", text: reply }]);
+      speak(
+        reply,
+        langRef.current,
+        () => setSpeaking(true),
+        () => setSpeaking(false),
+      );
+    }, 700);
+  };
+
+  const startListening = () => {
+    if (listening || speaking) return;
+    const rec = createRecognizer(langRef.current);
+    if (!rec) {
+      setTab("voice");
+      setMessages((m) => [
+        ...m,
+        {
+          from: "bot",
+          text: "Speech recognition isn't supported in this browser — try Chrome or Edge, or send a typed message instead.",
+        },
+      ]);
+      return;
+    }
+    window.speechSynthesis?.cancel();
+    recognizerRef.current = rec;
+    setListening(true);
+    rec.onresult = (e: any) => {
+      const text = e.results[e.results.length - 1][0].transcript.trim();
+      stopListening();
+      if (text) respond(text);
+    };
+    rec.onerror = () => {
+      stopListening();
+    };
+    rec.onend = () => {
+      recognizerRef.current = null;
+      setListening(false);
+    };
+    try {
+      rec.start();
+    } catch {
+      /* already running */
+    }
+  };
+
+  const handleMicClick = () => {
+    if (listening) {
+      stopListening();
+      return;
+    }
+    startListening();
+  };
+
+  const toggleLanguage = () => {
+    const next: SpeechLang = lang === "en" ? "hi" : "en";
+    setLang(next);
+    stopListening();
+    if (messages.length > 0) {
+      const ack = next === "hi" ? "ज़रूर, अब मैं हिंदी में बात करती हूँ।" : "Sure, switching back to English.";
+      setMessages((m) => [...m, { from: "bot", text: ack }]);
+      speak(
+        ack,
+        next,
+        () => setSpeaking(true),
+        () => setSpeaking(false),
+      );
+    }
   };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     const text = input.trim();
     if (!text) return;
-    setMessages((m) => [...m, { from: "user", text }]);
     setInput("");
     setTab("chat");
-    window.setTimeout(() => {
-      const reply = DEMO_REPLIES[replyIndex.current % DEMO_REPLIES.length];
-      replyIndex.current += 1;
-      setMessages((m) => [...m, { from: "bot", text: reply }]);
-      speak(
-        reply,
-        () => setSpeaking(true),
-        () => setSpeaking(false),
-      );
-    }, 900);
+    respond(text);
   };
 
-  const lastBotLine = [...messages].reverse().find((m) => m.from === "bot")?.text ?? GREETING;
+  const lastBotLine = [...messages].reverse().find((m) => m.from === "bot")?.text ?? greeting;
 
   return (
     <div
+      ref={containerRef}
       className={`fixed right-[24px] bottom-[24px] z-50 flex flex-col items-end gap-[12px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         visible
           ? "translate-y-0 scale-100 opacity-100"
@@ -147,10 +301,17 @@ export default function VoiceChatWidget() {
       {open && (
         <div className="voicechat-panel-in w-[385px] h-[479px] flex flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_25px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
           <div className="flex items-center justify-between px-[20px] pt-[16px] shrink-0">
-            <div className="flex h-[32px] items-center gap-[6px] rounded-[19px] border border-[#e1e1e1] bg-white/70 px-[14px]">
-              <span className="text-[14px] tracking-[-0.56px] text-black">English</span>
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              aria-label="Toggle language between English and Hindi"
+              className="flex h-[32px] cursor-pointer items-center gap-[6px] rounded-[19px] border border-[#e1e1e1] bg-white/70 px-[14px] hover:bg-white transition-colors"
+            >
+              <span className="text-[14px] tracking-[-0.56px] text-black">
+                {lang === "hi" ? "हिंदी" : "English"}
+              </span>
               <img alt="" className="h-[11px] w-[22px] -rotate-90" src={weuiArrowOutlined} />
-            </div>
+            </button>
 
             <div className="flex items-center gap-[6px]">
               <button
@@ -186,16 +347,16 @@ export default function VoiceChatWidget() {
             <div className="flex flex-1 flex-col items-center justify-center gap-[24px] px-[24px]">
               <button
                 type="button"
-                onClick={replayGreeting}
-                aria-label="Replay voice greeting"
+                onClick={handleMicClick}
+                aria-label={listening ? "Stop listening" : "Speak to the voice assistant"}
                 className="relative flex size-[157px] cursor-pointer items-center justify-center"
               >
-                <span className={`absolute inset-0 ${speaking ? "voicechat-ring-pulse" : ""}`} />
+                <span className={`absolute inset-0 ${speaking || listening ? "voicechat-ring-pulse" : ""}`} />
                 <img alt="" className="absolute inset-0 block size-full" src={voicechatAvatarRing} />
                 <img alt="" className="relative size-[47px]" src={voicechatMic} />
               </button>
               <p className="w-[287px] text-center text-[14px] leading-[19px] text-[#5b5348]">
-                {lastBotLine}
+                {listening ? (lang === "hi" ? "सुन रही हूँ…" : "Listening…") : lastBotLine}
               </p>
             </div>
           ) : (

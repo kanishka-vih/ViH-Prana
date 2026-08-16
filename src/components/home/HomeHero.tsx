@@ -1,4 +1,3 @@
-import Header from "../Header";
 import HeroVideo from "./HeroVideo";
 import HomeTrustedBy from "./HomeTrustedBy";
 import { weuiArrowOutlined } from "../../assets";
@@ -7,8 +6,6 @@ import { scrollToContactForm } from "../../lib/scrollToContact";
 export default function HomeHero() {
   return (
     <div className="bg-[#f7f7f8] relative overflow-hidden w-full h-[1689px]">
-      <Header />
-
       <div className="absolute left-[101px] top-[208px] w-[1241px] h-[186px]">
         <div className="flex flex-col gap-[20px] items-start w-[895px]">
           <h1 className="font-light leading-[54px] text-[52px] text-black tracking-[-2.16px] w-[439px] m-0">

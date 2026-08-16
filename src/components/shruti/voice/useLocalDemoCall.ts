@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CallState, Turn } from "./useVoiceCall";
+import { getSpeechTuning, loadVoice, type SpeechLang } from "../../../lib/pickVoice";
 
 // Fully client-side voice/chat demo — no network call, no external API, so
 // nothing here can be blocked by CORS or an unreachable backend. Voice mode
@@ -11,7 +12,7 @@ import type { CallState, Turn } from "./useVoiceCall";
 // a sensible answer every time" matters more than true understanding.
 // Scripts exist in English and Hindi; saying/typing "speak in hindi" (or
 // "english") mid-call switches language on the fly without restarting.
-export type Lang = "en" | "hi";
+export type Lang = SpeechLang;
 export type DemoScript = { greeting: string; steps: string[] };
 export type LocalizedScript = Record<Lang, DemoScript>;
 export type InputMode = "voice" | "chat";
@@ -96,55 +97,6 @@ export const DEMO_SCRIPTS: Record<string, LocalizedScript> = {
 const SWITCH_TO_HINDI_ACK = "ज़रूर, अब मैं हिंदी में बात करती हूँ। ";
 const SWITCH_TO_ENGLISH_ACK = "Sure, switching back to English. ";
 
-// Picks the best available voice for a language. Chrome/Edge only populate
-// the voice list asynchronously (sometimes after a `voiceschanged` event),
-// so this resolves once the list is ready and caches the pick per language.
-const voicePromises = new Map<Lang, Promise<SpeechSynthesisVoice | null>>();
-
-function scoreVoice(v: SpeechSynthesisVoice, lang: Lang): number {
-  const name = v.name.toLowerCase();
-  if (lang === "hi") {
-    if (!v.lang.toLowerCase().startsWith("hi")) return -1;
-    if (/natural|swara|kalpana/.test(name)) return 100;
-    return v.lang.toLowerCase().startsWith("hi") ? 50 : 0;
-  }
-  if (!v.lang.toLowerCase().startsWith("en")) return -1;
-  // Modern "Natural"/neural voices sound far less robotic than the legacy
-  // platform ones, so prefer those first; then well-known clear female
-  // voices. The Indian-accented legacy voice (Heera) reads as noticeably
-  // more robotic than the US/UK ones on this synthesizer, so it's ranked
-  // lower — used only if nothing clearer is available.
-  if (/natural/.test(name) && /(aria|jenny|emma|ava|michelle)/.test(name)) return 100;
-  if (/(zira|samantha|susan|karen|victoria|moira|tessa|google uk english female|google us english)/.test(name))
-    return 80;
-  if (/female/.test(name)) return 60;
-  if (/heera/.test(name)) return 40;
-  return 0;
-}
-
-function loadVoice(lang: Lang): Promise<SpeechSynthesisVoice | null> {
-  const cached = voicePromises.get(lang);
-  if (cached) return cached;
-  const promise = new Promise<SpeechSynthesisVoice | null>((resolve) => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return resolve(null);
-    const pick = () => {
-      const voices = window.speechSynthesis.getVoices();
-      if (!voices.length) return null;
-      const ranked = voices.map((v) => ({ v, score: scoreVoice(v, lang) })).sort((a, b) => b.score - a.score);
-      if (ranked[0].score >= 0) return ranked[0].v;
-      return lang === "en" ? voices[0] : null;
-    };
-    const existing = pick();
-    if (existing) return resolve(existing);
-    window.speechSynthesis.onvoiceschanged = () => resolve(pick());
-    // Some browsers never fire voiceschanged if the list was already (empty
-    // then) populated synchronously — give it one more check shortly after.
-    window.setTimeout(() => resolve(pick()), 300);
-  });
-  voicePromises.set(lang, promise);
-  return promise;
-}
-
 async function speak(text: string, lang: Lang, onStart: () => void, onEnd: () => void) {
   if (typeof window === "undefined" || !window.speechSynthesis) {
     onStart();
@@ -156,12 +108,9 @@ async function speak(text: string, lang: Lang, onStart: () => void, onEnd: () =>
   const utterance = new SpeechSynthesisUtterance(text);
   if (voice) utterance.voice = voice;
   utterance.lang = lang === "hi" ? "hi-IN" : "en-IN";
-  // Legacy platform voices (the only ones most browsers ship) sound MORE
-  // robotic and dragged-out when slowed down or pitch-shifted up — a
-  // brisker-than-default rate and neutral pitch reads as more natural and
-  // noticeably less sluggish than a "warm" slow/high-pitch combo.
-  utterance.rate = 1.15;
-  utterance.pitch = 1.0;
+  const tuning = getSpeechTuning(lang);
+  utterance.rate = tuning.rate;
+  utterance.pitch = tuning.pitch;
   utterance.onstart = onStart;
   utterance.onend = onEnd;
   utterance.onerror = onEnd;
