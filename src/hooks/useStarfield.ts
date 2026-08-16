@@ -1,4 +1,5 @@
-import { useEffect, RefObject } from "react";
+import { useEffect } from "react";
+import type { RefObject } from "react";
 
 interface Star {
   x: number;
@@ -8,7 +9,7 @@ interface Star {
   s: number;
 }
 
-export const useStarfield = (canvasRef: RefObject<HTMLCanvasElement>): void => {
+export const useStarfield = (canvasRef: RefObject<HTMLCanvasElement | null>): void => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
