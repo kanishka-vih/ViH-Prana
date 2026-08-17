@@ -1,28 +1,8 @@
 import iconArrowOutlined from '../../assets/messenger-figma/icon-arrow-outlined.svg'
 import iconQuoteFill from '../../assets/messenger-figma/icon-quote-fill.svg'
 import iconArrowUpOutline from '../../assets/messenger-figma/icon-arrow-up-outline.svg'
-import logoStarHealth from '../../assets/messenger-figma/logo-star-health.webp'
-import logoChola from '../../assets/messenger-figma/logo-chola.webp'
-import logoJain from '../../assets/messenger-figma/logo-jain.webp'
-import logoKapston from '../../assets/messenger-figma/logo-kapston.webp'
-import logoTataplay from '../../assets/messenger-figma/logo-tataplay.webp'
-import logoSmc from '../../assets/messenger-figma/logo-smc.webp'
-import logoBsnl from '../../assets/messenger-figma/logo-bsnl.webp'
+import { images11, images21, images31, images41, images2, a5e5bd2a, bsnlLogo1 } from '../../assets'
 import { scrollToContact } from './utils/scrollToContact'
-
-// Each source file has a different amount of built-in padding/canvas shape
-// (some are tightly-cropped wide logos, others are square with a lot of
-// blank space around the mark) — height is tuned per logo so they read as
-// visually consistent instead of all being forced into one box size.
-const LOGOS = [
-  { src: logoStarHealth, height: 95 },
-  { src: logoChola, height: 50 },
-  { src: logoJain, height: 125 },
-  { src: logoKapston, height: 145 },
-  { src: logoTataplay, height: 120, offsetX: 16 },
-  { src: logoSmc, height: 50 },
-  { src: logoBsnl, height: 140 },
-]
 
 export default function TestimonialsSection() {
   return (
@@ -78,17 +58,28 @@ export default function TestimonialsSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 items-center justify-items-start w-full opacity-80">
-          {LOGOS.map((logo, i) => (
-            <div
-              key={i}
-              className="w-[160px]"
-              style={{ height: logo.height, marginLeft: logo.offsetX ?? 0 }}
-            >
-              <img src={logo.src} alt="" className="h-full w-full object-contain object-left" />
+        {/* Partner logos — same canonical block as HomeBottomSections.tsx
+            (Figma node 82:246), reusing the shared asset set instead of this
+            section's own separately-cropped logo files, so this exact
+            designer-updated layout is identical across Home/Shruti and
+            Messenger rather than drifting into its own grid/spacing. */}
+        <div className="flex flex-col gap-6 items-start justify-center opacity-90 w-full">
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-0 opacity-80 w-full">
+            <img alt="" className="h-[106px] w-[205px] object-contain" src={images11} />
+            <img alt="" className="h-[70px] w-[197px] object-contain" src={images21} />
+            <img alt="" className="h-[90px] w-[166px] object-contain" src={images31} />
+            <img alt="" className="h-[93px] w-[188px] object-contain" src={images41} />
+          </div>
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 md:gap-0 w-full">
+            <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-8 md:gap-0 opacity-80 w-full md:w-[867px]">
+              <img alt="" className="h-[83px] w-[167px] object-contain" src={images2} />
+              <img alt="" className="h-[66px] w-[205px] object-contain" src={a5e5bd2a} />
+              <img alt="" className="h-[87px] w-[160px] object-contain" src={bsnlLogo1} />
             </div>
-          ))}
-          <p className="font-mono font-semibold text-3xl md:text-[40px] text-[#9f3bf6]">and 100+</p>
+            <p className="font-mono font-semibold text-[#9f3bf6] text-3xl md:text-[40px] tracking-[-1px] leading-[33px] m-0">
+              and 100+
+            </p>
+          </div>
         </div>
       </div>
     </section>

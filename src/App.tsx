@@ -5,10 +5,12 @@ import MessengerPage from "./components/messenger/MessengerPage";
 import ScaledCanvas from "./components/ScaledCanvas";
 import VoiceChatWidget from "./components/home/VoiceChatWidget";
 import FixedHeader from "./components/FixedHeader";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div className="w-full bg-white">
         {/* Rendered outside ScaledCanvas's transform, for the same reason as
             VoiceChatWidget below: CSS `position: fixed` is relative to the

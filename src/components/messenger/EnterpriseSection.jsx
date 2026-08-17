@@ -6,10 +6,6 @@ import iconSupport from '../../assets/messenger-figma/icon-support-solid.svg'
 import iconGrowth from '../../assets/messenger-figma/icon-growth-solid.svg'
 import iconFileSystem from '../../assets/messenger-figma/icon-file-system.svg'
 
-// Idle state matching the rise-fade keyframe's 0% frame, held until the
-// section scrolls into view.
-const HIDDEN_STYLE = { opacity: 0, transform: 'translateY(60px)' }
-
 const GRADIENTS = {
   pink: 'linear-gradient(135deg, rgb(255, 222, 254) 0%, rgb(255, 103, 249) 35%, rgb(154, 0, 255) 60%, rgb(149, 44, 246) 80%, rgb(99, 40, 241) 100%)',
   violet:
@@ -17,11 +13,18 @@ const GRADIENTS = {
   blue: 'linear-gradient(135deg, rgb(234, 225, 255) 0%, rgb(78, 30, 231) 45%, rgb(149, 44, 246) 75%, rgb(172, 57, 248) 90%, rgb(255, 103, 249) 100%)',
 }
 
-function OrbIcon({ orbSrc, icon, gradient }) {
+// Same shruti-orb-bounce animation ShrutiOutcomes.tsx uses for its own
+// card icons, reused here so the two sections feel consistent — staggered
+// per index just like there, so the three orbs pop in left to right instead
+// of all at once.
+function OrbIcon({ orbSrc, icon, gradient, active, delay }) {
   return (
     <div
-      className="relative shrink-0 size-[42px] rounded-full overflow-hidden flex items-center justify-center"
-      style={{ backgroundImage: gradient }}
+      className={`relative shrink-0 size-[42px] rounded-full overflow-hidden flex items-center justify-center ${active ? 'shruti-orb-bounce' : 'opacity-0'}`}
+      style={{
+        backgroundImage: gradient,
+        animationDelay: active ? `${delay}s` : undefined,
+      }}
     >
       {orbSrc && (
         <img
@@ -78,13 +81,25 @@ export default function EnterpriseSection() {
   }, [])
 
   return (
+    // No extra margin here — DashboardShowcase's own min-h-[979px] already
+    // reserves the exact trailing space Figma has after the "Four channels"
+    // cards (up through where this section's frame actually starts, which
+    // overlaps the tail of the hero frame slightly). Adding a separate gap
+    // here on top of that double-counted the same space and produced way
+    // too much white area between the two sections.
     <section ref={sectionRef} className="relative isolate w-full overflow-hidden bg-white">
+      {/* Same shruti-ring-rise bounce ShrutiOutcomes.tsx uses for its own
+          three semicircle rings — this dome is one flattened image rather
+          than separable ring layers, so the whole thing rises and settles
+          as one unit instead of each ring individually, but it's the exact
+          same animation/easing. (The class this used before, "success-
+          layer-1", was never defined anywhere in this project's CSS, so it
+          had no actual animation at all.) */}
       <div className="absolute inset-0 -z-10">
         <img
           src={sectionBg}
           alt=""
-          className={`absolute left-0 -top-[6%] w-full h-[122%] max-w-none ${active ? 'success-layer-1' : ''}`}
-          style={active ? undefined : HIDDEN_STYLE}
+          className={`absolute left-0 -top-[6%] w-full h-[122%] max-w-none ${active ? 'shruti-ring-rise' : 'opacity-0'}`}
         />
       </div>
 
@@ -94,14 +109,20 @@ export default function EnterpriseSection() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full md:w-310">
-          {FEATURES.map((feature) => (
+          {FEATURES.map((feature, i) => (
             <div
               key={feature.title}
               className="flex flex-col justify-between gap-6 h-[276px] rounded-xl border border-[#8e8e8e] bg-[rgba(54,54,54,0.64)] px-5 py-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <p className="text-2xl leading-[25px] tracking-[0.24px] text-white">{feature.title}</p>
-                <OrbIcon orbSrc={feature.orb} icon={feature.icon} gradient={feature.gradient} />
+                <OrbIcon
+                  orbSrc={feature.orb}
+                  icon={feature.icon}
+                  gradient={feature.gradient}
+                  active={active}
+                  delay={i * 0.15}
+                />
               </div>
               <p className="font-inter text-base leading-5 tracking-[0.16px] text-white">
                 {feature.description}

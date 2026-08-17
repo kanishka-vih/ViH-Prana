@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="w-full bg-white px-6 md:px-[100px] pt-6 md:pt-[40px] pb-16 md:pb-[188px]">
       <div className="flex flex-col gap-12 md:gap-[92px] w-full md:w-310 mx-auto">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 w-full">
-          <h2 className="font-condensed font-normal text-3xl md:text-[42px] leading-[56px] tracking-[-1px] text-[#040404]">
+          <h2 className="font-roboto-condensed font-normal text-3xl md:text-[42px] leading-[56px] tracking-[-1px] text-[#040404]">
             Communication Intelligence,
             <br />
             Reimagined.

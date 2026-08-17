@@ -35,16 +35,23 @@ const FEATURES = [
 
 export default function TeamsSection() {
   return (
-    <section className="relative isolate w-full overflow-hidden bg-white px-6 md:px-[100px] py-16">
+    // Figma's own canvas (node 88:747) confirms this heading directly —
+    // "Built for the teams that actually answer." is correct for this exact
+    // 6-card grid; an earlier fix mislabeled it "Get started in minutes"
+    // after a different, identically-named "Frame 2043683664" layer (Figma
+    // has more than one frame sharing that name) supplied that text instead.
+    //
+    // Padding (58px top / 100px sides / 103px bottom) and the 106px margin
+    // above and below are the exact measurements from that same node's
+    // dev-mode inspector, not estimates.
+    <section className="relative isolate w-full overflow-hidden bg-white px-6 md:px-[100px] pt-[58px] pb-[103px] mt-[106px] mb-[106px]">
       <div className="absolute -z-10 left-1/2 -translate-x-1/2 -top-24 w-[900px] max-w-none aspect-square rotate-[53.1deg] opacity-90">
         <img src={teamsBlob} alt="" className="size-full object-contain" />
       </div>
 
       <div className="flex flex-col gap-10 w-full md:w-310 mx-auto">
         <h2 className="font-light text-3xl md:text-[36px] leading-[40px] tracking-[-1.2px] text-black">
-          Built for the teams
-          <br />
-          that actually answer.
+          Built for the teams that actually answer.
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

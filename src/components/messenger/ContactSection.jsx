@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import { CONTACT_FORM_ID } from '../../lib/scrollToContact'
+import { sendContactEmail } from '../../lib/sendContactEmail'
 import successRing1 from '../../assets/messenger-figma/success-ring-1.svg'
 import successRing2 from '../../assets/messenger-figma/success-ring-2.svg'
 import successRing3 from '../../assets/messenger-figma/success-ring-3.svg'
@@ -38,12 +40,12 @@ function FormField({ label, optional, type, value, onChange, onKeyDown, inputRef
 // width (612), top/height against its height (559). Because the card keeps
 // that same 612:559 aspect ratio at any size, this reproduces the exact
 // circle geometry (not distorted) no matter how the card is scaled.
-function RingLayer({ src, layer, left, top, width, height }) {
+function RingLayer({ src, delayClass, left, top, width, height }) {
   return (
     <img
       src={src}
       alt=""
-      className={`success-layer-${layer} absolute max-w-none`}
+      className={`contact-layer-in ${delayClass} absolute max-w-none`}
       style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
     />
   )
@@ -55,14 +57,19 @@ function SuccessCard({ name }) {
       className="relative w-full max-w-[612px] overflow-hidden rounded-[30px] bg-white"
       style={{ aspectRatio: '612 / 559' }}
     >
+      {/* Same contact-layer-in rise+fade HomeBottomSections.tsx uses for its
+          own success-state arcs (Figma's motion spec for this exact frame,
+          2043683740) — this used the same dead success-layer-1..5 classes
+          the EnterpriseBenefits rings had, so these semicircles had no
+          animation at all before. */}
       <div className="absolute inset-0 overflow-hidden bg-gradient-to-t from-[rgba(192,192,192,0.44)] to-white">
-        <RingLayer src={successRing1} layer={1} left={-107.52} top={-51.88} width={301.14} height={329.7} />
-        <RingLayer src={successRing2} layer={2} left={-34.64} top={18.42} width={170.44} height={186.6} />
-        <RingLayer src={successRing3} layer={3} left={-34.64} top={38.46} width={170.44} height={186.6} />
-        <RingLayer src={successRing4} layer={4} left={-34.64} top={65.3} width={170.44} height={186.6} />
+        <RingLayer src={successRing1} delayClass="" left={-107.52} top={-51.88} width={301.14} height={329.7} />
+        <RingLayer src={successRing2} delayClass="contact-delay-1" left={-34.64} top={18.42} width={170.44} height={186.6} />
+        <RingLayer src={successRing3} delayClass="contact-delay-2" left={-34.64} top={38.46} width={170.44} height={186.6} />
+        <RingLayer src={successRing4} delayClass="contact-delay-3" left={-34.64} top={65.3} width={170.44} height={186.6} />
 
         <div
-          className="success-layer-5 absolute flex flex-col justify-center gap-[18px] rounded-2xl bg-white/55 px-6 py-4"
+          className="contact-layer-in contact-delay-4 absolute flex flex-col justify-center gap-[18px] rounded-2xl bg-white/55 px-6 py-4"
           style={{ left: '23.37%', top: '33.81%', width: '58.01%', height: '28.98%' }}
         >
           <div className="flex gap-[18px] items-start w-full">
@@ -86,14 +93,37 @@ function SuccessCard({ name }) {
 export default function ContactSection() {
   const [values, setValues] = useState({ email: '', fullName: '', companyName: '', howDidYouKnow: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState(null)
   const inputRefs = useRef([])
 
   function handleChange(key) {
     return (e) => setValues((v) => ({ ...v, [key]: e.target.value }))
   }
 
-  function handleSubmit() {
-    setSubmitted(true)
+  async function handleSubmit() {
+    if (!values.email.trim() || !values.fullName.trim() || !values.companyName.trim()) return
+    setSending(true)
+    setSendError(null)
+    try {
+      await sendContactEmail({
+        email: values.email,
+        fullName: values.fullName,
+        companyName: values.companyName,
+        source: values.howDidYouKnow,
+      })
+      setSubmitted(true)
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Something went wrong — please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  function handleReset() {
+    setSubmitted(false)
+    setSendError(null)
+    setValues({ email: '', fullName: '', companyName: '', howDidYouKnow: '' })
   }
 
   function handleKeyDown(index) {
@@ -110,14 +140,33 @@ export default function ContactSection() {
   }
 
   return (
-    <section id="contact" className="w-full bg-white px-6 md:px-[100px]">
+    // id must match CONTACT_FORM_ID — the global header's "Contact sales"
+    // button (Header.tsx, shared across every route via FixedHeader) calls
+    // scrollToContactForm(), which just does
+    // document.getElementById(CONTACT_FORM_ID)?.scrollIntoView(...). This
+    // section had its own unrelated id="contact" before, so that click
+    // silently found nothing and did nothing on /messenger.
+    <section id={CONTACT_FORM_ID} className="w-full bg-white px-6 md:px-[100px]">
       <div className="flex flex-col md:flex-row gap-12 md:gap-0 justify-between w-full md:w-310 mx-auto rounded-3xl bg-[#f8f9fb] p-8 md:p-16">
         <h2 className="text-3xl md:text-[42px] leading-[44px] tracking-[-1px] text-[#040404]">
           Get in touch
         </h2>
 
         {submitted ? (
-          <SuccessCard name={values.fullName} />
+          <div className="flex flex-col gap-6 w-full max-w-[612px]">
+            <SuccessCard name={values.fullName} />
+            {/* Same reset link HomeBottomSections.tsx shows under its own
+                success card ("Send another message") — this was missing
+                here, so there was no way back to the form on /messenger
+                short of reloading the page. */}
+            <button
+              type="button"
+              onClick={handleReset}
+              className="cursor-pointer border-none bg-transparent text-center text-sm text-[#5a3d99] underline"
+            >
+              Send another message
+            </button>
+          </div>
         ) : (
           <div className="flex flex-col gap-14 w-full max-w-[612px]">
             {FIELDS.map((field, i) => (
@@ -136,10 +185,12 @@ export default function ContactSection() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex h-[52px] items-center justify-center rounded-xl border border-[#828282] bg-black/47 px-2 py-1 font-mono text-xl text-white transition-all duration-150 hover:bg-black/70 hover:border-white active:scale-95 active:bg-black/90"
+              disabled={sending}
+              className="flex h-[52px] items-center justify-center rounded-xl border border-[#828282] bg-black/47 px-2 py-1 font-mono text-xl text-white transition-all duration-150 hover:bg-black/70 hover:border-white active:scale-95 active:bg-black/90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Send
+              {sending ? 'Sending...' : 'Send'}
             </button>
+            {sendError && <span className="text-sm text-[#c0392b]">{sendError}</span>}
           </div>
         )}
       </div>

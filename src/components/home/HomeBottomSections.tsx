@@ -27,6 +27,7 @@ import {
 } from "../../assets";
 import CccaaaSection from "./CccaaaSection";
 import { scrollToContactForm, CONTACT_FORM_ID } from "../../lib/scrollToContact";
+import { sendContactEmail } from "../../lib/sendContactEmail";
 
 type FormValues = {
   email: string;
@@ -53,6 +54,8 @@ export default function HomeBottomSections() {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const handleChange =
     (key: keyof FormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +63,7 @@ export default function HomeBottomSections() {
       setErrors((er) => ({ ...er, [key]: undefined }));
     };
 
-  const validateAndSubmit = () => {
+  const validateAndSubmit = async () => {
     const nextErrors: Partial<Record<keyof FormValues, string>> = {};
     if (!values.email.trim()) nextErrors.email = "Required";
     if (!values.fullName.trim()) nextErrors.fullName = "Required";
@@ -69,9 +72,21 @@ export default function HomeBottomSections() {
       setErrors(nextErrors);
       return;
     }
-    // No backend is wired up yet — this just confirms the submission locally.
-    // Hook this up to a real endpoint/email service when one exists.
-    setSubmitted(true);
+    setSending(true);
+    setSendError(null);
+    try {
+      await sendContactEmail({
+        email: values.email,
+        fullName: values.fullName,
+        companyName: values.companyName,
+        source: values.source,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : "Something went wrong — please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   // The "Send" button is a sibling of <form> (both absolutely positioned
@@ -83,7 +98,14 @@ export default function HomeBottomSections() {
   };
 
   return (
-    <div className="flex flex-col gap-[135px] items-center w-full">
+    // Figma's own auto-layout frame wrapping this whole group (CCCAAA →
+    // testimonial+logos → contact form → footer, node 82:216 "Frame
+    // 2043683732") uses gap:124px between every child plus a 33px
+    // padding-bottom after the last one — confirmed directly via its
+    // metadata (children sit at y=0/808/1731, each exactly 124px past the
+    // previous one's bottom edge). The gap here was 135px, which didn't
+    // match that spec.
+    <div className="flex flex-col gap-[124px] items-center w-full pb-[33px]">
       {/* CCCAAA panel — pinned while scrolling through the letter reveal */}
       <CccaaaSection />
 
@@ -257,12 +279,18 @@ export default function HomeBottomSections() {
             <button
               type="button"
               onClick={validateAndSubmit}
-              className="absolute bg-[#040404] border border-[#040404] border-solid flex h-[52px] items-center justify-center left-[534px] px-[8px] py-[4px] rounded-[12px] top-[554px] w-[612px] cursor-pointer hover:bg-[#232323] hover:scale-[1.01] active:scale-[0.99] transition-all"
+              disabled={sending}
+              className="absolute bg-[#040404] border border-[#040404] border-solid flex h-[52px] items-center justify-center left-[534px] px-[8px] py-[4px] rounded-[12px] top-[554px] w-[612px] cursor-pointer hover:bg-[#232323] hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <span className="font-['Roboto_Mono'] font-normal text-[20px] text-white tracking-[0.12px]">
-                Send
+                {sending ? "Sending..." : "Send"}
               </span>
             </button>
+            {sendError && (
+              <span className="absolute left-[534px] top-[614px] w-[612px] text-[13px] text-[#c0392b]">
+                {sendError}
+              </span>
+            )}
           </>
         )}
       </div>

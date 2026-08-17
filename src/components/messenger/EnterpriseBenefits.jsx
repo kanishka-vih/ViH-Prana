@@ -33,18 +33,18 @@ const BENEFITS = [
   },
 ]
 
-function RingLayer({ src, layer, left, top, width, height, active }) {
+function RingLayer({ src, left, top, width, height, active, delay }) {
   return (
     <img
       src={src}
       alt=""
-      className={`absolute -z-10 max-w-none ${active ? `success-layer-${layer}` : ''}`}
+      className={`absolute -z-10 max-w-none ${active ? 'benefit-ring-bounce' : ''}`}
       style={{
         left: `${left}%`,
         top: `${top}%`,
         width: `${width}%`,
         height: `${height}%`,
-        ...(active ? undefined : HIDDEN_STYLE),
+        ...(active ? { animationDelay: `${delay}s` } : HIDDEN_STYLE),
       }}
     />
   )
@@ -76,35 +76,40 @@ function NotificationMockup() {
           use 449, so circles stay true circles regardless of render size. */}
       <RingLayer
         src={benefitRing1}
-        layer={1}
         left={-145.9}
         top={-64.59}
         width={408.65}
         height={410.47}
         active={active}
+        delay={0}
       />
       <RingLayer
         src={benefitRing2}
-        layer={2}
         left={-62.97}
         top={48.99}
         width={231.29}
         height={232.32}
         active={active}
+        delay={0.1}
       />
       <RingLayer
         src={benefitRing3}
-        layer={3}
         left={-62.97}
         top={70.16}
         width={231.29}
         height={232.32}
         active={active}
+        delay={0.2}
       />
 
       <div
-        className={`absolute rounded-2xl bg-white/90 backdrop-blur-xl p-[10px] shadow-lg ${active ? 'success-layer-4' : ''}`}
-        style={{ left: '18.74%', top: '28.29%', width: '67.85%', ...(active ? undefined : HIDDEN_STYLE) }}
+        className={`absolute rounded-2xl bg-white/90 backdrop-blur-xl p-[10px] shadow-lg ${active ? 'voicechat-panel-in' : ''}`}
+        style={{
+          left: '18.74%',
+          top: '28.29%',
+          width: '67.85%',
+          ...(active ? { animationDelay: '0.3s' } : HIDDEN_STYLE),
+        }}
       >
         <div className="flex gap-[10px] items-center w-full">
           <div className="relative size-[38px] shrink-0 rounded-[10px] overflow-hidden">

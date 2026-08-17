@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import industryTelecom from '../../assets/messenger-figma/industry-telecom.webp'
 import industryTravel from '../../assets/messenger-figma/industry-travel.webp'
 import industryBanking from '../../assets/messenger-figma/industry-banking.webp'
@@ -73,11 +74,12 @@ const SEGMENT_HEIGHT = 500
 // How far below its resting spot a card starts, i.e. off-screen below the stack.
 const ENTRY_DISTANCE = CARD_HEIGHT + 120
 
-function IndustryCardVisual({ industry, translateY, overlayOpacity, zIndex }) {
+function IndustryCardVisual({ industry, zIndex, initialTranslateY, cardRef, overlayRef }) {
   return (
     <div
+      ref={cardRef}
       className="absolute inset-x-0 top-0"
-      style={{ height: CARD_HEIGHT, transform: `translateY(${translateY}px)`, zIndex }}
+      style={{ height: CARD_HEIGHT, transform: `translateY(${initialTranslateY}px)`, zIndex }}
     >
       <div className="relative isolate h-full w-full overflow-hidden rounded-3xl bg-black">
         {industry.imageCrop ? (
@@ -131,46 +133,73 @@ function IndustryCardVisual({ industry, translateY, overlayOpacity, zIndex }) {
           </div>
         </div>
 
-        <div className="absolute inset-0 bg-black pointer-events-none" style={{ opacity: overlayOpacity }} />
+        <div ref={overlayRef} className="absolute inset-0 bg-black pointer-events-none" style={{ opacity: 0 }} />
       </div>
     </div>
   )
 }
 
+// This mirrors CccaaaSection.tsx's technique exactly (see its comments for
+// the full explanation, and HowWeDoItSection.jsx for the same fix applied
+// there): a `transform`ed ancestor — ScaledCanvas, on /messenger — makes
+// itself the containing block for `position: sticky`, so sticky nested
+// inside it just scrolls past instead of pinning. Portaling the pinned
+// panel onto <body> escapes that tree, so native sticky (compositor-smooth,
+// no per-frame JS positioning) works normally. The card stack's own
+// translateY/opacity are still driven by scroll progress every frame, but
+// written directly to each card's DOM node via refs instead of through
+// React state, so 6 cards animating at once doesn't mean 6 re-renders per
+// frame.
 export default function IndustriesSection() {
   const trackRef = useRef(null)
   const pinnedRef = useRef(null)
+  const cardRefs = useRef([])
+  const overlayRefs = useRef([])
   const n = INDUSTRIES.length
   const pinDistance = (n - 1) * SEGMENT_HEIGHT
   const stackHeight = CARD_HEIGHT + (n - 1) * PEEK
 
   const [pinnedHeight, setPinnedHeight] = useState(0)
+  const [geo, setGeo] = useState({ docTop: 0, left: 0, width: 0, scale: 1 })
   const trackHeight = pinnedHeight + pinDistance
 
-  const [transforms, setTransforms] = useState(() =>
-    INDUSTRIES.map((_, i) => ({
-      translateY: i === 0 ? 0 : ENTRY_DISTANCE + i * PEEK,
-      overlayOpacity: 0,
-    }))
-  )
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
 
-  useLayoutEffect(() => {
-    function measure() {
+    const measure = () => {
+      const rect = track.getBoundingClientRect()
+      // Same scale ScaledCanvas itself applies to the whole page (fixed
+      // 1440px design width, scaled to fill the real viewport) — this panel
+      // is portaled out of that transformed tree below, so its own
+      // fixed-px Tailwind values (the 1240px card width, CARD_HEIGHT, etc.,
+      // authored against that same 1440px baseline) need this reapplied via
+      // `zoom`, or they render at literal size instead of matching how big
+      // everything else on the scaled page appears.
+      setGeo({ docTop: rect.top + window.scrollY, left: rect.left, width: rect.width, scale: window.innerWidth / 1440 })
       if (pinnedRef.current) setPinnedHeight(pinnedRef.current.offsetHeight)
     }
     measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(track)
     window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
+    window.addEventListener('load', measure)
+    const settleTimer = window.setTimeout(measure, 500)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+      window.removeEventListener('load', measure)
+      window.clearTimeout(settleTimer)
+    }
   }, [])
 
   useEffect(() => {
-    let ticking = false
+    const track = trackRef.current
+    if (!track) return
+    let raf = 0
 
-    function computeTransforms() {
-      ticking = false
-      const track = trackRef.current
-      if (!track) return
-
+    const loop = () => {
+      raf = requestAnimationFrame(loop)
       const rect = track.getBoundingClientRect()
       const scrolled = Math.min(Math.max(STICKY_TOP - rect.top, 0), pinDistance)
 
@@ -180,59 +209,74 @@ export default function IndustriesSection() {
         return Math.min(Math.max((scrolled - segmentStart) / SEGMENT_HEIGHT, 0), 1)
       })
 
-      setTransforms(
-        INDUSTRIES.map((_, i) => {
+      INDUSTRIES.forEach((_, i) => {
+        const card = cardRefs.current[i]
+        const overlay = overlayRefs.current[i]
+        if (card) {
+          const translateY = i === 0 ? 0 : i * PEEK + (1 - progress[i]) * ENTRY_DISTANCE
+          card.style.transform = `translateY(${translateY}px)`
+        }
+        if (overlay) {
           const nextProgress = progress[i + 1] ?? 0
-          if (i === 0) return { translateY: 0, overlayOpacity: nextProgress * 0.5 }
-          const restY = i * PEEK
-          const translateY = restY + (1 - progress[i]) * ENTRY_DISTANCE
-          return { translateY, overlayOpacity: nextProgress * 0.5 }
-        })
-      )
+          overlay.style.opacity = String(nextProgress * 0.5)
+        }
+      })
     }
 
-    function onScroll() {
-      if (!ticking) {
-        ticking = true
-        requestAnimationFrame(computeTransforms)
-      }
-    }
-
-    computeTransforms()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
   }, [n, pinDistance])
+
+  const panel = (
+    <div ref={pinnedRef} className="flex flex-col gap-[62px] w-[1240px] bg-white" style={{ zoom: geo.scale }}>
+      <div className="flex flex-col md:flex-row gap-6 items-start w-full">
+        <h2 className="flex-1 font-light text-3xl md:text-[36px] leading-[36px] text-[#131313]">
+          Where enterprises put it to work
+        </h2>
+        <p className="flex-1 text-lg md:text-xl leading-6 text-[#737373]">
+          Configured for each enterprise, with tailored templates, channels, AI personas, and
+          knowledge bases.
+        </p>
+      </div>
+
+      <div className="relative w-full overflow-hidden" style={{ height: stackHeight }}>
+        {INDUSTRIES.map((industry, i) => (
+          <IndustryCardVisual
+            key={i}
+            industry={industry}
+            zIndex={i + 1}
+            initialTranslateY={i === 0 ? 0 : ENTRY_DISTANCE + i * PEEK}
+            cardRef={(el) => {
+              cardRefs.current[i] = el
+            }}
+            overlayRef={(el) => {
+              overlayRefs.current[i] = el
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
 
   return (
     <section className="w-full bg-white px-6 md:px-[100px]">
       <div className="relative w-full md:w-310 mx-auto" ref={trackRef} style={{ height: trackHeight || undefined }}>
-        <div ref={pinnedRef} className="sticky flex flex-col gap-[62px] w-full" style={{ top: STICKY_TOP }}>
-          <div className="flex flex-col md:flex-row gap-6 items-start w-full">
-            <h2 className="flex-1 font-light text-3xl md:text-[36px] leading-[36px] text-[#131313]">
-              Where enterprises put it to work
-            </h2>
-            <p className="flex-1 text-lg md:text-xl leading-6 text-[#737373]">
-              Configured for each enterprise, with tailored templates, channels, AI personas, and
-              knowledge bases.
-            </p>
-          </div>
-
-          <div className="relative w-full overflow-hidden" style={{ height: stackHeight }}>
-            {INDUSTRIES.map((industry, i) => (
-              <IndustryCardVisual
-                key={i}
-                industry={industry}
-                translateY={transforms[i]?.translateY ?? 0}
-                overlayOpacity={transforms[i]?.overlayOpacity ?? 0}
-                zIndex={i + 1}
-              />
-            ))}
-          </div>
-        </div>
+        {createPortal(
+          <div
+            style={{
+              position: 'absolute',
+              top: geo.docTop,
+              left: geo.left,
+              width: geo.width,
+              height: trackHeight,
+              zIndex: 20,
+              pointerEvents: 'none',
+            }}
+          >
+            <div style={{ position: 'sticky', top: STICKY_TOP, pointerEvents: 'auto' }}>{panel}</div>
+          </div>,
+          document.body,
+        )}
       </div>
     </section>
   )
