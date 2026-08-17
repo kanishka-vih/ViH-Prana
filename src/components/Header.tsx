@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   vector,
@@ -11,7 +11,49 @@ import {
   group1707491468,
 } from "../assets";
 import { hamburger } from "../assets/mobile";
-import { scrollToContactForm } from "../lib/scrollToContact";
+import { getContactFormEl, scrollToContactForm } from "../lib/scrollToContact";
+
+function scrollToHero() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Small up-chevron, gently bouncing to draw the eye — swapped in for the
+// "Contact us"/"Contact sales" label once the user has actually scrolled
+// down to the contact form, so there's an obvious one-tap way back up to
+// the hero instead of a long manual scroll. Reverts back to the normal
+// label once they've scrolled away from that section again.
+function UpArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="nav-arrow-bounce size-[18px]" fill="none">
+      <path d="M12 19V5M5 12L12 5L19 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// Shared by both the desktop and mobile nav pills — true once the contact
+// form has scrolled substantially into view.
+function useAtContactForm() {
+  const [atContact, setAtContact] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const el = getContactFormEl();
+      if (!el) {
+        setAtContact(false);
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      setAtContact(rect.top < window.innerHeight * 0.6 && rect.bottom > 80);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
+  return atContact;
+}
 
 // "to: null" marks nav items with no page yet — they stay inert until built.
 const navLinks: { label: string; to: string | null }[] = [
@@ -55,6 +97,7 @@ function LogoMark() {
 export default function Header({ floating = false }: { floating?: boolean }) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const atContact = useAtContactForm();
 
   return (
     <>
@@ -119,12 +162,17 @@ export default function Header({ floating = false }: { floating?: boolean }) {
           <div className="flex items-start shrink-0">
             <button
               type="button"
-              onClick={scrollToContactForm}
-              className="bg-[#232323] flex h-[36px] items-center justify-center px-[16px] py-[8px] rounded-[8px] shrink-0 cursor-pointer transition-all duration-150 ease-out hover:bg-black active:scale-95"
+              onClick={atContact ? scrollToHero : scrollToContactForm}
+              aria-label={atContact ? "Back to top" : "Contact sales"}
+              className={`bg-[#232323] flex h-[36px] items-center justify-center rounded-[8px] shrink-0 cursor-pointer overflow-hidden transition-all duration-300 ease-out hover:bg-black active:scale-95 ${
+                atContact ? "w-[36px]" : "px-[16px] py-[8px]"
+              }`}
             >
-              <span className="font-medium text-[16px] text-white whitespace-nowrap">
-                Contact sales
-              </span>
+              {atContact ? (
+                <UpArrowIcon />
+              ) : (
+                <span className="font-medium text-[16px] text-white whitespace-nowrap">Contact sales</span>
+              )}
             </button>
           </div>
         </div>
@@ -163,10 +211,17 @@ export default function Header({ floating = false }: { floating?: boolean }) {
           <div className="flex items-center gap-[10px] ml-auto">
             <button
               type="button"
-              onClick={scrollToContactForm}
-              className="bg-[#232323] flex h-[36px] items-center justify-center px-[16px] rounded-full cursor-pointer transition-all duration-150 ease-out hover:bg-black active:scale-95 shrink-0"
+              onClick={atContact ? scrollToHero : scrollToContactForm}
+              aria-label={atContact ? "Back to top" : "Contact us"}
+              className={`bg-[#232323] flex h-[36px] items-center justify-center rounded-full cursor-pointer overflow-hidden transition-all duration-300 ease-out hover:bg-black active:scale-95 shrink-0 ${
+                atContact ? "w-[36px]" : "px-[16px]"
+              }`}
             >
-              <span className="font-medium text-[14px] text-white whitespace-nowrap">Contact us</span>
+              {atContact ? (
+                <UpArrowIcon />
+              ) : (
+                <span className="font-medium text-[14px] text-white whitespace-nowrap">Contact us</span>
+              )}
             </button>
             <button
               type="button"

@@ -19,7 +19,7 @@ import {
   famiconsCall,
 } from "../../assets";
 import { outputOnlinegiftools1, ellipse2286, ellipse2283, ellipse2285, ellipse2284 } from "../../assets/home";
-import { polygon34, enterpriseDivider } from "../../assets/mobile";
+import { polygon34, enterpriseDivider, sectionChordTop, sectionChordBottom } from "../../assets/mobile";
 import { scrollToContactForm } from "../../lib/scrollToContact";
 
 type ProductId = "prana" | "shruti" | "viveka" | "messenger";
@@ -272,10 +272,27 @@ function StatCard({
   );
 }
 
+// The dark panel's own top/bottom caps (Figma nodes 324:1539/324:1540) — a
+// shared dome path (the same curve, just two different fills) that bridges
+// this section into whatever's above/below it with a smooth hill silhouette
+// instead of a hard rectangular edge. Rendered OUTSIDE the panel's own
+// `overflow-hidden` (as a sibling, with a negative margin pulling the panel
+// underneath it) since a child positioned above y:0 would otherwise just get
+// clipped away by that overflow instead of poking into the section before it.
+function SectionChord({ src }: { src: string }) {
+  // The downloaded asset is already cropped to just the visible top-half
+  // dome (viewBox 412x98.5 — Figma only shows the top half of a full
+  // ellipse), so this just renders it directly at its own intrinsic ratio
+  // stretched to the page width, no further clipping/positioning needed.
+  return <img alt="" className="pointer-events-none block w-full" src={src} />;
+}
+
 function MobileEnterpriseProblems() {
   return (
-    <div className="relative bg-[#191a1c] overflow-hidden">
-      {/* Top glow */}
+    <>
+      <SectionChord src={sectionChordTop} />
+      <div className="relative bg-[#191a1c] overflow-hidden -mt-[6px]">
+        {/* Top glow */}
       <div className="pointer-events-none absolute -top-[100px] left-1/2 -translate-x-1/2 h-[197px] w-[412px] opacity-70">
         <div className="size-full bg-[radial-gradient(closest-side,rgba(177,91,252,0.5),transparent)]" />
       </div>
@@ -358,7 +375,16 @@ function MobileEnterpriseProblems() {
 
         <CtaButton />
       </div>
-    </div>
+      </div>
+      {/* Bottom cap — same dome, solid navy (sampled from deep in the panel's
+          own gradient) instead of the top's dotted charcoal, capping the
+          panel's exit the same way its entry is capped above. Negative
+          margin pulls it up under the panel's bottom edge so it reads as
+          rising out of it, not sitting in a visible gap below it. */}
+      <div className="relative -mt-[6px]">
+        <SectionChord src={sectionChordBottom} />
+      </div>
+    </>
   );
 }
 
@@ -380,13 +406,14 @@ function EcosystemSphere() {
     });
   };
 
-  // SPHERE_BOX (350) is only the reference used to derive the dot/card
-  // *percentages* above, matching Figma's own coordinate box — the
-  // sphere's actual rendered size is this, independently bigger (and
-  // bled edge-to-edge instead of boxed inside the panel's own padding),
-  // since percentages resolve against whatever height is actually
-  // rendered regardless of what box they were originally computed from.
-  const SPHERE_RENDER_HEIGHT = 460;
+  // SPHERE_BOX (350) is Figma's own reference box (node 324:1501, "Frame")
+  // — rendered here at that exact literal size instead of enlarged, per
+  // explicit feedback that the earlier "make it bigger/more stretched"
+  // version had gone too far and was now covering almost the full screen
+  // width. The sphere image's own bleed (below) is what makes it read as
+  // big/immersive — the box itself doesn't need to be inflated on top of
+  // that.
+  const SPHERE_RENDER_HEIGHT = SPHERE_BOX;
 
   // Card starts at CARD_TOP_PCT of the sphere's rendered height, so
   // pulling it up by (renderHeight - that offset) from a preceding
@@ -398,24 +425,28 @@ function EcosystemSphere() {
 
   return (
     <Reveal className="relative w-full">
-      {/* Sphere + dots box — bled edge-to-edge (past the panel's own
-          px-[16px]) and rendered noticeably taller than Figma's literal
-          350px reference box so it actually reads as big/immersive rather
-          than boxed in. Dot/card percentages below are still computed
-          against that 350 reference (matching Figma's own coordinates)
-          but resolve correctly at this bigger rendered size regardless —
-          percentages scale with whatever height is actually rendered.
-          `overflow-visible` (default) lets the sphere image's own
-          intentional bleed show in full. */}
-      <div className="relative -mx-[16px]" style={{ width: "calc(100% + 32px)", height: SPHERE_RENDER_HEIGHT }}>
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Stretched noticeably wider than tall (more so than Figma's
-              own 566:461 ratio) per explicit feedback that it should read
-              as more elliptical/stretched, not a plain circle. */}
+      {/* Sphere + dots box, at Figma's own literal 350x350 reference size
+          (node 324:1501) — centered within the panel's normal padding, NOT
+          bled past it; only the sphere IMAGE inside bleeds past this box's
+          own edges (see below), matching Figma's actual two-level
+          structure instead of stretching the whole box itself. */}
+      <div className="relative mx-auto mt-[30px]" style={{ width: SPHERE_RENDER_HEIGHT, height: SPHERE_RENDER_HEIGHT }}>
+        {/* Figma's own nested bleed, reproduced literally: the graphic's
+            own box (324:1502) sits at left:-105/top:-58.51/566x461 relative
+            to the 350x350 frame, and the actual <img> inside THAT box is
+            further offset by left:-33.33%/top:-22.78%/166.67%x122.78% —
+            two separate levels of bleed, not one flattened percentage
+            against the 350 box directly (that earlier flattening is what
+            had made the sphere balloon out to nearly the full screen
+            width). */}
+        <div
+          className="absolute overflow-hidden pointer-events-none"
+          style={{ left: -105, top: -58.51, width: 566, height: 461 }}
+        >
           <img
             alt=""
-            className="absolute max-w-none object-contain"
-            style={{ left: "-45%", top: "-20%", width: "190%", height: "150%" }}
+            className="absolute max-w-none"
+            style={{ left: "-33.33%", top: "-22.78%", width: "166.67%", height: "122.78%" }}
             src={outputOnlinegiftools1}
           />
         </div>
@@ -457,13 +488,20 @@ function EcosystemSphere() {
           `key={activeId}` remount replays the fade-in each time the
           active product changes, giving the arrow/dot switch a smooth
           transition instead of an instant content swap. */}
+      {/* Figma's card (node 324:1512) is a FIXED 320px-tall box with
+          `overflow-clip` — not a flex column that grows with whichever
+          product's body text is longest. `line-clamp-4` caps the body at
+          the same ~4 lines (72px at this leading) Figma's own text box
+          allotted it, so the card ends up the same fixed height for every
+          product instead of visibly taller/"stretched" for the longer
+          ones. */}
       <div className="relative" style={{ marginTop: -cardPullUp }}>
         <div
           key={activeId}
-          className="vihprana-card-in relative w-full rounded-[24px] bg-[rgba(122,123,127,0.44)] backdrop-blur-md border border-white/10 p-[20px] flex flex-col gap-[16px]"
+          className="vihprana-card-in relative w-full h-[320px] overflow-hidden rounded-[24px] bg-[rgba(122,123,127,0.44)] backdrop-blur-md border border-white/10 p-[20px] flex flex-col gap-[16px]"
         >
           <div className="flex items-center justify-between">
-            <p className="text-[20px] text-white m-0">{active.name}</p>
+            <p className="text-[22px] leading-[24px] text-white m-0">{active.name}</p>
             <button
               type="button"
               onClick={goToNextProduct}
@@ -476,16 +514,16 @@ function EcosystemSphere() {
           <div className="h-px bg-white/15" />
           <div className="flex gap-[24px]">
             <div className="flex flex-col gap-[2px]">
-              <p className="text-[11px] text-[#c4c4c4] m-0">Type</p>
-              <p className="text-[13px] text-white m-0">{active.type}</p>
+              <p className="text-[12px] leading-[18px] text-[#c4c4c4] m-0">Type</p>
+              <p className="text-[14px] leading-[20px] text-white m-0">{active.type}</p>
             </div>
             <div className="flex flex-col gap-[2px]">
-              <p className="text-[11px] text-[#c4c4c4] m-0">Tech</p>
-              <p className="text-[13px] text-white m-0">{active.tech}</p>
+              <p className="text-[12px] leading-[18px] text-[#c4c4c4] m-0">Tech</p>
+              <p className="text-[14px] leading-[20px] text-white m-0">{active.tech}</p>
             </div>
           </div>
           <div className="h-px bg-white/15" />
-          <p className="text-[13px] text-white leading-[18px] m-0">{active.body}</p>
+          <p className="line-clamp-4 text-[14px] text-white leading-[18px] m-0">{active.body}</p>
         </div>
       </div>
     </Reveal>
@@ -533,29 +571,38 @@ function MobileOrchestration() {
           const clickable = card.route !== null;
           return (
             <Reveal key={card.title} delay={i * 0.15}>
+              {/* Figma's card (node 324:1550/1560/1570) is a FIXED 379px-tall
+                  box with the title/description, the orb, and the pill each
+                  absolutely positioned at their own exact offsets — not a
+                  flex column where the orb/pill shift down whenever a
+                  longer description wraps to an extra line. That's what
+                  made these read as "not fixed like Figma": Shruti's
+                  2-line description sat with its orb higher up than
+                  Viveka's/Messenger's 3-line ones, when all three should
+                  line up identically. */}
               <div
                 role={clickable ? "button" : undefined}
                 tabIndex={clickable ? 0 : undefined}
                 onClick={clickable ? () => navigate(card.route!) : undefined}
-                className={`bg-[#fafafa] border border-[#ededed] rounded-[24px] overflow-hidden relative px-[24px] pt-[28px] pb-[20px] flex flex-col gap-[12px] ${
+                className={`relative h-[379px] overflow-hidden rounded-[24px] border border-[#ededed] bg-[#fafafa] ${
                   clickable ? "cursor-pointer active:scale-[0.99]" : ""
                 }`}
               >
-                <p className="font-medium leading-[26px] text-[22px] text-[#131313] m-0">{card.title}</p>
-                <p className="font-normal leading-[21px] text-[#737373] text-[15px] m-0">{card.description}</p>
-                {/* Figma's own orb (node 324:1554) is a 172x138 box at
-                    rounded-[263px] — close to a soft circle/blob, not a
-                    long flat pill. Using aspect-ratio (rather than a fixed
-                    height against a wide percentage width) keeps that same
-                    near-circular proportion at any card width instead of
-                    stretching it out. */}
+                <div className="absolute inset-[-1px] flex flex-col items-start gap-[12px] px-[24px] pt-[28px] pb-[20px]">
+                  <p className="w-full m-0 font-medium leading-[26px] text-[22px] text-[#131313]">{card.title}</p>
+                  <p className="w-full m-0 font-normal leading-[21px] text-[#737373] text-[15px]">
+                    {card.description}
+                  </p>
+                </div>
                 <div
-                  className="mx-auto mt-[16px] w-[62%] rounded-[263px] opacity-90"
-                  style={{ aspectRatio: "172 / 138", backgroundImage: card.gradient }}
+                  className="absolute left-[109px] right-[109px] top-[209px] h-[138px] rounded-[263px]"
+                  style={{ backgroundImage: card.gradient }}
                 />
-                <div className="bg-white/40 border border-[#f6f6f6] flex gap-[10px] h-[38px] items-center justify-center rounded-[24px] px-[16px]">
-                  <span className="flex-1 text-[#131313] text-[15px]">Hands Free Voice Assistance</span>
-                  <img alt="" className="h-[16px] w-[8px]" src={weuiArrowOutlined} />
+                <div className="absolute left-[19px] right-[19px] top-[321px] h-[38px] flex items-center justify-center gap-[10px] rounded-[24px] border border-[#f6f6f6] bg-[rgba(255,255,255,0.36)] px-[20px]">
+                  <span className="flex-1 text-[#131313] text-[16px] leading-[26px]">
+                    Hands Free Voice Assistance
+                  </span>
+                  <img alt="" className="h-[16px] w-[8px] shrink-0" src={weuiArrowOutlined} />
                 </div>
               </div>
             </Reveal>
