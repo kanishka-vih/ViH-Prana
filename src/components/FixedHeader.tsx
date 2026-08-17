@@ -69,22 +69,27 @@ export default function FixedHeader() {
   // scrolling shouldn't move it any further.
   const bannerHeightScaled = bannerHeight * scale;
   const risen = isMobile ? 0 : Math.min(scrollY, bannerHeightScaled);
-  const scrolled = risen > 0;
+  const scrolled = isMobile ? scrollY > 10 : risen > 0;
 
-  // The desktop "glass nav floats fixed below the banner" scroll effect
-  // isn't part of the Figma mobile frames (their banner+nav just sit at
-  // the top of normal page flow, no fixed/sticky behavior) — replicating
-  // it there would also fight with the mobile nav's own slide-out menu.
-  // So on mobile this renders as plain static content instead of a fixed
-  // overlay.
   if (isMobile) {
+    // On mobile the banner scrolls away normally (not risen/clamped like
+    // desktop). The nav can't just use CSS `position: sticky` here: sticky
+    // only stays pinned within the height of its own direct parent, and
+    // that parent here is just this small banner+nav wrapper (~100px) —
+    // once scrolled past that, the "stuck" element scrolls away with it
+    // exactly like a non-sticky one would, which is why it disappeared
+    // after ~100px of scroll instead of staying pinned for the whole page.
+    // Toggling `fixed` via JS once scrolled — with a spacer standing in for
+    // the nav's own height so removing it from flow doesn't jump the page
+    // content up — works regardless of the parent's height.
     return (
       <div className="relative z-[60] w-full">
         <div ref={bannerRef}>
           <PromoBanner />
         </div>
-        <div ref={navRef}>
-          <Header floating={false} />
+        {scrolled && <div style={{ height: navHeight }} />}
+        <div ref={navRef} className={`w-full z-[60] ${scrolled ? "fixed top-0 left-0" : ""}`}>
+          <Header floating={scrolled} />
         </div>
       </div>
     );

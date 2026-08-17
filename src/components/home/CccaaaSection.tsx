@@ -8,6 +8,13 @@ const PANEL_HEIGHT = 684;
 const EXTRA_SCROLL = 1100;
 const TRACK_HEIGHT = PANEL_HEIGHT + EXTRA_SCROLL;
 
+// Mobile's panel is a completely different (much taller relative to its
+// width) layout than desktop's 1440x684 one, so it gets its own pin
+// distance instead of reusing the desktop numbers scaled down.
+const MOBILE_PANEL_HEIGHT = 460;
+const MOBILE_EXTRA_SCROLL = 1400;
+const MOBILE_TRACK_HEIGHT = MOBILE_PANEL_HEIGHT + MOBILE_EXTRA_SCROLL;
+
 const LETTERS = ["C", "C", "C", "A", "A", "A"];
 const ACTIVE_COLOR = "rgb(4,4,4)";
 const INACTIVE_COLOR = "rgb(194,194,194)";
@@ -61,6 +68,13 @@ export default function CccaaaSection() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Only one of the mobile/desktop panels is ever mounted at a time (the
+  // component returns one branch or the other below), so both branches
+  // sharing this same ref set and the same two effects underneath is safe
+  // — whichever DOM nodes actually exist are the ones these touch.
+  const panelHeight = isMobile ? MOBILE_PANEL_HEIGHT : PANEL_HEIGHT;
+  const trackHeightConst = isMobile ? MOBILE_TRACK_HEIGHT : TRACK_HEIGHT;
+
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -70,7 +84,7 @@ export default function CccaaaSection() {
       setGeo({
         docTop: rect.top + window.scrollY,
         trackHeight: rect.height,
-        scale: rect.width / 1440,
+        scale: isMobile ? 1 : rect.width / 1440,
       });
     };
     measure();
@@ -85,7 +99,9 @@ export default function CccaaaSection() {
       window.removeEventListener("load", measure);
       window.clearTimeout(settleTimer);
     };
-  }, []);
+    // Re-measure when switching branches too — the track's own size/ratio
+    // changes completely between the mobile and desktop panels.
+  }, [isMobile]);
 
   // Stage/color switching only — no position math here at all. The pin
   // itself is native CSS `position: sticky` below, handled entirely by the
@@ -101,7 +117,7 @@ export default function CccaaaSection() {
     const loop = () => {
       raf = requestAnimationFrame(loop);
       const rect = track.getBoundingClientRect();
-      const pinnable = Math.max(1, rect.height - PANEL_HEIGHT * (rect.width / 1440 || 1));
+      const pinnable = Math.max(1, rect.height - panelHeight * (isMobile ? 1 : rect.width / 1440 || 1));
       const p = Math.max(0, Math.min(1, -rect.top / pinnable));
 
       const stage = Math.min(STAGES.length - 1, Math.floor(p * STAGES.length * 0.999));
@@ -124,9 +140,9 @@ export default function CccaaaSection() {
 
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [isMobile, panelHeight]);
 
-  const panel = (
+  const desktopPanel = (
     <div
       className="bg-[#f8f9fb] h-[684px] overflow-hidden relative rounded-[40px] w-[1440px]"
       // `zoom` (not `transform: scale`) — transform doesn't change an
@@ -176,37 +192,48 @@ export default function CccaaaSection() {
     </div>
   );
 
-  // Figma's mobile frame for this section ("how-we-do-it-mobile", node
-  // 326:65) shows one static badge + letters + caption, not a scroll-pinned
-  // scrub through all four stages — replicating the desktop's portal/sticky
-  // scrub-on-scroll on a phone would also fight with the page's own normal
-  // scroll and the mobile letters are far too big to pin comfortably in a
-  // short viewport anyway. So mobile gets this simpler static version
-  // instead of reusing the desktop scroll-tracking effects above.
-  const mobile = (
-    <div className="md:hidden bg-[#f8f9fb] flex flex-col items-center gap-[48px] px-[24px] py-[64px]">
-      <div className="bg-[rgba(243,248,255,0.23)] rounded-[12px] px-[24px] py-[10px]">
+  // Mobile version of the same pinned scroll-scrub, sized for a phone
+  // instead of scaled down from the 1440px desktop panel. Reuses the exact
+  // same refs/stage-tracking effects above — only the JSX/dimensions differ.
+  const mobilePanel = (
+    <div className="bg-[#f8f9fb] w-full flex flex-col items-center gap-[32px] px-[24px] pt-[40px] pb-[40px]">
+      <div className="bg-[rgba(243,248,255,0.6)] border border-black/10 rounded-[12px] px-[24px] py-[10px]">
         <p className="font-medium text-[#040404] text-[16px] tracking-[-0.5px] m-0">How we do it</p>
       </div>
-      <div className="flex flex-col items-center gap-[14px] w-full">
-        <p className="font-['Roboto_Condensed'] font-bold text-center tracking-[4px] m-0 leading-none">
-          <span className="text-[85px] text-[#040404]">CC</span>
-          <span className="text-[85px] text-[#5a5a5a]">C</span>
-          <span className="text-[85px] text-[#c2c2c2]">A</span>
-          <span className="text-[85px] text-[#e5e5e5]">AA</span>
-        </p>
-        <p className="font-semibold text-[#1d1d1d] text-[16px] tracking-[-0.5px] text-center m-0">
-          {STAGES[0].label}
-          <span className="font-normal text-[#5a5a5a]">{STAGES[0].body}</span>
-        </p>
-      </div>
+      <p className="font-['Roboto_Condensed'] font-semibold tracking-[4px] m-0 leading-none text-center w-full text-[85px]">
+        {LETTERS.map((ch, i) => (
+          <span
+            key={i}
+            ref={(el) => {
+              letterRefs.current[i] = el;
+            }}
+            style={{ color: i < 2 ? ACTIVE_COLOR : INACTIVE_COLOR, transition: "color 0.4s ease" }}
+          >
+            {ch}
+          </span>
+        ))}
+      </p>
+      <p
+        ref={captionRef}
+        className="font-normal text-[16px] tracking-[-0.5px] text-center m-0 leading-[24px]"
+        style={{ transition: "opacity 0.3s ease" }}
+      >
+        <span ref={labelRef} className="font-semibold text-[#1d1d1d]">
+          Capture Content :{" "}
+        </span>
+        <span ref={bodyRef} className="font-normal text-[#5a5a5a]">
+          Collect messages, emails, calls, meetings, documents, and tickets from every communication
+          channel.
+        </span>
+      </p>
     </div>
   );
 
-  if (isMobile) return mobile;
+  const panel = isMobile ? mobilePanel : desktopPanel;
+  const trackHeight = isMobile ? trackHeightConst : geo.trackHeight || trackHeightConst;
 
   return (
-    <div ref={trackRef} className="relative w-full" style={{ height: TRACK_HEIGHT }}>
+    <div ref={trackRef} className="relative w-full" style={{ height: trackHeightConst }}>
       {/*
         The panel is rendered through a portal straight onto <body>, escaping
         ScaledCanvas's `transform: scale()` wrapper entirely — a `transform`
@@ -220,20 +247,19 @@ export default function CccaaaSection() {
         it occupies the exact same document-space slot the track reserves
         inside the scaled page. The inner sticky child then pins within that
         slot exactly like it would if this were a normal (unscaled) page.
-        The panel's own 1440px design-px content is scaled back down to
-        match the rest of the page via a plain `transform: scale()` on a
-        descendant — that doesn't re-break sticky, since transform on a
-        *descendant* of the sticky element doesn't affect its own
-        containing-block/positioning the way a transform on an *ancestor*
-        of it does.
+        Desktop's 1440px design-px content is scaled back down to match the
+        rest of the page via `zoom` on a descendant — that doesn't re-break
+        sticky, since transform/zoom on a *descendant* of the sticky element
+        doesn't affect its own containing-block/positioning the way it would
+        on an *ancestor*. Mobile's panel needs no such scaling — it's
+        authored directly in real mobile pixels.
 
-        This whole branch — portal included — must not just be visually
-        hidden (e.g. `hidden md:block`) on mobile: createPortal renders
-        straight into document.body regardless of where in the React tree
-        it's called from, so a `display:none` ancestor here does nothing to
-        it. It rendered a full 1440px-wide panel under <body> on every
-        mobile page that uses this component (Home AND Shruti) until this
-        was gated with a real `isMobile` check above instead of CSS.
+        This used to only run on desktop, with mobile getting a static,
+        non-interactive block instead — but that meant mobile lost the
+        actual "pin while scrolling through CC → C → A → AA" behavior
+        entirely rather than just rendering it differently, so this now
+        reuses the same portal/sticky mechanism for both, just with
+        different panel content/dimensions.
       */}
       {createPortal(
         <div
@@ -242,7 +268,7 @@ export default function CccaaaSection() {
             top: geo.docTop,
             left: 0,
             width: "100%",
-            height: geo.trackHeight,
+            height: trackHeight,
             zIndex: 20,
             pointerEvents: "none",
           }}

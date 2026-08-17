@@ -1,7 +1,9 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import HeroVideo from "./HeroVideo";
 import { useNavigate } from "react-router-dom";
 import {
   weuiArrowOutlined,
+  solarArrowUpOutline,
   images11,
   images21,
   images31,
@@ -16,12 +18,54 @@ import {
   streamlineDecentWork,
   famiconsCall,
 } from "../../assets";
-import { sphereGraphic, polygon34, enterpriseDivider, dotMarker } from "../../assets/mobile";
+import { outputOnlinegiftools1, ellipse2286, ellipse2283, ellipse2285, ellipse2284 } from "../../assets/home";
+import { polygon34, enterpriseDivider } from "../../assets/mobile";
 import { scrollToContactForm } from "../../lib/scrollToContact";
 
-// Same 7-logo set HomeTrustedBy.tsx uses on desktop (Figma node 317:1207),
-// just laid out for a narrow viewport instead of that component's fixed
-// w-[1221px] label+marquee row.
+type ProductId = "prana" | "shruti" | "viveka" | "messenger";
+
+// Same 4 products/copy VihPranaSection.tsx (desktop) cycles through — kept
+// in sync with that one rather than inventing separate mobile copy.
+const ECOSYSTEM_PRODUCTS: Record<ProductId, { name: string; type: string; tech: string; body: string }> = {
+  prana: {
+    name: "ViH Prana",
+    type: "Omnichannel Orchestration",
+    tech: "AI",
+    body: "Prana is the AI orchestration layer that fuses every email, call, chat, and meeting your customers leave behind into a single coherent reality — so support and sales teams stop chasing ghosts.",
+  },
+  shruti: {
+    name: "ViH Shruti",
+    type: "Voice & Speech",
+    tech: "ASR",
+    body: "Shruti transcribes and understands calls in real time across languages and accents, surfacing the moments that matter while the conversation is still live.",
+  },
+  viveka: {
+    name: "ViH Viveka",
+    type: "Conversational Intelligence",
+    tech: "NLU",
+    body: "Viveka listens across every channel and turns raw conversation into structured intent, sentiment, and next-best-action — so your teams always know what the customer actually means.",
+  },
+  messenger: {
+    name: "ViH Messenger",
+    type: "Unified Inbox",
+    tech: "Messaging",
+    body: "Messenger unifies WhatsApp, email, chat, and social into one thread per customer, so every agent picks up exactly where the last conversation left off.",
+  },
+};
+
+const ECOSYSTEM_ORDER: ProductId[] = ["prana", "shruti", "viveka", "messenger"];
+
+// Same relative dot positions VihPranaSection.tsx uses (converted from its
+// desktop pixel coordinates, within its 985x1082 gif box, to percentages),
+// so the 4 dots sit in the same spots around the sphere on mobile.
+const ecosystemDots: { id: ProductId; dot: string; label: string; leftPct: number; topPct: number }[] = [
+  { id: "viveka", dot: ellipse2285, label: "Viveka", leftPct: 73.1, topPct: 48.1 },
+  { id: "shruti", dot: ellipse2283, label: "Shruti", leftPct: 44, topPct: 67.9 },
+  { id: "prana", dot: ellipse2284, label: "Prana", leftPct: 68.6, topPct: 79.7 },
+  { id: "messenger", dot: ellipse2286, label: "Messenger", leftPct: 63.4, topPct: 95.9 },
+];
+
+// Same 7-logo set HomeTrustedBy.tsx uses on desktop (Figma node 317:1207).
 const trustedByLogos = [images11, images21, images31, images41, images2, bsnlLogo1, a5e5bd2a];
 
 const productCards = [
@@ -78,11 +122,40 @@ const useCaseCards = [
   },
 ];
 
-const sphereLabels = [
-  { label: "Shruti", left: 40, top: 180 },
-  { label: "Prana", left: 240, top: 60 },
-  { label: "Viveka", left: 150, top: 280 },
-];
+// Generic scroll-into-view reveal — replays every time the wrapped element
+// re-enters the viewport (toggling on exit too), matching the pattern
+// EnterpriseSection/EnterpriseBenefits already use elsewhere in this
+// codebase, rather than a one-shot "only plays once ever" animation.
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), { threshold: 0.2 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`${active ? "mobile-blur-rise-in" : "opacity-0"} ${className}`}
+      style={active ? { animationDelay: `${delay}s` } : undefined}
+    >
+      {children}
+    </div>
+  );
+}
 
 function CtaButton({ className = "" }: { className?: string }) {
   return (
@@ -127,12 +200,16 @@ function MobileDataViz() {
         <p className="font-normal text-[#737373] text-[14px] tracking-[-0.5px] m-0">
           We are trusted by people by multiple domains
         </p>
-        <div className="flex gap-[16px] overflow-x-auto pb-[4px] [scrollbar-width:none]">
-          {trustedByLogos.map((logo, i) => (
-            <div key={i} className="flex h-[64px] w-[110px] shrink-0 items-center justify-center rounded-[12px]">
-              <img alt="" className="h-[40px] w-full object-contain" src={logo} />
-            </div>
-          ))}
+        {/* Same auto-scrolling marquee HomeTrustedBy.tsx uses on desktop
+            (right-to-left, pauses while touched via the `:active` rule in
+            index.css) instead of a static row — this used to just sit
+            still. */}
+        <div className="marquee-mask relative overflow-hidden opacity-[0.85]">
+          <div className="marquee-track flex items-center gap-[24px] w-max">
+            {[...trustedByLogos, ...trustedByLogos].map((logo, i) => (
+              <img key={i} alt="" className="h-[40px] w-auto shrink-0" src={logo} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -177,12 +254,12 @@ function MobileEnterpriseProblems() {
         </div>
       </div>
 
-      <div className="relative px-[20px] pb-[24px]">
-        <img alt="" className="w-full opacity-60" src={enterpriseDivider} />
-      </div>
-
-      <div className="relative flex flex-col gap-[32px] px-[20px] pb-[40px]">
-        <div className="flex flex-col gap-[12px]">
+      {/* Figma's own local layout (node 324:1451) stacks these top-to-bottom
+          as: Corporate-amnesia paragraph + $8M card, THEN the dot/divider
+          graphic, THEN the 42% card + Brain-drain paragraph — both cards
+          sandwich the graphic rather than both following it. */}
+      <div className="relative flex flex-col gap-[32px] px-[20px] pb-[24px]">
+        <Reveal className="flex flex-col gap-[12px]">
           <p className="font-normal text-[#b1b1b1] text-[14px] leading-[22px] m-0">
             <span className="font-semibold text-white">Corporate amnesia</span> is the loss of organisational
             knowledge and context, leaving teams with fragmented information and disconnected customer histories.
@@ -193,9 +270,15 @@ function MobileEnterpriseProblems() {
             description="Annual loss for a 3,000-employee business from repeating mistakes already made."
             descWidth={161}
           />
-        </div>
+        </Reveal>
+      </div>
 
-        <div className="flex flex-col gap-[12px]">
+      <div className="relative px-[20px] pb-[24px]">
+        <img alt="" className="w-full opacity-60" src={enterpriseDivider} />
+      </div>
+
+      <div className="relative flex flex-col gap-[32px] px-[20px] pb-[40px]">
+        <Reveal className="flex flex-col gap-[12px]" delay={0.1}>
           <StatCard
             stat="42%"
             label="Knowledge Loss"
@@ -206,7 +289,7 @@ function MobileEnterpriseProblems() {
             <span className="font-bold text-white">Brain drain</span> is the loss of critical expertise when
             employees leave, causing knowledge gaps, repeated mistakes, and slower onboarding.
           </p>
-        </div>
+        </Reveal>
       </div>
 
       {/* The ecosystem/sphere panel — same dark-to-blue gradient Figma's
@@ -223,47 +306,120 @@ function MobileEnterpriseProblems() {
           touchpoint — delivering unparalleled experiences from first contact to lasting loyalty.
         </p>
 
-        <div className="relative w-full max-w-[350px] aspect-square">
-          <div className="absolute -left-[30%] -top-[17%] w-[161%] h-[133%] pointer-events-none overflow-hidden">
-            <img alt="" className="size-full object-contain" src={sphereGraphic} />
-          </div>
-          {sphereLabels.map(({ label, left, top }) => (
-            <div key={label} className="absolute" style={{ left: `${(left / 350) * 100}%`, top: `${(top / 350) * 100}%` }}>
-              <div className="flex items-center gap-[6px]">
-                <img alt="" className="size-[12px]" src={dotMarker} />
-                <span className="rounded-[8px] bg-white/10 px-[8px] py-[4px] text-[11px] text-white whitespace-nowrap">
+        <EcosystemSphere />
+
+        <CtaButton />
+      </div>
+    </div>
+  );
+}
+
+// Desktop's version (VihPranaSection.tsx) cycles through 4 products —
+// Prana (default), Shruti, Viveka, Messenger — via 4 clickable dots plus a
+// next-arrow on the info card, using the actual animated sphere GIF
+// (outputOnlinegiftools1), not a static screenshot of one frame of it. This
+// mirrors that: same 4 products/copy, same relative dot positions (as
+// percentages of the sphere box), the same GIF for real motion, and the
+// same `key={activeId}` + `vihprana-card-in` crossfade when switching.
+function EcosystemSphere() {
+  const [activeId, setActiveId] = useState<ProductId>("prana");
+  const active = ECOSYSTEM_PRODUCTS[activeId];
+
+  const goToNextProduct = () => {
+    setActiveId((current) => {
+      const idx = ECOSYSTEM_ORDER.indexOf(current);
+      return ECOSYSTEM_ORDER[(idx + 1) % ECOSYSTEM_ORDER.length];
+    });
+  };
+
+  return (
+    <Reveal className="relative w-full">
+      {/* Sized bigger than the sphere's own natural aspect box and bled
+          past the panel's horizontal padding (negative margin) so it reads
+          as large/immersive the way the desktop version's does relative to
+          its section, instead of being boxed into a small square. */}
+      <div className="relative -mx-[16px] h-[340px] overflow-hidden pointer-events-none">
+        <img
+          alt=""
+          className="absolute left-1/2 top-1/2 h-[220%] w-[220%] -translate-x-1/2 -translate-y-1/2 max-w-none object-contain"
+          src={outputOnlinegiftools1}
+        />
+      </div>
+
+      {/* Dots sit on top of the sphere art (a negative margin pulls this
+          whole block up over its bottom portion, same overlap Figma's own
+          card/sphere positions have — the card is not a separate block
+          stacked below it). */}
+      <div className="relative -mt-[170px]">
+        <div className="relative h-[170px]">
+          {ecosystemDots.map(({ id, dot, label, leftPct, topPct }) => {
+            const isActive = id === activeId;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveId(id)}
+                aria-label={`Show ${ECOSYSTEM_PRODUCTS[id].name}`}
+                className="absolute flex items-center gap-[6px] -translate-x-1/2 -translate-y-1/2 cursor-pointer bg-transparent border-none p-0"
+                style={{ left: `${leftPct}%`, top: `${topPct}%` }}
+              >
+                <img
+                  alt=""
+                  className="size-[16px] shrink-0 transition-transform duration-200"
+                  style={{ transform: isActive ? "scale(1.25)" : "scale(1)" }}
+                  src={dot}
+                />
+                <span
+                  className="rounded-[8px] px-[8px] py-[4px] text-[11px] whitespace-nowrap transition-colors duration-200"
+                  style={{
+                    backgroundColor: isActive ? "#ffffff" : "rgba(133,134,136,0.5)",
+                    color: isActive ? "#000000" : "#ffffff",
+                  }}
+                >
                   {label}
                 </span>
-              </div>
-            </div>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="w-full rounded-[24px] bg-white/10 p-[20px] flex flex-col gap-[16px]">
+        {/* The pamphlet/info card — overlaps the sphere's lower half per
+            Figma (node 324:1512 sits at local top:207.49 inside the same
+            350px box the sphere occupies, not below it), and the
+            `key={activeId}` remount replays the fade-in each time the
+            active product changes, giving the arrow/dot switch a smooth
+            transition instead of an instant content swap. */}
+        <div
+          key={activeId}
+          className="vihprana-card-in relative w-full rounded-[24px] bg-[rgba(122,123,127,0.44)] backdrop-blur-md border border-white/10 p-[20px] flex flex-col gap-[16px]"
+        >
           <div className="flex items-center justify-between">
-            <p className="text-[20px] text-white m-0">ViH Prana</p>
+            <p className="text-[20px] text-white m-0">{active.name}</p>
+            <button
+              type="button"
+              onClick={goToNextProduct}
+              aria-label="Show next product"
+              className="bg-black/38 flex items-center justify-center p-[6px] rounded-[26px] cursor-pointer hover:bg-black/60 transition-colors"
+            >
+              <img alt="" className="size-[16px] rotate-90" src={solarArrowUpOutline} />
+            </button>
           </div>
           <div className="h-px bg-white/15" />
           <div className="flex gap-[24px]">
             <div className="flex flex-col gap-[2px]">
               <p className="text-[11px] text-[#c4c4c4] m-0">Type</p>
-              <p className="text-[13px] text-white m-0">Omnichannel Orchestration</p>
+              <p className="text-[13px] text-white m-0">{active.type}</p>
             </div>
             <div className="flex flex-col gap-[2px]">
               <p className="text-[11px] text-[#c4c4c4] m-0">Tech</p>
-              <p className="text-[13px] text-white m-0">AI Engine</p>
+              <p className="text-[13px] text-white m-0">{active.tech}</p>
             </div>
           </div>
           <div className="h-px bg-white/15" />
-          <p className="text-[13px] text-white leading-[18px] m-0">
-            Prana is the AI orchestration layer that fuses every email, call, chat, and meeting your customers leave
-            behind into a single coherent reality — so support and sales teams stop chasing ghosts.
-          </p>
+          <p className="text-[13px] text-white leading-[18px] m-0">{active.body}</p>
         </div>
-
-        <CtaButton />
       </div>
-    </div>
+    </Reveal>
   );
 }
 
@@ -294,30 +450,46 @@ function MobileOrchestration() {
         </p>
       </div>
 
+      {/* Same auto-scrolling right-to-left marquee as the trusted-by logos
+          strip up top (and desktop's own HomeTrustedBy marquee), instead of
+          the cards just sitting stacked and static — pauses on touch via
+          the `.marquee-mask:active` rule in index.css. */}
+      {/* Each card reveals on its own as it scrolls into view (staggered
+          by index) rather than as one continuously-scrolling strip — a
+          marquee doesn't give a real "look, read, decide" moment for
+          something this text-heavy the way it's fine for a row of partner
+          logos. */}
       <div className="relative flex flex-col gap-[16px]">
-        {productCards.map((card) => {
+        {productCards.map((card, i) => {
           const clickable = card.route !== null;
           return (
-            <div
-              key={card.title}
-              role={clickable ? "button" : undefined}
-              tabIndex={clickable ? 0 : undefined}
-              onClick={clickable ? () => navigate(card.route!) : undefined}
-              className={`bg-[#fafafa] border border-[#ededed] rounded-[24px] overflow-hidden relative px-[24px] pt-[28px] pb-[20px] flex flex-col gap-[12px] ${
-                clickable ? "cursor-pointer active:scale-[0.99]" : ""
-              }`}
-            >
-              <p className="font-medium leading-[26px] text-[22px] text-[#131313] m-0">{card.title}</p>
-              <p className="font-normal leading-[21px] text-[#737373] text-[15px] m-0">{card.description}</p>
+            <Reveal key={card.title} delay={i * 0.15}>
               <div
-                className="mx-auto mt-[16px] h-[110px] w-[80%] rounded-[263px] opacity-90"
-                style={{ backgroundImage: card.gradient }}
-              />
-              <div className="bg-white/40 border border-[#f6f6f6] flex gap-[10px] h-[38px] items-center justify-center rounded-[24px] px-[16px]">
-                <span className="flex-1 text-[#131313] text-[15px]">Hands Free Voice Assistance</span>
-                <img alt="" className="h-[16px] w-[8px]" src={weuiArrowOutlined} />
+                role={clickable ? "button" : undefined}
+                tabIndex={clickable ? 0 : undefined}
+                onClick={clickable ? () => navigate(card.route!) : undefined}
+                className={`bg-[#fafafa] border border-[#ededed] rounded-[24px] overflow-hidden relative px-[24px] pt-[28px] pb-[20px] flex flex-col gap-[12px] ${
+                  clickable ? "cursor-pointer active:scale-[0.99]" : ""
+                }`}
+              >
+                <p className="font-medium leading-[26px] text-[22px] text-[#131313] m-0">{card.title}</p>
+                <p className="font-normal leading-[21px] text-[#737373] text-[15px] m-0">{card.description}</p>
+                {/* Figma's own orb (node 324:1554) is a 172x138 box at
+                    rounded-[263px] — close to a soft circle/blob, not a
+                    long flat pill. Using aspect-ratio (rather than a fixed
+                    height against a wide percentage width) keeps that same
+                    near-circular proportion at any card width instead of
+                    stretching it out. */}
+                <div
+                  className="mx-auto mt-[16px] w-[62%] rounded-[263px] opacity-90"
+                  style={{ aspectRatio: "172 / 138", backgroundImage: card.gradient }}
+                />
+                <div className="bg-white/40 border border-[#f6f6f6] flex gap-[10px] h-[38px] items-center justify-center rounded-[24px] px-[16px]">
+                  <span className="flex-1 text-[#131313] text-[15px]">Hands Free Voice Assistance</span>
+                  <img alt="" className="h-[16px] w-[8px]" src={weuiArrowOutlined} />
+                </div>
               </div>
-            </div>
+            </Reveal>
           );
         })}
       </div>
@@ -327,19 +499,21 @@ function MobileOrchestration() {
           Built for the teams that actually answer.
         </h3>
         <div className="flex flex-col gap-[12px]">
-          {useCaseCards.map((card) => (
-            <div key={card.title} className="bg-[#fafafa] border border-[#cfcfcf] rounded-[20px] p-[20px] flex flex-col gap-[12px]">
-              <div className="flex items-center justify-between">
-                <p className="font-medium leading-[22px] text-[18px] text-[#131313] m-0">{card.title}</p>
-                <div className="relative size-[36px] shrink-0 overflow-hidden rounded-[18px]" style={{ backgroundImage: card.gradient }}>
-                  {card.orb && (
-                    <img alt="" className="absolute inset-0 size-full object-cover mix-blend-luminosity opacity-40" src={card.orb} />
-                  )}
-                  <img alt="" className="absolute inset-0 m-auto size-[18px]" src={card.icon} />
+          {useCaseCards.map((card, i) => (
+            <Reveal key={card.title} delay={i * 0.1}>
+              <div className="bg-[#fafafa] border border-[#cfcfcf] rounded-[20px] p-[20px] flex flex-col gap-[12px]">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium leading-[22px] text-[18px] text-[#131313] m-0">{card.title}</p>
+                  <div className="relative size-[36px] shrink-0 overflow-hidden rounded-[18px]" style={{ backgroundImage: card.gradient }}>
+                    {card.orb && (
+                      <img alt="" className="absolute inset-0 size-full object-cover mix-blend-luminosity opacity-40" src={card.orb} />
+                    )}
+                    <img alt="" className="absolute inset-0 m-auto size-[18px]" src={card.icon} />
+                  </div>
                 </div>
+                <p className="font-normal leading-[19px] text-[#555] text-[13px] m-0">{card.description}</p>
               </div>
-              <p className="font-normal leading-[19px] text-[#555] text-[13px] m-0">{card.description}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

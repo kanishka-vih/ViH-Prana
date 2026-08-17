@@ -134,8 +134,17 @@ export default function Header({ floating = false }: { floating?: boolean }) {
           and a hamburger, no inline nav links/CTA. Those move into a simple
           dropdown panel on tap instead — the Figma mobile frame only shows
           the closed hamburger state, not an open-menu design, so this panel
-          is a plain, functional fallback rather than a pixel-matched one. */}
-      <div className="md:hidden relative bg-[#f7f7f8]">
+          is a plain, functional fallback rather than a pixel-matched one.
+          `floating` (set once the banner's scrolled at least partly out of
+          view — see FixedHeader.tsx) swaps the flat page-bg fill for the
+          same iOS-style translucent glass/blur chrome the desktop nav gets
+          once it's pinned, instead of a plain opaque bar sitting on top of
+          content while scrolling. */}
+      <div
+        className={`md:hidden relative transition-all duration-300 ease-out ${
+          floating ? "bg-white/70 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]" : "bg-[#f7f7f8]"
+        }`}
+      >
         <div className="flex h-[56px] items-center justify-between px-[16px] py-[12px]">
           <Link
             to="/"

@@ -411,12 +411,14 @@ export default function HomeBottomSections() {
           </div>
           <div className="flex flex-col gap-[16px]">
             <p className="font-semibold text-[#6d6c6c] text-[14px] tracking-[1px] uppercase m-0">Our Partners</p>
-            <div className="flex flex-wrap gap-x-[16px] gap-y-[12px]">
-              {partnerLogos.map((logo, i) => (
-                <div key={i} className="flex h-[64px] w-[110px] items-center justify-center rounded-[12px]">
-                  <img alt="" className="h-[40px] w-full object-contain" src={logo} />
-                </div>
-              ))}
+            {/* Same auto-scrolling right-to-left marquee as the hero's
+                trusted-by strip, instead of a static wrapped grid. */}
+            <div className="marquee-mask relative overflow-hidden">
+              <div className="marquee-track flex items-center gap-[24px] w-max">
+                {[...partnerLogos, ...partnerLogos].map((logo, i) => (
+                  <img key={i} alt="" className="h-[40px] w-auto shrink-0" src={logo} />
+                ))}
+              </div>
             </div>
           </div>
         </div>

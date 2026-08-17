@@ -43,6 +43,14 @@ body {
   animation-play-state: paused;
 }
 
+/* `:hover` alone never fires on touch devices, so a tap on the mobile
+   trusted-by strip wouldn't pause it — `:active` does fire there (while the
+   finger is actually down), giving mobile the same "stops while touched,
+   resumes when let go" behavior hover gives desktop. */
+.marquee-mask:active .marquee-track {
+  animation-play-state: paused;
+}
+
 @keyframes marquee {
   from {
     transform: translateX(0);
@@ -446,4 +454,24 @@ body {
 }
 .contact-layer-in.contact-delay-4 {
   animation-delay: 0.6s;
+}
+
+/* Mobile home's scroll-triggered card/panel reveals (stat cards, product
+   cards, use-case cards, the ecosystem sphere panel) — rises up while
+   un-blurring, replayed via IntersectionObserver each time the element
+   re-enters the viewport rather than a one-shot page-load animation. */
+@keyframes mobile-blur-rise-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+.mobile-blur-rise-in {
+  animation: mobile-blur-rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
