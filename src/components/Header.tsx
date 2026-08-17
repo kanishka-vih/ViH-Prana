@@ -142,7 +142,7 @@ export default function Header({ floating = false }: { floating?: boolean }) {
           content while scrolling. */}
       <div
         className={`md:hidden relative transition-all duration-300 ease-out ${
-          floating ? "bg-white/70 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]" : "bg-[#f7f7f8]"
+          floating ? "bg-white/70 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]" : "bg-white"
         }`}
       >
         <div className="flex h-[56px] items-center justify-between px-[16px] py-[12px] gap-[12px]">

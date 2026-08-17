@@ -292,7 +292,11 @@ export default function VoiceChatWidget() {
   return (
     <div
       ref={containerRef}
-      className={`fixed right-[16px] bottom-[16px] md:right-[24px] md:bottom-[24px] z-50 flex flex-col items-end gap-[12px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      // Mobile centers the trigger (and the panel that stacks above it) at
+      // the bottom of the screen — the ElevenLabs reference for this widget
+      // sits bottom-center, not tucked into a corner. Desktop keeps its
+      // existing bottom-right placement unchanged.
+      className={`fixed bottom-[calc(16px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-[24px] md:bottom-[24px] z-50 flex flex-col items-center md:items-end gap-[12px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         visible
           ? "translate-y-0 scale-100 opacity-100"
           : "pointer-events-none translate-y-[32px] scale-90 opacity-0"
@@ -398,24 +402,24 @@ export default function VoiceChatWidget() {
         </div>
       )}
 
-      {/* On mobile this collapses to a small circular orb (no text label) —
-          the full 156px pill-with-label was sized for a desktop cursor
-          target, not a thumb-sized corner bubble, and read as oversized
-          relative to everything else on a phone screen. */}
+      {/* Same orb+label pill on mobile and desktop now — matches the
+          ElevenLabs bottom-center "Voice chat" trigger (orb, label, and
+          spacing all visible at every size) instead of collapsing to a
+          bare icon-only bubble on phones. */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close chat" : "Open voice chat"}
-        className="flex size-[52px] md:h-[56px] md:w-[156px] cursor-pointer items-center justify-center md:justify-start rounded-full md:rounded-[36px] border border-white/60 bg-white/80 shadow-sm backdrop-blur-xl"
+        className="flex h-[52px] md:h-[56px] cursor-pointer items-center rounded-full border border-white/60 bg-white/80 pl-[7px] pr-[18px] shadow-sm backdrop-blur-xl"
       >
-        <span className="relative md:ml-[7px] size-[36px] md:size-[42px] shrink-0 overflow-hidden rounded-full">
+        <span className="relative size-[36px] md:size-[42px] shrink-0 overflow-hidden rounded-full">
           <img alt="" className="size-full" src={ellipse2328} />
           {speaking && (
             <span className="absolute right-[-1px] top-[-1px] size-[10px] voicechat-dot-pulse rounded-full bg-[#B15BFC] ring-2 ring-white" />
           )}
         </span>
-        <span className="hidden md:inline ml-[14px] whitespace-nowrap text-[16px] text-black">
-          {open ? "Close chat" : "Voice Chat"}
+        <span className="ml-[10px] md:ml-[14px] whitespace-nowrap text-[15px] md:text-[16px] text-black">
+          {open ? "Close chat" : "Voice chat"}
         </span>
       </button>
     </div>

@@ -3,7 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo-icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- `viewport-fit=cover` lets the page draw into the notch/home-indicator
+         safe areas instead of Safari boxing content inside them with hard
+         white bars — that's what makes a site look "cut off" on an iPhone
+         even though there's nothing wrong with the layout itself. Paired
+         with `env(safe-area-inset-*)` padding on fixed bottom UI (see
+         VoiceChatWidget) so those elements still clear the home indicator
+         rather than sitting under it once the page is allowed to cover
+         that area. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
     <title>vihmetaverse.com</title>
   </head>
   <body>

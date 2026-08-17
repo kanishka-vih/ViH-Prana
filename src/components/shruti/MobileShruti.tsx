@@ -369,9 +369,13 @@ export default function MobileShruti() {
           design itself (confirmed against the actual desktop Shruti hero,
           ShrutiHero.tsx, which uses this heading/subcopy instead), not
           something this page should actually match. */}
+      {/* No hero CTA here — "Contact us" already lives in the nav bar
+          (Header.tsx), so this doesn't repeat the same action twice on one
+          screen, matching the same change made to Home's hero. */}
       <MobileHero
         heading="If it's Speech, it's Shruti"
         subcopy="Real-time speech AI with customised voice bots built for your business."
+        showCta={false}
       />
       <div className="px-[16px] pb-[40px] flex flex-col gap-[16px]">
         <MobileVoiceChatCarousel />
