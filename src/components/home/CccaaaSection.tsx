@@ -19,7 +19,6 @@ const MOBILE_PANEL_HEIGHT_FALLBACK = 460;
 const MOBILE_EXTRA_SCROLL = 1400;
 
 const LETTERS = ["C", "C", "C", "A", "A", "A"];
-const LETTERS_STRING = LETTERS.join("");
 const ACTIVE_COLOR = "rgb(4,4,4)";
 const INACTIVE_COLOR = "rgb(194,194,194)";
 
@@ -52,7 +51,7 @@ const MOBILE_BREAKPOINT = 768;
 export default function CccaaaSection() {
   const trackRef = useRef<HTMLDivElement>(null);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const mobileSweepRef = useRef<HTMLParagraphElement>(null);
+  const mobileLetterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const mobilePanelRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLParagraphElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
@@ -130,12 +129,16 @@ export default function CccaaaSection() {
     // portal's height/position would stay pinned to the fallback guess.
   }, [isMobile, trackHeightConst]);
 
-  // Stage/color switching + (mobile only) the continuous left-to-right
-  // sweep — no position math here at all. The pin itself is native CSS
-  // `position: sticky` below, handled entirely by the browser's
-  // compositor, so it cannot lag a frame behind the scroll or jitter the
-  // way a JS-computed transform can under fast/inertial scrolling (that
-  // mismatch was the actual cause of the "vibrating" panel).
+  // Stage/color switching — identical logic on mobile and desktop now
+  // (mobile briefly used a continuous left-to-right clip-path sweep
+  // instead, but that wasn't actually what was wanted — "CC transfers to
+  // C, then C transfers to A" describes the same discrete letter-group
+  // recolor desktop already does, just also wanted on mobile). No position
+  // math here at all — the pin itself is native CSS `position: sticky`
+  // below, handled entirely by the browser's compositor, so it cannot lag
+  // a frame behind the scroll or jitter the way a JS-computed transform
+  // can under fast/inertial scrolling (that mismatch was the actual cause
+  // of the "vibrating" panel).
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -148,24 +151,14 @@ export default function CccaaaSection() {
       const pinnable = Math.max(1, rect.height - panelHeight * (isMobile ? 1 : rect.width / 1440 || 1));
       const p = Math.max(0, Math.min(1, -rect.top / pinnable));
 
-      // Desktop recolors whole letter-groups at each of the 4 discrete
-      // stage boundaries. Mobile instead reveals the active color
-      // continuously left-to-right as `p` itself grows (a clip-path wipe
-      // over a gray base copy of the same text) — a real sweep tied
-      // directly to scroll position, not a snap between 4 fixed states.
-      if (isMobile && mobileSweepRef.current) {
-        mobileSweepRef.current.style.clipPath = `inset(0 ${(1 - p) * 100}% 0 0)`;
-      }
-
       const stage = Math.min(STAGES.length - 1, Math.floor(p * STAGES.length * 0.999));
       if (lastStage !== stage) {
         lastStage = stage;
-        if (!isMobile) {
-          const active = STAGES[stage].letters;
-          letterRefs.current.forEach((el, i) => {
-            if (el) el.style.color = active.includes(i) ? ACTIVE_COLOR : INACTIVE_COLOR;
-          });
-        }
+        const active = STAGES[stage].letters;
+        const refs = isMobile ? mobileLetterRefs.current : letterRefs.current;
+        refs.forEach((el, i) => {
+          if (el) el.style.color = active.includes(i) ? ACTIVE_COLOR : INACTIVE_COLOR;
+        });
         if (labelRef.current) labelRef.current.textContent = STAGES[stage].label;
         if (bodyRef.current) bodyRef.current.textContent = STAGES[stage].body;
         if (captionRef.current) {
@@ -231,36 +224,35 @@ export default function CccaaaSection() {
     </div>
   );
 
-  const letterTextClasses =
-    "font-['Roboto_Condensed'] font-semibold tracking-[4px] m-0 leading-none text-center w-full text-[85px]";
-
   // Mobile version of the same pinned scroll-scrub, sized for a phone
   // instead of scaled down from the 1440px desktop panel. Reuses the exact
-  // same refs/stage-tracking effects above — only the JSX/dimensions differ.
+  // same refs/stage-tracking effects above — only the JSX/dimensions
+  // differ. `min-h-screen` + centered content makes the pinned panel
+  // actually fill the phone's viewport while it's pinned — a fixed
+  // content-hugging height (just padding around the letters) left a lot
+  // of the screen showing whatever's behind/after it even while "pinned",
+  // instead of reading as its own full-screen slide the way it should.
   const mobilePanel = (
     <div
       ref={mobilePanelRef}
-      className="bg-[#f8f9fb] w-full flex flex-col items-center gap-[32px] px-[24px] pt-[40px] pb-[40px]"
+      className="bg-[#f8f9fb] w-full min-h-screen flex flex-col items-center justify-center gap-[40px] px-[24px] py-[40px]"
     >
       <div className="bg-[rgba(243,248,255,0.6)] border border-black/10 rounded-[12px] px-[24px] py-[10px]">
         <p className="font-medium text-[#040404] text-[16px] tracking-[-0.5px] m-0">How we do it</p>
       </div>
-      {/* Gray base + a black copy clipped to a width driven by scroll
-          progress — the black text visibly "fills in" left-to-right as
-          you scroll instead of whole letter-groups snapping color at 4
-          fixed points. */}
-      <div className="relative w-full">
-        <p className={`${letterTextClasses} text-[#c2c2c2]`} aria-hidden="true">
-          {LETTERS_STRING}
-        </p>
-        <p
-          ref={mobileSweepRef}
-          className={`${letterTextClasses} absolute inset-0 text-[#040404]`}
-          style={{ clipPath: "inset(0 100% 0 0)" }}
-        >
-          {LETTERS_STRING}
-        </p>
-      </div>
+      <p className="font-['Roboto_Condensed'] font-semibold tracking-[4px] m-0 leading-none text-center w-full text-[85px]">
+        {LETTERS.map((ch, i) => (
+          <span
+            key={i}
+            ref={(el) => {
+              mobileLetterRefs.current[i] = el;
+            }}
+            style={{ color: i < 2 ? ACTIVE_COLOR : INACTIVE_COLOR, transition: "color 0.4s ease" }}
+          >
+            {ch}
+          </span>
+        ))}
+      </p>
       <p
         ref={captionRef}
         className="font-normal text-[16px] tracking-[-0.5px] text-center m-0 leading-[24px]"

@@ -364,7 +364,15 @@ function MobileRealtimeVisibility() {
 export default function MobileShruti() {
   return (
     <div className="flex flex-col w-full">
-      <MobileHero />
+      {/* Figma's mobile frame for this page shows Home's "Your Left Brain,
+          Reimagined" copy here too — that's a copy-paste mistake in the
+          design itself (confirmed against the actual desktop Shruti hero,
+          ShrutiHero.tsx, which uses this heading/subcopy instead), not
+          something this page should actually match. */}
+      <MobileHero
+        heading="If it's Speech, it's Shruti"
+        subcopy="Real-time speech AI with customised voice bots built for your business."
+      />
       <div className="px-[16px] pb-[40px] flex flex-col gap-[16px]">
         <MobileVoiceChatCarousel />
         <MobileTrustedBy />

@@ -186,19 +186,25 @@ export function CtaButton({ className = "" }: { className?: string }) {
   );
 }
 
-// Exported — Shruti's mobile hero (Figma node 333:1981) has identical
-// copy/CTA to Home's (node 324:1432), so MobileShruti.tsx reuses this
-// directly instead of a second, drifting copy of the same content.
-export function MobileHero() {
+// Exported — the shell/CTA here is genuinely shared, but the copy is
+// parameterized rather than hardcoded. Figma's own mobile frame for Shruti
+// (node 333:1981/333:1983) shows this exact same "Your Left Brain,
+// Reimagined" text, but that's a copy-paste mistake in the design itself
+// — Shruti's real desktop hero (ShrutiHero.tsx) uses "If it's Speech, it's
+// Shruti" / its own subcopy, and the mobile frame should match that, not
+// Home's. MobileShruti.tsx passes its own heading/subcopy accordingly.
+export function MobileHero({
+  heading = "Your Left Brain, Reimagined",
+  subcopy = "Give your enterprise a lasting memory by curing corporate amnesia and ending brain drain.",
+}: {
+  heading?: string;
+  subcopy?: string;
+}) {
   return (
     <div className="bg-[#f7f7f8] flex flex-col gap-[24px] px-[16px] py-[16px] pb-[24px]">
       <div className="flex flex-col gap-[12px]">
-        <h1 className="font-light leading-[42px] text-[38px] text-[#111] tracking-[-1.5px] m-0">
-          Your Left Brain, Reimagined
-        </h1>
-        <p className="font-normal leading-[18px] text-[#555] text-[14px] m-0">
-          Give your enterprise a lasting memory by curing corporate amnesia and ending brain drain.
-        </p>
+        <h1 className="font-light leading-[42px] text-[38px] text-[#111] tracking-[-1.5px] m-0">{heading}</h1>
+        <p className="font-normal leading-[18px] text-[#555] text-[14px] m-0">{subcopy}</p>
       </div>
       <CtaButton />
     </div>
@@ -367,27 +373,42 @@ function EcosystemSphere() {
     });
   };
 
-  // Card starts at CARD_TOP_PCT of SPHERE_BOX, so pulling it up by
-  // (SPHERE_BOX - that offset) from a preceding SPHERE_BOX-tall sibling
-  // lands its top exactly there — its real height then pushes whatever
-  // comes after it down correctly on its own, instead of guessing a fixed
-  // buffer for content whose height depends on the active product's text.
-  const cardPullUp = SPHERE_BOX - (CARD_TOP_PCT / 100) * SPHERE_BOX;
+  // SPHERE_BOX (350) is only the reference used to derive the dot/card
+  // *percentages* above, matching Figma's own coordinate box — the
+  // sphere's actual rendered size is this, independently bigger (and
+  // bled edge-to-edge instead of boxed inside the panel's own padding),
+  // since percentages resolve against whatever height is actually
+  // rendered regardless of what box they were originally computed from.
+  const SPHERE_RENDER_HEIGHT = 460;
+
+  // Card starts at CARD_TOP_PCT of the sphere's rendered height, so
+  // pulling it up by (renderHeight - that offset) from a preceding
+  // renderHeight-tall sibling lands its top exactly there — its real
+  // height then pushes whatever comes after it down correctly on its
+  // own, instead of guessing a fixed buffer for content whose height
+  // depends on the active product's text.
+  const cardPullUp = SPHERE_RENDER_HEIGHT - (CARD_TOP_PCT / 100) * SPHERE_RENDER_HEIGHT;
 
   return (
     <Reveal className="relative w-full">
-      {/* Sphere + dots box — fixed at Figma's own 350x350 reference size
-          (node 324:1501) so the percentage positions below resolve exactly
-          like they do there, instead of drifting on a shorter/taller box.
+      {/* Sphere + dots box — bled edge-to-edge (past the panel's own
+          px-[16px]) and rendered noticeably taller than Figma's literal
+          350px reference box so it actually reads as big/immersive rather
+          than boxed in. Dot/card percentages below are still computed
+          against that 350 reference (matching Figma's own coordinates)
+          but resolve correctly at this bigger rendered size regardless —
+          percentages scale with whatever height is actually rendered.
           `overflow-visible` (default) lets the sphere image's own
-          intentional bleed (Figma's Sphere-Graphic sits at left:-105/
-          top:-58.51/566x461, well outside this 350 box) show in full. */}
-      <div className="relative mx-auto" style={{ width: SPHERE_BOX, height: SPHERE_BOX, maxWidth: "100%" }}>
+          intentional bleed show in full. */}
+      <div className="relative -mx-[16px]" style={{ width: "calc(100% + 32px)", height: SPHERE_RENDER_HEIGHT }}>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Stretched noticeably wider than tall (more so than Figma's
+              own 566:461 ratio) per explicit feedback that it should read
+              as more elliptical/stretched, not a plain circle. */}
           <img
             alt=""
             className="absolute max-w-none object-contain"
-            style={{ left: "-30%", top: "-16.7%", width: "161.7%", height: "131.7%" }}
+            style={{ left: "-45%", top: "-20%", width: "190%", height: "150%" }}
             src={outputOnlinegiftools1}
           />
         </div>
