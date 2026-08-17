@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { weuiArrowOutlined } from "../../assets";
 import { ellipse2328, voicechatAvatarRing, voicechatMic, voicechatSend } from "../../assets/home";
-import { CONTACT_FORM_ID } from "../../lib/scrollToContact";
+import { getContactFormEl } from "../../lib/scrollToContact";
 import { getSpeechTuning, loadVoice, type SpeechLang } from "../../lib/pickVoice";
 
 type Message = { from: "bot" | "user"; text: string };
@@ -123,7 +123,7 @@ export default function VoiceChatWidget() {
       // plain "has this section's box passed above/not yet reached the
       // viewport" checks.
       const globeEl = document.getElementById(GLOBE_SECTION_ID);
-      const contactEl = document.getElementById(CONTACT_FORM_ID);
+      const contactEl = getContactFormEl();
       let midSectionVisible = false;
       if (globeEl && contactEl) {
         const globeRect = globeEl.getBoundingClientRect();

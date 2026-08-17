@@ -26,7 +26,7 @@ import {
   contactCheckVector,
 } from "../../assets";
 import CccaaaSection from "./CccaaaSection";
-import { scrollToContactForm, CONTACT_FORM_ID } from "../../lib/scrollToContact";
+import { scrollToContactForm, CONTACT_FORM_ID, CONTACT_FORM_ID_MOBILE } from "../../lib/scrollToContact";
 import { sendContactEmail } from "../../lib/sendContactEmail";
 
 type FormValues = {
@@ -424,7 +424,7 @@ export default function HomeBottomSections() {
         </div>
 
         {/* Contact form (Figma node 326:110) */}
-        <div id={CONTACT_FORM_ID} className="bg-white px-[16px] py-[48px] scroll-mt-[24px]">
+        <div id={CONTACT_FORM_ID_MOBILE} className="bg-white px-[16px] py-[48px] scroll-mt-[24px]">
           <div className="bg-[#f8f9fb] border border-[rgba(191,191,191,0.25)] flex flex-col gap-[32px] p-[24px] rounded-[20px]">
             <p className="font-light text-[#040404] text-[28px] tracking-[-0.5px] m-0">Get in touch</p>
 

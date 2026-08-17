@@ -272,15 +272,37 @@ export default function CccaaaSection() {
   const panel = isMobile ? mobilePanel : desktopPanel;
   const trackHeight = isMobile ? trackHeightConst : geo.trackHeight || trackHeightConst;
 
+  // Mobile is never inside a `transform`-scaled ancestor (ScaledCanvas
+  // bypasses scaling entirely below the 768px breakpoint — see
+  // ScaledCanvas.tsx's `mobileReady` prop), so it doesn't need the portal
+  // trick at all: plain in-flow `position: sticky` pins correctly on its
+  // own. The portal version positioned the panel with `top: geo.docTop`, a
+  // one-time document-space measurement taken on resize/load/settle — on a
+  // real phone browser that number goes stale the moment the address bar
+  // collapses/expands (changing viewport height) or anything above this
+  // section shifts layout after that measurement, and the panel then sits
+  // pinned at the WRONG document offset. That read as "the animation
+  // played somewhere off-screen and the user just sees blank space while
+  // scrolling" — exactly the reported bug. Rendering the sticky child
+  // directly in normal flow removes that stale-measurement failure mode
+  // entirely; the browser ties it to the real scroll position every frame.
+  if (isMobile) {
+    return (
+      <div ref={trackRef} className="relative w-full" style={{ height: trackHeightConst }}>
+        <div style={{ position: "sticky", top: 0 }}>{panel}</div>
+      </div>
+    );
+  }
+
   return (
     <div ref={trackRef} className="relative w-full" style={{ height: trackHeightConst }}>
       {/*
-        The panel is rendered through a portal straight onto <body>, escaping
-        ScaledCanvas's `transform: scale()` wrapper entirely — a `transform`
-        on an ancestor makes that ancestor sticky's containing block instead
-        of the real scrolling viewport, which is why `position: sticky`
-        looked broken (just scrolled with the page) when it lived inside
-        that transformed tree. Out here, sticky works natively.
+        Desktop still needs the portal: its content lives inside
+        ScaledCanvas's `transform: scale()` wrapper, and a `transform` on an
+        ancestor makes that ancestor sticky's containing block instead of
+        the real scrolling viewport — which is why `position: sticky` looked
+        broken (just scrolled with the page) when it lived inside that
+        transformed tree. Out here, sticky works natively.
 
         This outer portal wrapper is `position: absolute` at the track's
         real document offset (computed on resize/settle, not per frame), so
@@ -291,8 +313,7 @@ export default function CccaaaSection() {
         rest of the page via `zoom` on a descendant — that doesn't re-break
         sticky, since transform/zoom on a *descendant* of the sticky element
         doesn't affect its own containing-block/positioning the way it would
-        on an *ancestor*. Mobile's panel needs no such scaling — it's
-        authored directly in real mobile pixels.
+        on an *ancestor*.
       */}
       {createPortal(
         <div

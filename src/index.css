@@ -14,6 +14,9 @@
 html,
 body {
   margin: 0;
+}
+
+html {
   /* The page's width-based CSS scale transform (ScaledCanvas) can land on a
      sub-pixel scale factor depending on the browser's actual viewport width
      and OS display scaling (e.g. Windows at 125%/150%) — something headless
@@ -21,7 +24,19 @@ body {
      scaled content a fraction of a pixel past the viewport edge, which
      Chrome then shows as a full horizontal scrollbar even though there's
      nothing actually meant to overflow. This is the standard guard against
-     that class of 1px scroll-container bug. */
+     that class of 1px scroll-container bug.
+
+     This lives on `html` only, NOT `body` — setting `overflow-x: hidden` on
+     an element implicitly forces its `overflow-y` to `auto` too (a plain
+     CSS spec rule: one non-`visible` overflow axis forces the other off
+     `visible`), and having BOTH `html` and `body` pick up their own
+     independent `overflow: hidden auto` turns them into two separate
+     nested scroll containers instead of one. `window.scrollTo`/scrollY
+     moves one of them while `position: sticky` computes against the other
+     — which is exactly why CccaaaSection's mobile pin looked like it wasn't
+     pinning at all (the pinned panel just scrolled by with the rest of the
+     page). Keeping this on `html` alone (the real scrolling element in
+     standards mode) avoids creating that second, competing scroller. */
   overflow-x: hidden;
 }
 

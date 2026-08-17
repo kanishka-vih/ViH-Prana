@@ -196,9 +196,16 @@ export function CtaButton({ className = "" }: { className?: string }) {
 export function MobileHero({
   heading = "Your Left Brain, Reimagined",
   subcopy = "Give your enterprise a lasting memory by curing corporate amnesia and ending brain drain.",
+  // Home no longer repeats a "Contact sales" CTA on the hero itself —
+  // matching the ElevenLabs mobile pattern of keeping that single call to
+  // action in the nav bar only, instead of duplicating it on every section.
+  // Defaults to shown so Shruti's hero (which wasn't asked to change) keeps
+  // its existing CTA.
+  showCta = true,
 }: {
   heading?: string;
   subcopy?: string;
+  showCta?: boolean;
 }) {
   return (
     <div className="bg-[#f7f7f8] flex flex-col gap-[24px] px-[16px] py-[16px] pb-[24px]">
@@ -206,7 +213,7 @@ export function MobileHero({
         <h1 className="font-light leading-[42px] text-[38px] text-[#111] tracking-[-1.5px] m-0">{heading}</h1>
         <p className="font-normal leading-[18px] text-[#555] text-[14px] m-0">{subcopy}</p>
       </div>
-      <CtaButton />
+      {showCta && <CtaButton />}
     </div>
   );
 }
@@ -586,7 +593,7 @@ function MobileOrchestration() {
 export default function MobileHome() {
   return (
     <div className="flex flex-col w-full">
-      <MobileHero />
+      <MobileHero showCta={false} />
       <MobileDataViz />
       <MobileEnterpriseProblems />
       <MobileOrchestration />

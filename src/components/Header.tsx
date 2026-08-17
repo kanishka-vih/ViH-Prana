@@ -145,7 +145,7 @@ export default function Header({ floating = false }: { floating?: boolean }) {
           floating ? "bg-white/70 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]" : "bg-[#f7f7f8]"
         }`}
       >
-        <div className="flex h-[56px] items-center justify-between px-[16px] py-[12px]">
+        <div className="flex h-[56px] items-center justify-between px-[16px] py-[12px] gap-[12px]">
           <Link
             to="/"
             className="relative shrink-0 scale-[0.7] origin-left transition-transform duration-150 ease-out active:scale-[0.63]"
@@ -153,23 +153,56 @@ export default function Header({ floating = false }: { floating?: boolean }) {
           >
             <LogoMark />
           </Link>
-          <button
-            type="button"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((v) => !v)}
-            className="relative size-[36px] shrink-0 cursor-pointer"
-          >
-            <img alt="" className="block size-full" src={hamburger} />
-          </button>
+          {/* "Contact us" stays put next to the menu toggle whether the menu
+              is open or closed — the ElevenLabs mobile pattern this follows
+              keeps its own CTA pill there too, rather than swapping it away
+              once the panel opens. This is now the ONLY "contact" CTA on
+              mobile Home's hero area — MobileHero's own copy of it (right
+              under the headline) was removed so there's a single, obvious
+              place for it instead of the same action repeated twice. */}
+          <div className="flex items-center gap-[10px] ml-auto">
+            <button
+              type="button"
+              onClick={scrollToContactForm}
+              className="bg-[#232323] flex h-[36px] items-center justify-center px-[16px] rounded-full cursor-pointer transition-all duration-150 ease-out hover:bg-black active:scale-95 shrink-0"
+            >
+              <span className="font-medium text-[14px] text-white whitespace-nowrap">Contact us</span>
+            </button>
+            <button
+              type="button"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="relative size-[36px] shrink-0 cursor-pointer flex items-center justify-center"
+            >
+              {mobileMenuOpen ? (
+                <svg viewBox="0 0 24 24" className="size-[20px]" fill="none">
+                  <path
+                    d="M5 5L19 19M19 5L5 19"
+                    stroke="#111"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                <img alt="" className="block size-full" src={hamburger} />
+              )}
+            </button>
+          </div>
         </div>
 
         {mobileMenuOpen && (
-          <div className="border-t border-black/5 bg-white px-[16px] py-[16px] flex flex-col gap-[4px]">
+          // Rounded bottom corners + shadow + a hairline divider ahead of
+          // each row (not just between rows) — floating "curvy" card look
+          // instead of a flat, edge-to-edge dropdown strip.
+          <div className="absolute left-0 right-0 top-full bg-white rounded-b-[24px] shadow-[0_16px_40px_rgba(0,0,0,0.12)] px-[20px] pt-[8px] pb-[20px] flex flex-col z-30">
             {navLinks.map(({ label, to }) => {
               if (!to) {
                 return (
-                  <span key={label} className="py-[10px] text-[16px] text-[#999]">
+                  <span
+                    key={label}
+                    className="flex items-center justify-between py-[16px] text-[16px] text-[#999] border-b border-black/5 last:border-b-0"
+                  >
                     {label}
                   </span>
                 );
@@ -180,22 +213,17 @@ export default function Header({ floating = false }: { floating?: boolean }) {
                   key={label}
                   to={to}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`py-[10px] text-[16px] ${isActive ? "font-medium text-black" : "text-black/80"}`}
+                  className={`flex items-center justify-between py-[16px] text-[16px] border-b border-black/5 last:border-b-0 ${
+                    isActive ? "font-medium text-black" : "text-black/80"
+                  }`}
                 >
                   {label}
+                  <svg viewBox="0 0 24 24" className="size-[16px] shrink-0 text-[#bbb]" fill="none">
+                    <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </Link>
               );
             })}
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                scrollToContactForm();
-              }}
-              className="mt-[8px] bg-[#232323] flex h-[44px] items-center justify-center rounded-[8px] cursor-pointer transition-all duration-150 ease-out hover:bg-black active:scale-95"
-            >
-              <span className="font-medium text-[16px] text-white">Contact sales</span>
-            </button>
           </div>
         )}
       </div>
