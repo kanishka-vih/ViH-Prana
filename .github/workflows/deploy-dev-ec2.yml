@@ -1,4 +1,4 @@
-name: Build and Deploy to EC2
+name: Deploy Dev to EC2
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: landing-page-ec2
+  group: landing-page-dev-ec2
   cancel-in-progress: false
 
 jobs:
@@ -22,6 +22,7 @@ jobs:
       EC2_USER: ${{ secrets.EC2_USER }}
       EC2_PORT: ${{ secrets.EC2_PORT }}
       EC2_TARGET_DIR: ${{ secrets.EC2_TARGET_DIR }}
+      DEPLOY_DOMAIN: dev.vihmetaverse.com
 
     steps:
       - name: Checkout repository
@@ -34,6 +35,7 @@ jobs:
           test -n "$EC2_TARGET_DIR" || { echo "EC2_TARGET_DIR secret is empty"; exit 1; }
           test -n "${{ secrets.EC2_SSH_PRIVATE_KEY }}" || { echo "EC2_SSH_PRIVATE_KEY secret is empty"; exit 1; }
           echo "Deploy target: ${EC2_USER}@${EC2_HOST}:${EC2_TARGET_DIR}"
+          echo "Health check: https://${DEPLOY_DOMAIN}/"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -55,7 +57,7 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -p "${EC2_PORT:-22}" "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Sync dist to nginx root
+      - name: Sync dist to dev nginx root
         run: |
           rsync -az --delete \
             -e "ssh -i ~/.ssh/ec2_key -o IdentitiesOnly=yes -p ${EC2_PORT:-22}" \
