@@ -23,6 +23,9 @@ const DESIGN_WIDTH = 1440;
 // the banner+nav block rides up 1:1 with real scroll until the banner has
 // fully scrolled past, then clamps in place — at which point the nav sits
 // exactly flush with the real viewport top and stays there.
+// Same mobile breakpoint ScaledCanvas.tsx uses.
+const MOBILE_BREAKPOINT = 768;
+
 export default function FixedHeader() {
   const navRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
@@ -30,13 +33,16 @@ export default function FixedHeader() {
   const [navHeight, setNavHeight] = useState(0);
   const [bannerHeight, setBannerHeight] = useState(0);
   const [scrollY, setScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const nav = navRef.current;
     const banner = bannerRef.current;
     if (!nav || !banner) return;
     const update = () => {
-      setScale(window.innerWidth / DESIGN_WIDTH);
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+      setScale(mobile ? 1 : window.innerWidth / DESIGN_WIDTH);
       setNavHeight(nav.scrollHeight);
       setBannerHeight(banner.scrollHeight);
     };
@@ -62,8 +68,27 @@ export default function FixedHeader() {
   // its own height — beyond that point the nav is fully flush and further
   // scrolling shouldn't move it any further.
   const bannerHeightScaled = bannerHeight * scale;
-  const risen = Math.min(scrollY, bannerHeightScaled);
+  const risen = isMobile ? 0 : Math.min(scrollY, bannerHeightScaled);
   const scrolled = risen > 0;
+
+  // The desktop "glass nav floats fixed below the banner" scroll effect
+  // isn't part of the Figma mobile frames (their banner+nav just sit at
+  // the top of normal page flow, no fixed/sticky behavior) — replicating
+  // it there would also fight with the mobile nav's own slide-out menu.
+  // So on mobile this renders as plain static content instead of a fixed
+  // overlay.
+  if (isMobile) {
+    return (
+      <div className="relative z-[60] w-full">
+        <div ref={bannerRef}>
+          <PromoBanner />
+        </div>
+        <div ref={navRef}>
+          <Header floating={false} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

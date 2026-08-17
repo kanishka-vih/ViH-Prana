@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Home from "./components/home/Home";
 import Shruti from "./components/shruti/Shruti";
 import MessengerPage from "./components/messenger/MessengerPage";
@@ -6,6 +6,25 @@ import ScaledCanvas from "./components/ScaledCanvas";
 import VoiceChatWidget from "./components/home/VoiceChatWidget";
 import FixedHeader from "./components/FixedHeader";
 import ScrollToTop from "./components/ScrollToTop";
+
+// Only "/" (Home/Prana) has real mobile markup of its own so far — every
+// other route still only has desktop-1440px markup, so they need
+// ScaledCanvas to keep shrinking them to fit a phone screen until they get
+// their own mobile layouts too. Add a route here once it does.
+const MOBILE_READY_ROUTES = ["/"];
+
+function AppRoutes() {
+  const { pathname } = useLocation();
+  return (
+    <ScaledCanvas mobileReady={MOBILE_READY_ROUTES.includes(pathname)}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/shruti" element={<Shruti />} />
+        <Route path="/messenger" element={<MessengerPage />} />
+      </Routes>
+    </ScaledCanvas>
+  );
+}
 
 function App() {
   return (
@@ -18,13 +37,7 @@ function App() {
             break real viewport-fixed positioning — this needs to actually
             stay pinned across the whole site while scrolling. */}
         <FixedHeader />
-        <ScaledCanvas>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/shruti" element={<Shruti />} />
-            <Route path="/messenger" element={<MessengerPage />} />
-          </Routes>
-        </ScaledCanvas>
+        <AppRoutes />
         <VoiceChatWidget />
       </div>
     </BrowserRouter>

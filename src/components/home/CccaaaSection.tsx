@@ -35,6 +35,9 @@ const STAGES = [
   },
 ];
 
+// Same breakpoint ScaledCanvas.tsx uses for the mobile/desktop split.
+const MOBILE_BREAKPOINT = 768;
+
 export default function CccaaaSection() {
   const trackRef = useRef<HTMLDivElement>(null);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -47,6 +50,16 @@ export default function CccaaaSection() {
   // settle, so they live in React state (a re-render here and then is fine)
   // rather than being written to the DOM every frame.
   const [geo, setGeo] = useState({ docTop: 0, trackHeight: TRACK_HEIGHT, scale: 1 });
+  // Lazy-initialized from the real viewport width so there's no flash of
+  // the desktop branch before this corrects itself on mount (no SSR here,
+  // so window is always available).
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -163,6 +176,35 @@ export default function CccaaaSection() {
     </div>
   );
 
+  // Figma's mobile frame for this section ("how-we-do-it-mobile", node
+  // 326:65) shows one static badge + letters + caption, not a scroll-pinned
+  // scrub through all four stages — replicating the desktop's portal/sticky
+  // scrub-on-scroll on a phone would also fight with the page's own normal
+  // scroll and the mobile letters are far too big to pin comfortably in a
+  // short viewport anyway. So mobile gets this simpler static version
+  // instead of reusing the desktop scroll-tracking effects above.
+  const mobile = (
+    <div className="md:hidden bg-[#f8f9fb] flex flex-col items-center gap-[48px] px-[24px] py-[64px]">
+      <div className="bg-[rgba(243,248,255,0.23)] rounded-[12px] px-[24px] py-[10px]">
+        <p className="font-medium text-[#040404] text-[16px] tracking-[-0.5px] m-0">How we do it</p>
+      </div>
+      <div className="flex flex-col items-center gap-[14px] w-full">
+        <p className="font-['Roboto_Condensed'] font-bold text-center tracking-[4px] m-0 leading-none">
+          <span className="text-[85px] text-[#040404]">CC</span>
+          <span className="text-[85px] text-[#5a5a5a]">C</span>
+          <span className="text-[85px] text-[#c2c2c2]">A</span>
+          <span className="text-[85px] text-[#e5e5e5]">AA</span>
+        </p>
+        <p className="font-semibold text-[#1d1d1d] text-[16px] tracking-[-0.5px] text-center m-0">
+          {STAGES[0].label}
+          <span className="font-normal text-[#5a5a5a]">{STAGES[0].body}</span>
+        </p>
+      </div>
+    </div>
+  );
+
+  if (isMobile) return mobile;
+
   return (
     <div ref={trackRef} className="relative w-full" style={{ height: TRACK_HEIGHT }}>
       {/*
@@ -184,6 +226,14 @@ export default function CccaaaSection() {
         *descendant* of the sticky element doesn't affect its own
         containing-block/positioning the way a transform on an *ancestor*
         of it does.
+
+        This whole branch — portal included — must not just be visually
+        hidden (e.g. `hidden md:block`) on mobile: createPortal renders
+        straight into document.body regardless of where in the React tree
+        it's called from, so a `display:none` ancestor here does nothing to
+        it. It rendered a full 1440px-wide panel under <body> on every
+        mobile page that uses this component (Home AND Shruti) until this
+        was gated with a real `isMobile` check above instead of CSS.
       */}
       {createPortal(
         <div
