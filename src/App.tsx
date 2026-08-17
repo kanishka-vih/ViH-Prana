@@ -7,11 +7,11 @@ import VoiceChatWidget from "./components/home/VoiceChatWidget";
 import FixedHeader from "./components/FixedHeader";
 import ScrollToTop from "./components/ScrollToTop";
 
-// Only "/" (Home/Prana) has real mobile markup of its own so far — every
+// Only these routes have real mobile markup of their own so far — every
 // other route still only has desktop-1440px markup, so they need
 // ScaledCanvas to keep shrinking them to fit a phone screen until they get
 // their own mobile layouts too. Add a route here once it does.
-const MOBILE_READY_ROUTES = ["/"];
+const MOBILE_READY_ROUTES = ["/", "/shruti"];
 
 function AppRoutes() {
   const { pathname } = useLocation();

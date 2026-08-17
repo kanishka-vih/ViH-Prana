@@ -139,7 +139,9 @@ const useCaseCards = [
 // re-enters the viewport (toggling on exit too), matching the pattern
 // EnterpriseSection/EnterpriseBenefits already use elsewhere in this
 // codebase, rather than a one-shot "only plays once ever" animation.
-function Reveal({
+// Exported for reuse by other mobile pages (e.g. MobileShruti.tsx) that
+// want the same scroll-into-view blur-rise reveal.
+export function Reveal({
   children,
   className = "",
   delay = 0,
@@ -170,7 +172,8 @@ function Reveal({
   );
 }
 
-function CtaButton({ className = "" }: { className?: string }) {
+// Exported for reuse by other mobile pages.
+export function CtaButton({ className = "" }: { className?: string }) {
   return (
     <button
       type="button"
@@ -183,7 +186,10 @@ function CtaButton({ className = "" }: { className?: string }) {
   );
 }
 
-function MobileHero() {
+// Exported — Shruti's mobile hero (Figma node 333:1981) has identical
+// copy/CTA to Home's (node 324:1432), so MobileShruti.tsx reuses this
+// directly instead of a second, drifting copy of the same content.
+export function MobileHero() {
   return (
     <div className="bg-[#f7f7f8] flex flex-col gap-[24px] px-[16px] py-[16px] pb-[24px]">
       <div className="flex flex-col gap-[12px]">

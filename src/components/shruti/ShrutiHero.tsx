@@ -12,7 +12,7 @@ import {
 import { scrollToContactForm } from "../../lib/scrollToContact";
 import { useLocalDemoCall } from "./voice/useLocalDemoCall";
 
-type Category = {
+export type Category = {
   id: string;
   name: string;
   description: string;
@@ -21,7 +21,9 @@ type Category = {
   glow: string;
 };
 
-const CATEGORIES: Category[] = [
+// Exported so MobileShruti.tsx can reuse the exact same verticals/copy
+// instead of maintaining a second, drifting copy of this data.
+export const CATEGORIES: Category[] = [
   {
     id: "education",
     name: "Education",
@@ -58,8 +60,8 @@ const CATEGORIES: Category[] = [
   // whenever you have one — the carousel below already lays out 5 positions.
 ];
 
-type Lang = "en" | "hi";
-const LANGUAGES: { code: Lang; label: string }[] = [
+export type Lang = "en" | "hi";
+export const LANGUAGES: { code: Lang; label: string }[] = [
   { code: "en", label: "English" },
   { code: "hi", label: "Hindi" },
 ];
