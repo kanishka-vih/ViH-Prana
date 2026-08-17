@@ -292,14 +292,14 @@ export default function VoiceChatWidget() {
   return (
     <div
       ref={containerRef}
-      className={`fixed right-[24px] bottom-[24px] z-50 flex flex-col items-end gap-[12px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`fixed right-[16px] bottom-[16px] md:right-[24px] md:bottom-[24px] z-50 flex flex-col items-end gap-[12px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         visible
           ? "translate-y-0 scale-100 opacity-100"
           : "pointer-events-none translate-y-[32px] scale-90 opacity-0"
       }`}
     >
       {open && (
-        <div className="voicechat-panel-in w-[385px] h-[479px] flex flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_25px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
+        <div className="voicechat-panel-in w-[calc(100vw-32px)] max-w-[385px] h-[min(479px,calc(100vh-140px))] flex flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_25px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
           <div className="flex items-center justify-between px-[20px] pt-[16px] shrink-0">
             <button
               type="button"
@@ -398,18 +398,23 @@ export default function VoiceChatWidget() {
         </div>
       )}
 
+      {/* On mobile this collapses to a small circular orb (no text label) —
+          the full 156px pill-with-label was sized for a desktop cursor
+          target, not a thumb-sized corner bubble, and read as oversized
+          relative to everything else on a phone screen. */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-[56px] w-[156px] cursor-pointer items-center rounded-[36px] border border-white/60 bg-white/80 shadow-sm backdrop-blur-xl"
+        aria-label={open ? "Close chat" : "Open voice chat"}
+        className="flex size-[52px] md:h-[56px] md:w-[156px] cursor-pointer items-center justify-center md:justify-start rounded-full md:rounded-[36px] border border-white/60 bg-white/80 shadow-sm backdrop-blur-xl"
       >
-        <span className="relative ml-[7px] size-[42px] shrink-0 overflow-hidden rounded-full">
+        <span className="relative md:ml-[7px] size-[36px] md:size-[42px] shrink-0 overflow-hidden rounded-full">
           <img alt="" className="size-full" src={ellipse2328} />
           {speaking && (
             <span className="absolute right-[-1px] top-[-1px] size-[10px] voicechat-dot-pulse rounded-full bg-[#B15BFC] ring-2 ring-white" />
           )}
         </span>
-        <span className="ml-[14px] whitespace-nowrap text-[16px] text-black">
+        <span className="hidden md:inline ml-[14px] whitespace-nowrap text-[16px] text-black">
           {open ? "Close chat" : "Voice Chat"}
         </span>
       </button>

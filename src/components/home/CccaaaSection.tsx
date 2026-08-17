@@ -9,13 +9,17 @@ const EXTRA_SCROLL = 1100;
 const TRACK_HEIGHT = PANEL_HEIGHT + EXTRA_SCROLL;
 
 // Mobile's panel is a completely different (much taller relative to its
-// width) layout than desktop's 1440x684 one, so it gets its own pin
-// distance instead of reusing the desktop numbers scaled down.
-const MOBILE_PANEL_HEIGHT = 460;
+// width) layout than desktop's 1440x684 one. Its real height is measured
+// off the actual rendered DOM (see mobilePanelRef below) rather than
+// guessed here — a guess that's off even by a little throws off exactly
+// when the pin releases, which read as "not working right" even though
+// the pin/sweep mechanics themselves were fine. This is just the fallback
+// used for one frame before that measurement lands.
+const MOBILE_PANEL_HEIGHT_FALLBACK = 460;
 const MOBILE_EXTRA_SCROLL = 1400;
-const MOBILE_TRACK_HEIGHT = MOBILE_PANEL_HEIGHT + MOBILE_EXTRA_SCROLL;
 
 const LETTERS = ["C", "C", "C", "A", "A", "A"];
+const LETTERS_STRING = LETTERS.join("");
 const ACTIVE_COLOR = "rgb(4,4,4)";
 const INACTIVE_COLOR = "rgb(194,194,194)";
 
@@ -48,6 +52,8 @@ const MOBILE_BREAKPOINT = 768;
 export default function CccaaaSection() {
   const trackRef = useRef<HTMLDivElement>(null);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const mobileSweepRef = useRef<HTMLParagraphElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLParagraphElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const bodyRef = useRef<HTMLSpanElement>(null);
@@ -61,6 +67,7 @@ export default function CccaaaSection() {
   // the desktop branch before this corrects itself on mount (no SSR here,
   // so window is always available).
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT);
+  const [mobilePanelHeight, setMobilePanelHeight] = useState(MOBILE_PANEL_HEIGHT_FALLBACK);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
@@ -68,12 +75,31 @@ export default function CccaaaSection() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Measures the mobile panel's real rendered height instead of assuming a
+  // fixed number — the panel's content (padding, letter size, caption line
+  // count) determines this, and a guess that's off makes the pin
+  // release/re-engage at the wrong scroll position.
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = mobilePanelRef.current;
+    if (!el) return;
+    const measure = () => setMobilePanelHeight(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    const settleTimer = window.setTimeout(measure, 500);
+    return () => {
+      ro.disconnect();
+      window.clearTimeout(settleTimer);
+    };
+  }, [isMobile]);
+
   // Only one of the mobile/desktop panels is ever mounted at a time (the
   // component returns one branch or the other below), so both branches
   // sharing this same ref set and the same two effects underneath is safe
   // — whichever DOM nodes actually exist are the ones these touch.
-  const panelHeight = isMobile ? MOBILE_PANEL_HEIGHT : PANEL_HEIGHT;
-  const trackHeightConst = isMobile ? MOBILE_TRACK_HEIGHT : TRACK_HEIGHT;
+  const panelHeight = isMobile ? mobilePanelHeight : PANEL_HEIGHT;
+  const trackHeightConst = isMobile ? mobilePanelHeight + MOBILE_EXTRA_SCROLL : TRACK_HEIGHT;
 
   useEffect(() => {
     const track = trackRef.current;
@@ -99,15 +125,17 @@ export default function CccaaaSection() {
       window.removeEventListener("load", measure);
       window.clearTimeout(settleTimer);
     };
-    // Re-measure when switching branches too — the track's own size/ratio
-    // changes completely between the mobile and desktop panels.
-  }, [isMobile]);
+    // Re-measure when switching branches, or once the real mobile panel
+    // height lands (trackHeightConst depends on it) — otherwise the
+    // portal's height/position would stay pinned to the fallback guess.
+  }, [isMobile, trackHeightConst]);
 
-  // Stage/color switching only — no position math here at all. The pin
-  // itself is native CSS `position: sticky` below, handled entirely by the
-  // browser's compositor, so it cannot lag a frame behind the scroll or
-  // jitter the way a JS-computed transform can under fast/inertial
-  // scrolling (that mismatch was the actual cause of the "vibrating" panel).
+  // Stage/color switching + (mobile only) the continuous left-to-right
+  // sweep — no position math here at all. The pin itself is native CSS
+  // `position: sticky` below, handled entirely by the browser's
+  // compositor, so it cannot lag a frame behind the scroll or jitter the
+  // way a JS-computed transform can under fast/inertial scrolling (that
+  // mismatch was the actual cause of the "vibrating" panel).
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -120,13 +148,24 @@ export default function CccaaaSection() {
       const pinnable = Math.max(1, rect.height - panelHeight * (isMobile ? 1 : rect.width / 1440 || 1));
       const p = Math.max(0, Math.min(1, -rect.top / pinnable));
 
+      // Desktop recolors whole letter-groups at each of the 4 discrete
+      // stage boundaries. Mobile instead reveals the active color
+      // continuously left-to-right as `p` itself grows (a clip-path wipe
+      // over a gray base copy of the same text) — a real sweep tied
+      // directly to scroll position, not a snap between 4 fixed states.
+      if (isMobile && mobileSweepRef.current) {
+        mobileSweepRef.current.style.clipPath = `inset(0 ${(1 - p) * 100}% 0 0)`;
+      }
+
       const stage = Math.min(STAGES.length - 1, Math.floor(p * STAGES.length * 0.999));
       if (lastStage !== stage) {
         lastStage = stage;
-        const active = STAGES[stage].letters;
-        letterRefs.current.forEach((el, i) => {
-          if (el) el.style.color = active.includes(i) ? ACTIVE_COLOR : INACTIVE_COLOR;
-        });
+        if (!isMobile) {
+          const active = STAGES[stage].letters;
+          letterRefs.current.forEach((el, i) => {
+            if (el) el.style.color = active.includes(i) ? ACTIVE_COLOR : INACTIVE_COLOR;
+          });
+        }
         if (labelRef.current) labelRef.current.textContent = STAGES[stage].label;
         if (bodyRef.current) bodyRef.current.textContent = STAGES[stage].body;
         if (captionRef.current) {
@@ -192,27 +231,36 @@ export default function CccaaaSection() {
     </div>
   );
 
+  const letterTextClasses =
+    "font-['Roboto_Condensed'] font-semibold tracking-[4px] m-0 leading-none text-center w-full text-[85px]";
+
   // Mobile version of the same pinned scroll-scrub, sized for a phone
   // instead of scaled down from the 1440px desktop panel. Reuses the exact
   // same refs/stage-tracking effects above — only the JSX/dimensions differ.
   const mobilePanel = (
-    <div className="bg-[#f8f9fb] w-full flex flex-col items-center gap-[32px] px-[24px] pt-[40px] pb-[40px]">
+    <div
+      ref={mobilePanelRef}
+      className="bg-[#f8f9fb] w-full flex flex-col items-center gap-[32px] px-[24px] pt-[40px] pb-[40px]"
+    >
       <div className="bg-[rgba(243,248,255,0.6)] border border-black/10 rounded-[12px] px-[24px] py-[10px]">
         <p className="font-medium text-[#040404] text-[16px] tracking-[-0.5px] m-0">How we do it</p>
       </div>
-      <p className="font-['Roboto_Condensed'] font-semibold tracking-[4px] m-0 leading-none text-center w-full text-[85px]">
-        {LETTERS.map((ch, i) => (
-          <span
-            key={i}
-            ref={(el) => {
-              letterRefs.current[i] = el;
-            }}
-            style={{ color: i < 2 ? ACTIVE_COLOR : INACTIVE_COLOR, transition: "color 0.4s ease" }}
-          >
-            {ch}
-          </span>
-        ))}
-      </p>
+      {/* Gray base + a black copy clipped to a width driven by scroll
+          progress — the black text visibly "fills in" left-to-right as
+          you scroll instead of whole letter-groups snapping color at 4
+          fixed points. */}
+      <div className="relative w-full">
+        <p className={`${letterTextClasses} text-[#c2c2c2]`} aria-hidden="true">
+          {LETTERS_STRING}
+        </p>
+        <p
+          ref={mobileSweepRef}
+          className={`${letterTextClasses} absolute inset-0 text-[#040404]`}
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
+          {LETTERS_STRING}
+        </p>
+      </div>
       <p
         ref={captionRef}
         className="font-normal text-[16px] tracking-[-0.5px] text-center m-0 leading-[24px]"
@@ -253,13 +301,6 @@ export default function CccaaaSection() {
         doesn't affect its own containing-block/positioning the way it would
         on an *ancestor*. Mobile's panel needs no such scaling — it's
         authored directly in real mobile pixels.
-
-        This used to only run on desktop, with mobile getting a static,
-        non-interactive block instead — but that meant mobile lost the
-        actual "pin while scrolling through CC → C → A → AA" behavior
-        entirely rather than just rendering it differently, so this now
-        reuses the same portal/sticky mechanism for both, just with
-        different panel content/dimensions.
       */}
       {createPortal(
         <div

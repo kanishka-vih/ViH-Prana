@@ -58,12 +58,23 @@ const ECOSYSTEM_ORDER: ProductId[] = ["prana", "shruti", "viveka", "messenger"];
 // Same relative dot positions VihPranaSection.tsx uses (converted from its
 // desktop pixel coordinates, within its 985x1082 gif box, to percentages),
 // so the 4 dots sit in the same spots around the sphere on mobile.
+// Figma's mobile frame (node 324:1501, "Frame") is a 350x350 box — these
+// are its actual Ellipse left/top values (40/180, 240/60, 150/280),
+// converted to percentages of that box, not estimated. Messenger has no
+// dot in this specific mobile frame (Figma's own mobile mock only shows 3
+// of the 4 products), so its position is a reasonable addition placed in
+// the same scattered-across-the-upper-half pattern as the other three.
+const SPHERE_BOX = 350;
 const ecosystemDots: { id: ProductId; dot: string; label: string; leftPct: number; topPct: number }[] = [
-  { id: "viveka", dot: ellipse2285, label: "Viveka", leftPct: 73.1, topPct: 48.1 },
-  { id: "shruti", dot: ellipse2283, label: "Shruti", leftPct: 44, topPct: 67.9 },
-  { id: "prana", dot: ellipse2284, label: "Prana", leftPct: 68.6, topPct: 79.7 },
-  { id: "messenger", dot: ellipse2286, label: "Messenger", leftPct: 63.4, topPct: 95.9 },
+  { id: "prana", dot: ellipse2284, label: "Prana", leftPct: (240 / SPHERE_BOX) * 100, topPct: (60 / SPHERE_BOX) * 100 },
+  { id: "shruti", dot: ellipse2283, label: "Shruti", leftPct: (40 / SPHERE_BOX) * 100, topPct: (180 / SPHERE_BOX) * 100 },
+  { id: "viveka", dot: ellipse2285, label: "Viveka", leftPct: (150 / SPHERE_BOX) * 100, topPct: (280 / SPHERE_BOX) * 100 },
+  { id: "messenger", dot: ellipse2286, label: "Messenger", leftPct: (280 / SPHERE_BOX) * 100, topPct: (150 / SPHERE_BOX) * 100 },
 ];
+// Card starts at 207.49/350 of the box (Figma node 324:1512's own top),
+// and its own height (320) plus that offset runs well past the box's
+// bottom edge — it's meant to overflow below, not be clipped/contained.
+const CARD_TOP_PCT = (207.49 / SPHERE_BOX) * 100;
 
 // Same 7-logo set HomeTrustedBy.tsx uses on desktop (Figma node 317:1207).
 const trustedByLogos = [images11, images21, images31, images41, images2, bsnlLogo1, a5e5bd2a];
@@ -91,7 +102,9 @@ const productCards = [
       "The enterprise communication layer built for scale. Integrate with your mobile application & transform it to a magnetisable powerful communication hub, powered by AI at its core.",
     gradient:
       "linear-gradient(129.75deg, rgb(234,225,255) 16.142%, rgb(78,30,231) 71.691%, rgb(149,44,246) 124.25%, rgb(172,57,248) 126.14%, rgb(255,103,249) 156.79%, rgb(234,225,255) 356.13%)",
-    route: null,
+    // /messenger exists (MessengerPage.tsx, routed in App.tsx) — same fix
+    // as ProductOverviewCards.tsx's desktop version.
+    route: "/messenger" as string | null,
   },
 ];
 
@@ -228,7 +241,7 @@ function StatCard({
   descWidth: number;
 }) {
   return (
-    <div className="bg-[rgba(88,88,88,0.7)] border border-white/10 flex items-start justify-between gap-[12px] px-[20px] py-[24px] rounded-[24px] w-full">
+    <div className="bg-[rgba(88,88,88,0.7)] backdrop-blur-md border border-white/10 flex items-start justify-between gap-[12px] px-[20px] py-[24px] rounded-[24px] w-full">
       <div className="flex flex-col gap-[2px] shrink-0">
         <p className="font-bold text-[42px] text-white m-0 leading-[1]">{stat}</p>
         <p className="font-normal text-[#b6b6b6] text-[13px] m-0 whitespace-nowrap">{label}</p>
@@ -254,16 +267,28 @@ function MobileEnterpriseProblems() {
         </div>
       </div>
 
-      {/* Figma's own local layout (node 324:1451) stacks these top-to-bottom
-          as: Corporate-amnesia paragraph + $8M card, THEN the dot/divider
-          graphic, THEN the 42% card + Brain-drain paragraph — both cards
-          sandwich the graphic rather than both following it. */}
-      <div className="relative flex flex-col gap-[32px] px-[20px] pb-[24px]">
-        <Reveal className="flex flex-col gap-[12px]">
+      {/* Figma's own local layout (node 324:1451) has ONE dot-cluster
+          graphic sitting behind both cards — the $8M card overlaps its top
+          edge, the 42% card overlaps its bottom edge — not the graphic
+          sandwiched between two separate, non-overlapping card blocks.
+          Both cards keep StatCard's `backdrop-blur-md` so the dots read as
+          visible-but-frosted behind them (a glass effect) instead of the
+          graphic just disappearing wherever a card happened to sit on it. */}
+      <div className="relative px-[20px] pb-[24px]">
+        <Reveal>
           <p className="font-normal text-[#b1b1b1] text-[14px] leading-[22px] m-0">
             <span className="font-semibold text-white">Corporate amnesia</span> is the loss of organisational
             knowledge and context, leaving teams with fragmented information and disconnected customer histories.
           </p>
+        </Reveal>
+      </div>
+
+      <div className="relative px-[20px]">
+        <div className="relative h-[280px]">
+          <img alt="" className="absolute inset-0 size-full object-contain opacity-70" src={enterpriseDivider} />
+        </div>
+
+        <Reveal className="relative -mt-[190px]">
           <StatCard
             stat="$8M"
             label="Annual loss"
@@ -271,20 +296,24 @@ function MobileEnterpriseProblems() {
             descWidth={161}
           />
         </Reveal>
-      </div>
 
-      <div className="relative px-[20px] pb-[24px]">
-        <img alt="" className="w-full opacity-60" src={enterpriseDivider} />
-      </div>
-
-      <div className="relative flex flex-col gap-[32px] px-[20px] pb-[40px]">
-        <Reveal className="flex flex-col gap-[12px]" delay={0.1}>
+        {/* A more aggressive pull-up here collided this card's own box with
+            the $8M card directly above it (their text visibly overlapped)
+            instead of just each independently overlapping the shared image
+            — this only needs to clear $8M's real rendered height, not
+            match its own pull-up amount. */}
+        <Reveal className="relative mt-[16px]" delay={0.15}>
           <StatCard
             stat="42%"
             label="Knowledge Loss"
             description="When people leave, the knowledge they carry leaves with them—creating organizational brain drain."
             descWidth={172}
           />
+        </Reveal>
+      </div>
+
+      <div className="relative px-[20px] pt-[24px] pb-[40px]">
+        <Reveal delay={0.2}>
           <p className="font-normal text-[#b1b1b1] text-[13px] leading-[22px] m-0">
             <span className="font-bold text-white">Brain drain</span> is the loss of critical expertise when
             employees leave, causing knowledge gaps, repeated mistakes, and slower onboarding.
@@ -332,63 +361,69 @@ function EcosystemSphere() {
     });
   };
 
+  // Card starts at CARD_TOP_PCT of SPHERE_BOX, so pulling it up by
+  // (SPHERE_BOX - that offset) from a preceding SPHERE_BOX-tall sibling
+  // lands its top exactly there — its real height then pushes whatever
+  // comes after it down correctly on its own, instead of guessing a fixed
+  // buffer for content whose height depends on the active product's text.
+  const cardPullUp = SPHERE_BOX - (CARD_TOP_PCT / 100) * SPHERE_BOX;
+
   return (
     <Reveal className="relative w-full">
-      {/* Sized bigger than the sphere's own natural aspect box and bled
-          past the panel's horizontal padding (negative margin) so it reads
-          as large/immersive the way the desktop version's does relative to
-          its section, instead of being boxed into a small square. */}
-      <div className="relative -mx-[16px] h-[340px] overflow-hidden pointer-events-none">
-        <img
-          alt=""
-          className="absolute left-1/2 top-1/2 h-[220%] w-[220%] -translate-x-1/2 -translate-y-1/2 max-w-none object-contain"
-          src={outputOnlinegiftools1}
-        />
-      </div>
-
-      {/* Dots sit on top of the sphere art (a negative margin pulls this
-          whole block up over its bottom portion, same overlap Figma's own
-          card/sphere positions have — the card is not a separate block
-          stacked below it). */}
-      <div className="relative -mt-[170px]">
-        <div className="relative h-[170px]">
-          {ecosystemDots.map(({ id, dot, label, leftPct, topPct }) => {
-            const isActive = id === activeId;
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setActiveId(id)}
-                aria-label={`Show ${ECOSYSTEM_PRODUCTS[id].name}`}
-                className="absolute flex items-center gap-[6px] -translate-x-1/2 -translate-y-1/2 cursor-pointer bg-transparent border-none p-0"
-                style={{ left: `${leftPct}%`, top: `${topPct}%` }}
-              >
-                <img
-                  alt=""
-                  className="size-[16px] shrink-0 transition-transform duration-200"
-                  style={{ transform: isActive ? "scale(1.25)" : "scale(1)" }}
-                  src={dot}
-                />
-                <span
-                  className="rounded-[8px] px-[8px] py-[4px] text-[11px] whitespace-nowrap transition-colors duration-200"
-                  style={{
-                    backgroundColor: isActive ? "#ffffff" : "rgba(133,134,136,0.5)",
-                    color: isActive ? "#000000" : "#ffffff",
-                  }}
-                >
-                  {label}
-                </span>
-              </button>
-            );
-          })}
+      {/* Sphere + dots box — fixed at Figma's own 350x350 reference size
+          (node 324:1501) so the percentage positions below resolve exactly
+          like they do there, instead of drifting on a shorter/taller box.
+          `overflow-visible` (default) lets the sphere image's own
+          intentional bleed (Figma's Sphere-Graphic sits at left:-105/
+          top:-58.51/566x461, well outside this 350 box) show in full. */}
+      <div className="relative mx-auto" style={{ width: SPHERE_BOX, height: SPHERE_BOX, maxWidth: "100%" }}>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <img
+            alt=""
+            className="absolute max-w-none object-contain"
+            style={{ left: "-30%", top: "-16.7%", width: "161.7%", height: "131.7%" }}
+            src={outputOnlinegiftools1}
+          />
         </div>
 
-        {/* The pamphlet/info card — overlaps the sphere's lower half per
-            Figma (node 324:1512 sits at local top:207.49 inside the same
-            350px box the sphere occupies, not below it), and the
-            `key={activeId}` remount replays the fade-in each time the
-            active product changes, giving the arrow/dot switch a smooth
-            transition instead of an instant content swap. */}
+        {ecosystemDots.map(({ id, dot, label, leftPct, topPct }) => {
+          const isActive = id === activeId;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setActiveId(id)}
+              aria-label={`Show ${ECOSYSTEM_PRODUCTS[id].name}`}
+              className="absolute flex items-center gap-[6px] -translate-x-1/2 -translate-y-1/2 cursor-pointer bg-transparent border-none p-0"
+              style={{ left: `${leftPct}%`, top: `${topPct}%` }}
+            >
+              <img
+                alt=""
+                className="size-[16px] shrink-0 transition-transform duration-200"
+                style={{ transform: isActive ? "scale(1.25)" : "scale(1)" }}
+                src={dot}
+              />
+              <span
+                className="rounded-[8px] px-[8px] py-[4px] text-[11px] whitespace-nowrap transition-colors duration-200"
+                style={{
+                  backgroundColor: isActive ? "#ffffff" : "rgba(133,134,136,0.5)",
+                  color: isActive ? "#000000" : "#ffffff",
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* The pamphlet/info card — overlaps the sphere's lower portion per
+          Figma (node 324:1512 sits at local top:207.49 inside the same
+          350px box the sphere/dots occupy, not below it), and the
+          `key={activeId}` remount replays the fade-in each time the
+          active product changes, giving the arrow/dot switch a smooth
+          transition instead of an instant content swap. */}
+      <div className="relative" style={{ marginTop: -cardPullUp }}>
         <div
           key={activeId}
           className="vihprana-card-in relative w-full rounded-[24px] bg-[rgba(122,123,127,0.44)] backdrop-blur-md border border-white/10 p-[20px] flex flex-col gap-[16px]"

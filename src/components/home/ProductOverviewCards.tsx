@@ -67,8 +67,10 @@ const productCards = [
     orbGradient:
       "linear-gradient(129.75deg, rgb(234,225,255) 16.142%, rgb(78,30,231) 71.691%, rgb(149,44,246) 124.25%, rgb(172,57,248) 126.14%, rgb(255,103,249) 156.79%, rgb(234,225,255) 356.13%)",
     pillLabel: "SDK ",
-    // No dedicated ViH Messenger page exists yet — add its route here once one does.
-    route: null as string | null,
+    // /messenger now exists (MessengerPage.tsx, routed in App.tsx) — this
+    // was left as null from before that page was built, so clicking this
+    // card silently did nothing even though a real destination exists.
+    route: "/messenger" as string | null,
   },
 ];
 
