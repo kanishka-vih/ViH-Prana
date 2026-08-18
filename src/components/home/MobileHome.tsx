@@ -279,28 +279,51 @@ function StatCard({
 // `overflow-hidden` (as a sibling, with a negative margin pulling the panel
 // underneath it) since a child positioned above y:0 would otherwise just get
 // clipped away by that overflow instead of poking into the section before it.
-function SectionChord({ src }: { src: string }) {
+//
+// The bottom cap is the SAME dome asset rotated 180° — Figma's own node
+// (324:1540) is the identical curve as the top one, just recolored; the
+// only way it reads as a matching cap for the panel's EXIT (bulging down
+// into the section below) instead of a second entry hill (bulging up) is
+// flipped, flat-edge-up/round-edge-down instead of flat-edge-down/
+// round-edge-up. Rendering it unflipped (what shipped before) was the
+// "chord is placed opposite" bug.
+function SectionChord({ src, flip = false, children }: { src: string; flip?: boolean; children?: ReactNode }) {
   // The downloaded asset is already cropped to just the visible top-half
   // dome (viewBox 412x98.5 — Figma only shows the top half of a full
   // ellipse), so this just renders it directly at its own intrinsic ratio
   // stretched to the page width, no further clipping/positioning needed.
-  return <img alt="" className="pointer-events-none block w-full" src={src} />;
+  // `children` overlay it (percentage-positioned against this same box) —
+  // used for the "Enterprise Problems" label, which Figma nests INSIDE the
+  // top chord's curve (local y:34 of its 98.5-tall visible dome), not
+  // below it.
+  return (
+    <div className={`relative w-full pointer-events-none ${flip ? "rotate-180" : ""}`}>
+      <img alt="" className="block w-full" src={src} />
+      {children}
+    </div>
+  );
 }
 
 function MobileEnterpriseProblems() {
   return (
     <>
-      <SectionChord src={sectionChordTop} />
+      {/* Figma positions "Enterprise Problems" (node 333:2329) at local
+          x:81/y:1072 against the chord's own box at x:-15/y:1038 — i.e.
+          horizontally centered (81+229/2 ≈ the 390-wide frame's own
+          center) and 34px down from the chord's top, comfortably inside
+          its 98.5px-tall visible curve rather than in the panel below it. */}
+      <SectionChord src={sectionChordTop}>
+        <div
+          className="pointer-events-auto absolute left-1/2 -translate-x-1/2 rounded-[12px] bg-white/10 px-[24px] py-[10px]"
+          style={{ top: "34.5%" }}
+        >
+          <p className="font-normal text-[#c2bdbd] text-[16px] whitespace-nowrap m-0">Enterprise Problems</p>
+        </div>
+      </SectionChord>
       <div className="relative bg-[#191a1c] overflow-hidden -mt-[6px]">
         {/* Top glow */}
       <div className="pointer-events-none absolute -top-[100px] left-1/2 -translate-x-1/2 h-[197px] w-[412px] opacity-70">
         <div className="size-full bg-[radial-gradient(closest-side,rgba(177,91,252,0.5),transparent)]" />
-      </div>
-
-      <div className="relative flex flex-col items-center pt-[52px] pb-[16px]">
-        <div className="bg-white/10 rounded-[12px] px-[24px] py-[10px]">
-          <p className="font-normal text-[#c2bdbd] text-[16px] m-0">Enterprise Problems</p>
-        </div>
       </div>
 
       {/* Figma's own local layout (node 324:1451) has ONE dot-cluster
@@ -377,13 +400,11 @@ function MobileEnterpriseProblems() {
       </div>
       </div>
       {/* Bottom cap — same dome, solid navy (sampled from deep in the panel's
-          own gradient) instead of the top's dotted charcoal, capping the
-          panel's exit the same way its entry is capped above. Negative
-          margin pulls it up under the panel's bottom edge so it reads as
-          rising out of it, not sitting in a visible gap below it. */}
-      <div className="relative -mt-[6px]">
-        <SectionChord src={sectionChordBottom} />
-      </div>
+          own gradient) instead of the top's dotted charcoal, ROTATED 180°
+          so its flat edge meets the panel's bottom edge flush and its
+          round edge bulges down into the section below — a mirror of the
+          top cap, not a second copy of the same upward-bulging hill. */}
+      <SectionChord src={sectionChordBottom} flip />
     </>
   );
 }
