@@ -115,11 +115,17 @@ export default function EnterpriseSection() {
     {/* Same chord cap as ShrutiOutcomes' own mobile panel (MobileShruti.tsx)
         — Figma's mobile frame for this section (345:2700) nests the exact
         same "Ellipse 2292" chord above it that ShrutiOutcomes' mobile frame
-        does, overlapping the panel's top edge by 32px. Desktop doesn't get
-        one — Figma's desktop frame (88:952) has no separate chord, the
-        dome image itself already reaches the section's top edge there. */}
+        does. Desktop doesn't get one — Figma's desktop frame (88:952) has
+        no separate chord, the dome image itself already reaches the
+        section's top edge there.
+        Only a small `-mt-[6px]` overlap (same as MobileShruti.tsx's own
+        chord, and Home's) — the dome only flares out to the panel's full
+        width right at its very bottom edge, so a bigger overlap pulls the
+        panel's flat, square-cornered top edge up into the part of the dome
+        that's still narrower than full width, which read as a second,
+        flat-edged block sitting on top of the curve. */}
     {isMobile && <SectionChord src={sectionChordNavyDotted} />}
-    <div className={isMobile ? '-mt-[32px]' : undefined}>
+    <div className={isMobile ? '-mt-[6px]' : undefined}>
     {/* No extra margin here — DashboardShowcase's own min-h-[979px] already
         reserves the exact trailing space Figma has after the "Four channels"
         cards (up through where this section's frame actually starts, which
@@ -151,20 +157,33 @@ export default function EnterpriseSection() {
           // raster image can't be split into independently-staggered ring
           // layers, and its fixed wide-aspect crop is what distorted into
           // jagged facets on a narrow portrait viewport in the first place.
-          MOBILE_RINGS.map((ring, i) => (
+          <>
+            {MOBILE_RINGS.map((ring, i) => (
+              <div
+                key={ring.color}
+                className={`absolute rounded-full left-1/2 ${active ? 'shruti-ring-rise' : 'opacity-0'}`}
+                style={{
+                  width: ring.diameter,
+                  height: ring.diameter,
+                  top: ring.top,
+                  marginLeft: -ring.diameter / 2,
+                  backgroundColor: ring.color,
+                  animationDelay: active ? `${i * 0.18}s` : undefined,
+                }}
+              />
+            ))}
+            {/* Same dot texture MobileShruti.tsx's MobileOutcomes draws over
+                its own rings — this was missing here, so the mobile dome
+                had dots only on the chord cap above it (baked into that
+                SVG's own fill) and nothing over the rings themselves. */}
             <div
-              key={ring.color}
-              className={`absolute rounded-full left-1/2 ${active ? 'shruti-ring-rise' : 'opacity-0'}`}
+              className="absolute inset-0"
               style={{
-                width: ring.diameter,
-                height: ring.diameter,
-                top: ring.top,
-                marginLeft: -ring.diameter / 2,
-                backgroundColor: ring.color,
-                animationDelay: active ? `${i * 0.18}s` : undefined,
+                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px)',
+                backgroundSize: '16px 16px',
               }}
             />
-          ))
+          </>
         ) : (
           <img
             src={sectionBg}

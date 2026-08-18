@@ -10,7 +10,7 @@ import {
   playIcon,
 } from "../../assets/shruti";
 import { scrollToContactForm } from "../../lib/scrollToContact";
-import { useLocalDemoCall } from "./voice/useLocalDemoCall";
+import { useVoiceCall } from "./voice/useVoiceCall";
 
 export type Category = {
   id: string;
@@ -23,6 +23,17 @@ export type Category = {
 
 // Exported so MobileShruti.tsx can reuse the exact same verticals/copy
 // instead of maintaining a second, drifting copy of this data.
+//
+// `id` used to be an arbitrary local slug (only ever used to key into
+// useLocalDemoCall's own DEMO_SCRIPTS map). Now that Play wires up to the
+// real backend (useVoiceCall), `id` IS the backend's agent id and gets
+// sent straight to POST /api/agents/{id}/calls — confirmed directly
+// against the API: `agent_unifinz_stpl` returns a real joinUrl whose
+// system prompt is literally "Maansi from LendingPlate for payment
+// reminders", i.e. this vertical. education/realestate/healthcare below
+// don't have real agents yet (confirmed 404 "Agent not found") — Play on
+// those will correctly show an error state until the backend team
+// provisions real agent ids for them.
 export const CATEGORIES: Category[] = [
   {
     id: "education",
@@ -33,7 +44,7 @@ export const CATEGORIES: Category[] = [
     glow: "rgba(90,90,220,0.55)",
   },
   {
-    id: "nbfc",
+    id: "agent_unifinz_stpl",
     name: "Payment Reminder",
     description: "Payment reminders and collections, in the customer's own language.",
     image: nbfcShowcase,
@@ -67,41 +78,27 @@ export const LANGUAGES: { code: Lang; label: string }[] = [
 ];
 
 // The animated center "orb" is one persistent element whose box (position +
-// size) is driven entirely by inline style, so switching between idle /
-// voice-call / chat-call is a single CSS transition on the same node (a
-// FLIP-style shrink/grow) instead of different elements swapping in and
-// out. Voice-call keeps the exact idle size — only its content changes
-// (image -> animated 3D sphere) — so the carousel's left/right neighbors
-// are never crowded out.
+// size) is driven entirely by inline style — idle and voice-call both use
+// this same size, only its content changes (image -> animated 3D sphere).
+//
+// A "Chat" text-mode used to live alongside voice here (via
+// useLocalDemoCall's fully client-side script), but the real backend
+// (useVoiceCall) is a voice/WebSocket-audio integration only — there's no
+// confirmed way to send text turns over that same socket, so chat mode is
+// removed for now rather than shipping a tab that silently doesn't work.
+// It can come back once a text protocol is confirmed with the backend.
 const IDLE_BOX = { left: 485, top: 120, width: 257, height: 257 };
-// The chat panel is a small fixed-width card centered in the stage, narrow
-// enough that the blurred left/right category circles stay visible on
-// either side of it (elevenlabs.io's concierge widget is the reference).
-const CHAT_PANEL_BOX = { left: 430, top: 70, width: 380, height: 420 };
-const CHAT_ORB_BOX = { left: CHAT_PANEL_BOX.left + 20, top: CHAT_PANEL_BOX.top + 18, width: 44, height: 44 };
-// react-ai-orb's `size` prop is a multiplier of its own 82px base — the
-// sphere is always rendered at the idle/voice box's pixel size, then this
-// wrapper is scaled down with a transform for the chat avatar so the
-// shrink still animates smoothly (the library's own size prop resizes
-// instantly, with no transition).
+// react-ai-orb's `size` prop is a multiplier of its own 82px base.
 const ORB_BASE_PX = 82;
 const ORB_RENDER_SIZE = IDLE_BOX.width / ORB_BASE_PX;
-const ORB_CHAT_SCALE = CHAT_ORB_BOX.width / IDLE_BOX.width;
 
 export default function ShrutiHero() {
   const [activeIndex, setActiveIndex] = useState(1);
-  const [tab, setTab] = useState<"voice" | "chat">("voice");
   const [callOpen, setCallOpen] = useState(false);
-  const call = useLocalDemoCall();
-  const listRef = useRef<HTMLDivElement>(null);
-  const [draft, setDraft] = useState("");
+  const call = useVoiceCall();
   const [language, setLanguageState] = useState<Lang>("en");
   const [langOpen, setLangOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [call.turns, tab]);
 
   useEffect(() => {
     if (!langOpen) return;
@@ -115,7 +112,14 @@ export default function ShrutiHero() {
   const handleLanguageSelect = (code: Lang) => {
     setLanguageState(code);
     setLangOpen(false);
-    call.setLanguage(code);
+    // useVoiceCall has no live language switch (unlike the old local demo)
+    // — a real call is a live WebSocket + open mic, so the only way to
+    // change it mid-call is to end the current session and open a fresh
+    // one with the new `lang` templateParam.
+    if (callOpen) {
+      call.end();
+      call.start(CATEGORIES[activeIndex].id, { lang: code });
+    }
   };
 
   const len = CATEGORIES.length;
@@ -132,40 +136,30 @@ export default function ShrutiHero() {
   const leftPeek = CATEGORIES[leftPeekIndex];
   const rightPeek = CATEGORIES[rightPeekIndex];
 
-  const isVoice = tab === "voice";
-
   // Switching category while a call is live restarts the call for the
-  // newly-picked vertical (in whichever mode was active) instead of just
-  // changing which image is shown — so the arrows double as an agent
-  // switcher mid-conversation.
+  // newly-picked vertical instead of just changing which image is shown —
+  // so the arrows double as an agent switcher mid-conversation. `end()`
+  // first tears down the previous WebSocket/mic/audio contexts — without
+  // it, starting a new call before the old one closed would leak both
+  // (two open sockets and two live mic streams at once).
   const switchTo = (index: number) => {
     setActiveIndex(index);
-    if (callOpen) call.start(CATEGORIES[index].id, tab);
+    if (callOpen) {
+      call.end();
+      call.start(CATEGORIES[index].id, { lang: language });
+    }
   };
   const goPrev = () => switchTo(leftIndex);
   const goNext = () => switchTo(rightIndex);
 
   const handlePlay = () => {
     setCallOpen(true);
-    call.start(center.id, tab);
+    call.start(center.id, { lang: language });
   };
 
   const handleClose = () => {
     call.end();
     setCallOpen(false);
-    setDraft("");
-  };
-
-  const handleModeChange = (m: "voice" | "chat") => {
-    setTab(m);
-    if (callOpen) call.setInputMode(m);
-  };
-
-  const submitDraft = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!draft.trim()) return;
-    call.sendText(draft);
-    setDraft("");
   };
 
   const statusLabel =
@@ -174,9 +168,7 @@ export default function ShrutiHero() {
       : call.state === "active"
         ? call.agentSpeaking
           ? "Speaking…"
-          : isVoice
-            ? "Listening…"
-            : "Online"
+          : "Listening…"
         : call.state === "ended"
           ? "Call ended"
           : "Something went wrong";
@@ -274,12 +266,10 @@ export default function ShrutiHero() {
         <div
           className="absolute z-20 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{
-            left: callOpen && !isVoice ? CHAT_ORB_BOX.left : IDLE_BOX.left,
-            top: callOpen && !isVoice ? CHAT_ORB_BOX.top : IDLE_BOX.top,
+            left: IDLE_BOX.left,
+            top: IDLE_BOX.top,
             width: IDLE_BOX.width,
             height: IDLE_BOX.height,
-            transform: callOpen && !isVoice ? `scale(${ORB_CHAT_SCALE})` : "scale(1)",
-            transformOrigin: "top left",
           }}
         >
           {/* Soft ambient glow behind the live sphere — not clipped, so its
@@ -325,13 +315,8 @@ export default function ShrutiHero() {
           )}
         </div>
 
-        {/* Idle: name + description. In-call voice mode: name + live status.
-            Hidden in chat mode — the chat panel already shows both. */}
-        <div
-          className={`absolute left-0 right-0 top-[398px] flex flex-col items-center gap-[10px] text-center transition-opacity duration-300 ${
-            callOpen && !isVoice ? "pointer-events-none opacity-0" : "opacity-100"
-          }`}
-        >
+        {/* Idle: name + description. In-call: name + live status. */}
+        <div className="absolute left-0 right-0 top-[398px] flex flex-col items-center gap-[10px] text-center">
           <p className="text-[20px] text-black tracking-[-0.8px] m-0 leading-[24px]">{center.name}</p>
           {!callOpen ? (
             <p className="text-[#6a6a6a] text-[14px] tracking-[-0.56px] m-0 leading-[18px] w-[280px]">
@@ -342,10 +327,10 @@ export default function ShrutiHero() {
           )}
         </div>
 
-        {/* Voice-mode call controls */}
+        {/* Call controls */}
         <div
           className={`absolute left-[420px] right-[420px] top-[470px] flex items-center justify-center gap-[12px] transition-opacity duration-300 ${
-            callOpen && isVoice ? "opacity-100 delay-150" : "pointer-events-none opacity-0"
+            callOpen ? "opacity-100 delay-150" : "pointer-events-none opacity-0"
           }`}
         >
           <button
@@ -366,75 +351,11 @@ export default function ShrutiHero() {
             End call
           </button>
         </div>
-        {callOpen && isVoice && call.warnings.length > 0 && (
+        {callOpen && call.warnings.length > 0 && (
           <p className="absolute left-[420px] right-[420px] top-[520px] text-center text-[11px] text-[#c0392b]">
             {call.warnings[call.warnings.length - 1]}
           </p>
         )}
-
-        {/* Chat-mode panel: a small glass card (not full-width) so the
-            blurred left/right category circles stay visible on either
-            side, matching elevenlabs.io's concierge widget. z-10, below
-            the orb (z-20) so the shrunk avatar shows in its header. */}
-        <div
-          className={`absolute z-10 rounded-[20px] border border-white/60 bg-white/60 shadow-[0_20px_50px_rgba(20,10,40,0.18)] backdrop-blur-xl transition-opacity duration-300 ${
-            callOpen && !isVoice ? "opacity-100 delay-150" : "pointer-events-none opacity-0"
-          }`}
-          style={CHAT_PANEL_BOX}
-        >
-          <p
-            className="absolute left-[84px] top-[18px] m-0 truncate text-[14px] font-semibold text-[#131313]"
-            style={{ width: 240 }}
-          >
-            {center.name}
-          </p>
-          <p className={`absolute left-[84px] top-[38px] m-0 text-[12px] ${statusColor}`}>{statusLabel}</p>
-
-          <div
-            ref={listRef}
-            className="absolute left-[20px] right-[20px] top-[78px] h-[270px] space-y-[10px] overflow-y-auto"
-          >
-            {call.turns.map((t, i) => (
-              <div key={i} className={`flex ${t.from === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[85%] rounded-[16px] px-[12px] py-[8px] text-[13px] leading-[18px] backdrop-blur-sm ${
-                    t.from === "user"
-                      ? "bg-[#131313]/90 text-white"
-                      : "border border-white/50 bg-white/70 text-[#232323]"
-                  }`}
-                >
-                  {t.text}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {call.warnings.length > 0 && (
-            <p className="absolute left-[20px] right-[20px] top-[352px] m-0 text-[11px] text-[#c0392b]">
-              {call.warnings[call.warnings.length - 1]}
-            </p>
-          )}
-
-          <form
-            onSubmit={submitDraft}
-            className="absolute left-[20px] right-[20px] top-[364px] flex h-[40px] items-center gap-[8px]"
-          >
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Type a message…"
-              disabled={call.state !== "active"}
-              className="h-full flex-1 rounded-[10px] border border-white/50 bg-white/70 px-[10px] text-[13px] text-[#131313] outline-none backdrop-blur-sm placeholder:text-[#7a7d87] focus:border-[#9a00ff] disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={call.state !== "active" || !draft.trim()}
-              className="flex h-full cursor-pointer items-center justify-center rounded-[10px] bg-[#131313]/90 px-[14px] text-[13px] text-white disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Send
-            </button>
-          </form>
-        </div>
 
         {/* Right (next) category */}
         <button
@@ -508,29 +429,6 @@ export default function ShrutiHero() {
           >
             <span className="font-medium text-[16px] text-white">Contact sales</span>
             <img alt="" className="h-[33px] w-[16.5px]" src={weuiArrowOutlined} />
-          </button>
-        </div>
-
-        {/* Voice / Chat toggle — always available, also drives the live
-            call's input mode once a call is open. */}
-        <div className="absolute left-[454px] top-[33px] flex gap-[8px] items-end z-30">
-          <button
-            type="button"
-            onClick={() => handleModeChange("voice")}
-            className={`h-[40px] w-[128px] flex items-center justify-center rounded-[12px] border cursor-pointer transition-colors ${
-              tab === "voice" ? "bg-white border-[#e8e8e8]" : "bg-transparent border-transparent"
-            }`}
-          >
-            <span className="text-[#504e47] text-[20px] tracking-[-0.8px]">Voice</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleModeChange("chat")}
-            className={`h-[37px] w-[129px] flex items-center justify-center rounded-[24px] border cursor-pointer transition-colors ${
-              tab === "chat" ? "bg-white border-[#e8e8e8]" : "bg-transparent border-transparent"
-            }`}
-          >
-            <span className="text-[#504e47] text-[20px] tracking-[-0.8px]">Chat</span>
           </button>
         </div>
 

@@ -78,12 +78,16 @@ const SEGMENT_HEIGHT = 500
 // How far below its resting spot a card starts, i.e. off-screen below the stack.
 const ENTRY_DISTANCE = CARD_HEIGHT + 120
 
-function IndustryCardVisual({ industry, zIndex, initialTranslateY, cardRef, overlayRef }) {
+// Exported for MobileIndustriesStack below — same card visual (image crop,
+// gradient, title/description/tags layout) at a different `height`, since
+// the mobile card (Figma node 345:2682) is proportioned much taller/
+// narrower than the desktop one.
+export function IndustryCardVisual({ industry, zIndex, initialTranslateY, cardRef, overlayRef, height = CARD_HEIGHT }) {
   return (
     <div
       ref={cardRef}
       className="absolute inset-x-0 top-0"
-      style={{ height: CARD_HEIGHT, transform: `translateY(${initialTranslateY}px)`, zIndex }}
+      style={{ height, transform: `translateY(${initialTranslateY}px)`, zIndex }}
     >
       <div className="relative isolate h-full w-full overflow-hidden rounded-3xl bg-black">
         {industry.imageCrop ? (
@@ -304,6 +308,107 @@ export default function IndustriesSection() {
           </div>,
           document.body,
         )}
+      </div>
+    </section>
+  )
+}
+
+const MOBILE_CARD_HEIGHT = 484
+const MOBILE_STICKY_TOP = 72
+// Same 15% peek desktop uses.
+const MOBILE_PEEK = Math.round(MOBILE_CARD_HEIGHT * 0.15)
+const MOBILE_SEGMENT_HEIGHT = 380
+const MOBILE_ENTRY_DISTANCE = MOBILE_CARD_HEIGHT + 100
+
+// Mobile version of the same scroll-pin-and-stack effect above, used by
+// MobileMessenger.tsx in place of a horizontal swipe carousel — Figma's own
+// mobile frame for this section (345:2682) lays these 5 cards out as a
+// plain vertical list (all 5 showing the same "Telecom Operators" text —
+// a Figma export glitch, not the real intended per-card copy), so this
+// reuses the real per-industry INDUSTRIES data and just re-plays the
+// desktop stack's exact animation math at mobile's own card size.
+//
+// No `createPortal`/geo-measurement dance like the desktop version above
+// needs — that escape hatch only exists because ScaledCanvas wraps desktop
+// widths in a `transform: scale()` ancestor, which breaks `position:
+// sticky`'s containing block. This route is `mobileReady` (App.tsx), so
+// ScaledCanvas renders mobile widths with no transform at all (see its own
+// comments) — plain nested `position: sticky` pins correctly here as-is.
+export function MobileIndustriesStack() {
+  const trackRef = useRef(null)
+  const cardRefs = useRef([])
+  const overlayRefs = useRef([])
+  const n = INDUSTRIES.length
+  const pinDistance = (n - 1) * MOBILE_SEGMENT_HEIGHT
+  const stackHeight = MOBILE_CARD_HEIGHT + (n - 1) * MOBILE_PEEK
+  const trackHeight = stackHeight + pinDistance
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    let raf = 0
+
+    const loop = () => {
+      raf = requestAnimationFrame(loop)
+      const rect = track.getBoundingClientRect()
+      const scrolled = Math.min(Math.max(MOBILE_STICKY_TOP - rect.top, 0), pinDistance)
+
+      const progress = INDUSTRIES.map((_, i) => {
+        if (i === 0) return 1
+        const segmentStart = (i - 1) * MOBILE_SEGMENT_HEIGHT
+        return Math.min(Math.max((scrolled - segmentStart) / MOBILE_SEGMENT_HEIGHT, 0), 1)
+      })
+
+      INDUSTRIES.forEach((_, i) => {
+        const card = cardRefs.current[i]
+        const overlay = overlayRefs.current[i]
+        if (card) {
+          const translateY = i === 0 ? 0 : i * MOBILE_PEEK + (1 - progress[i]) * MOBILE_ENTRY_DISTANCE
+          card.style.transform = `translateY(${translateY}px)`
+        }
+        if (overlay) {
+          const nextProgress = progress[i + 1] ?? 0
+          overlay.style.opacity = String(nextProgress * 0.5)
+        }
+      })
+    }
+
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [n, pinDistance])
+
+  return (
+    <section className="flex flex-col gap-6 w-full bg-white px-4 py-12">
+      <div className="flex flex-col gap-3">
+        <p className="font-light text-[32px] leading-[36px] text-[#131313] m-0">
+          Where enterprises put it to work
+        </p>
+        <p className="text-[15px] leading-[22px] text-[#737373] m-0">
+          Configured for each enterprise, with tailored templates, channels, AI personas, and
+          knowledge bases.
+        </p>
+      </div>
+
+      <div className="relative w-full" ref={trackRef} style={{ height: trackHeight }}>
+        <div style={{ position: 'sticky', top: MOBILE_STICKY_TOP }}>
+          <div className="relative w-full overflow-hidden" style={{ height: stackHeight }}>
+            {INDUSTRIES.map((industry, i) => (
+              <IndustryCardVisual
+                key={i}
+                industry={industry}
+                height={MOBILE_CARD_HEIGHT}
+                zIndex={i + 1}
+                initialTranslateY={i === 0 ? 0 : MOBILE_ENTRY_DISTANCE + i * MOBILE_PEEK}
+                cardRef={(el) => {
+                  cardRefs.current[i] = el
+                }}
+                overlayRef={(el) => {
+                  overlayRefs.current[i] = el
+                }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )

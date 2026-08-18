@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MobileHero, Reveal, SectionChord } from "../home/MobileHome";
 import { CATEGORIES, LANGUAGES, type Lang } from "./ShrutiHero";
-import { useLocalDemoCall } from "./voice/useLocalDemoCall";
+import { useVoiceCall } from "./voice/useVoiceCall";
 import {
   weuiArrowOutlined,
   demoOrbWebp,
@@ -67,24 +67,35 @@ const featureCards = [
 ];
 
 // The same 4 industry verticals ShrutiHero.tsx (desktop) cycles through,
-// with a scaled-down version of the same play/talk demo (useLocalDemoCall)
-// instead of the full orb-visualization + chat-panel treatment desktop
-// has room for — Figma's own mobile mock only shows a simple circular
-// avatar + play button + prev/next arrows, not the full call UI.
+// with a scaled-down version of the same live call UI instead of the full
+// orb-visualization desktop has room for — Figma's own mobile mock only
+// shows a simple circular avatar + play button + prev/next arrows, not the
+// full call UI.
+//
+// Voice only — useVoiceCall is a real backend WebSocket-audio integration
+// with no text-chat path, unlike the old useLocalDemoCall (fully
+// client-side, scripted) this replaced, so the Voice/Chat toggle that used
+// to sit here is gone rather than shipping a Chat tab that would silently
+// do nothing.
 function MobileVoiceChatCarousel() {
   const [activeIndex, setActiveIndex] = useState(1);
-  const [tab, setTab] = useState<"voice" | "chat">("voice");
   const [callOpen, setCallOpen] = useState(false);
   const [language, setLanguage] = useState<Lang>("en");
   const [langOpen, setLangOpen] = useState(false);
-  const call = useLocalDemoCall();
+  const call = useVoiceCall();
 
   const len = CATEGORIES.length;
   const active = CATEGORIES[activeIndex];
 
+  // `end()` before `start()` — without it, switching category mid-call
+  // would leave the previous WebSocket/mic stream open while a second one
+  // starts, rather than cleanly replacing it.
   const switchTo = (index: number) => {
     setActiveIndex(index);
-    if (callOpen) call.start(CATEGORIES[index].id, tab);
+    if (callOpen) {
+      call.end();
+      call.start(CATEGORIES[index].id, { lang: language });
+    }
   };
   const goPrev = () => switchTo((activeIndex - 1 + len) % len);
   const goNext = () => switchTo((activeIndex + 1) % len);
@@ -95,7 +106,7 @@ function MobileVoiceChatCarousel() {
       setCallOpen(false);
     } else {
       setCallOpen(true);
-      call.start(active.id, tab);
+      call.start(active.id, { lang: language });
     }
   };
 
@@ -112,22 +123,6 @@ function MobileVoiceChatCarousel() {
 
   return (
     <Reveal className="bg-[#f4f4f4] flex flex-col gap-[20px] items-start px-[16px] py-[32px] rounded-[24px] w-full">
-      <div className="flex gap-[8px] items-start justify-center w-full">
-        {(["voice", "chat"] as const).map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            onClick={() => setTab(mode)}
-            className={`flex items-center justify-center px-[24px] py-[8px] rounded-[12px] cursor-pointer ${
-              tab === mode ? "bg-white border border-[#e8e8e8]" : "bg-transparent border border-transparent"
-            }`}
-          >
-            <span className={`text-[16px] tracking-[-0.5px] capitalize ${tab === mode ? "text-[#504e47] font-medium" : "text-[#6a6a6a]"}`}>
-              {mode}
-            </span>
-          </button>
-        ))}
-      </div>
 
       <div className="bg-[#f4f4f4] flex flex-col gap-[24px] items-center px-[20px] py-[32px] rounded-[24px] w-full">
         <div className="flex items-center justify-between w-full">
@@ -228,7 +223,14 @@ function MobileVoiceChatCarousel() {
                   onClick={() => {
                     setLanguage(l.code);
                     setLangOpen(false);
-                    call.setLanguage(l.code);
+                    // Same restart-on-change as switchTo above — no live
+                    // language switch over an open WebSocket, so this
+                    // closes the current call and reopens one with the
+                    // new `lang` templateParam instead.
+                    if (callOpen) {
+                      call.end();
+                      call.start(active.id, { lang: l.code });
+                    }
                   }}
                   className={`flex w-full cursor-pointer items-center justify-between border-none bg-transparent px-[14px] py-[10px] text-left text-[14px] hover:bg-[#f4f4f4] ${
                     language === l.code ? "font-semibold text-black" : "text-[#555]"
@@ -432,16 +434,20 @@ export default function MobileShruti() {
       </div>
       {/* Figma nests a chord cap ("Ellipse 2292", same shape as Enterprise
           Problems' own chord, just recolored to this panel's own navy
-          instead of Enterprise Problems' charcoal) right above this panel,
-          overlapping its top edge by 32px (node 333:2083 sits at y:1231,
-          the panel starts at y:1301, and the chord's own visible half is
-          ~102px tall — 1301+102-1231... i.e. the chord's bottom edge lands
-          32px inside the panel). Without it, the panel was a flat
-          rectangle starting right at the white trusted-by section above —
-          reading as extra square dark corners poking into the white area
-          that the actual curved dome shouldn't have covered. */}
+          instead of Enterprise Problems' charcoal) right above this panel.
+          Without it, the panel was a flat rectangle starting right at the
+          white trusted-by section above — reading as extra square dark
+          corners poking into the white area that the actual curved dome
+          shouldn't have covered.
+          Only a small `-mt-[6px]` overlap (same amount Home's own chord
+          uses for its analogous seam) — the dome only flares out to the
+          panel's full width right at its very bottom edge, so any bigger
+          overlap pulls the panel's own flat, square-cornered top edge up
+          into the part of the dome that's still narrower than full width,
+          which reads as a second, flat-edged block sitting on top of the
+          curve instead of the curve just flowing into the panel. */}
       <SectionChord src={sectionChordNavyDotted} />
-      <div className="-mt-[32px]">
+      <div className="-mt-[6px]">
         <MobileOutcomes />
       </div>
       <MobileRealtimeVisibility />

@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Reveal } from "../home/MobileHome";
-import { INDUSTRIES } from "./IndustriesSection";
+import { MobileIndustriesStack } from "./IndustriesSection";
 import EnterpriseSection from "./EnterpriseSection";
 import WorkflowSection from "./WorkflowSection";
 import AnalyticsDashboard from "./AnalyticsDashboard";
@@ -141,94 +140,6 @@ function MobileTeamsUseCases() {
   );
 }
 
-// Horizontal swipe carousel — Figma's mobile frame for this section (node
-// 91:1025, "iPhone 13 & 14 - 2") shows ONE industry card filling the screen
-// with the edges of the previous/next card peeking in from left/right (the
-// two gray strips at the card's sides), matching a snap-scroll carousel —
-// not desktop IndustriesSection.jsx's vertical scroll-and-stack effect,
-// which only makes sense with the extra horizontal room a desktop viewport
-// has. Same 6 industries/copy/images (INDUSTRIES, exported from that file)
-// so the two don't drift out of sync content-wise.
-function MobileIndustries() {
-  const [active, setActive] = useState(0);
-
-  return (
-    <div className="flex flex-col gap-[24px] px-[16px] py-[48px] bg-white overflow-hidden">
-      <div className="flex flex-col gap-[12px]">
-        <p className="font-light leading-[36px] text-[#131313] text-[32px] m-0">Where enterprises put it to work</p>
-        <p className="font-normal leading-[22px] text-[#737373] text-[15px] m-0">
-          Configured for each enterprise, with tailored templates, channels, AI personas, and knowledge bases.
-        </p>
-      </div>
-
-      <div
-        className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory -mx-[16px] px-[16px] pb-[4px]"
-        style={{ scrollbarWidth: "none" }}
-        onScroll={(e) => {
-          const el = e.currentTarget;
-          const cardWidth = el.scrollWidth / INDUSTRIES.length;
-          setActive(Math.round(el.scrollLeft / cardWidth));
-        }}
-      >
-        {INDUSTRIES.map((industry) => (
-          <div key={industry.title} className="relative h-[484px] w-[calc(100%-32px)] shrink-0 snap-center overflow-hidden rounded-[24px] bg-black">
-            {/* Desktop's `imageCrop` percentages (IndustriesSection.jsx) are
-                tuned to stretch/position each photo for its wide landscape
-                card slot — on this portrait ~358x484 mobile card they either
-                left a large uncovered black gap (the two `reverse` cards,
-                whose crop is a narrow 47%-wide strip meant to sit beside
-                right-aligned text on a much wider card) or looked
-                arbitrarily off-center. `object-cover` fills this card
-                correctly regardless of the source image's own proportions
-                or which crop desktop happens to use. */}
-            <img alt="" className="absolute inset-0 size-full object-cover" src={industry.image} />
-            {/* Text sits at the TOP of this card (unlike desktop, where it
-                sits beside the image and the gradient darkens sideways) —
-                so this needs to darken top-to-bottom instead of desktop's
-                left/right direction, or the title/description overlaid on
-                top would sit on a fully transparent (bright, at the top)
-                part of the gradient instead of a legible dark one. */}
-            <div
-              className="absolute inset-0"
-              style={{ backgroundImage: "linear-gradient(180deg, black 0%, black 40%, transparent 75%)" }}
-            />
-            <div className="absolute left-[19px] right-[19px] top-[20px] flex h-[229px] flex-col justify-between">
-              <div className="flex flex-col gap-[16px] tracking-[-1px]">
-                <h3 className="font-light leading-[36px] text-[24px] text-white m-0">{industry.title}</h3>
-                <p className="font-normal leading-[24px] text-[#9e9e9e] text-[14px] m-0">{industry.description}</p>
-              </div>
-              <div className="flex flex-col gap-[8px] items-start">
-                {industry.tags.map((tag: string) => (
-                  <span
-                    key={tag}
-                    className="flex h-[34px] items-center justify-center rounded-[46px] bg-[rgba(161,161,161,0.1)] px-[16px] text-[12px] capitalize tracking-[0.96px] text-white whitespace-nowrap"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-center gap-[6px]">
-        {INDUSTRIES.map((industry, i) => (
-          <span
-            key={industry.title}
-            className="rounded-full transition-all duration-200"
-            style={{
-              width: i === active ? 18 : 6,
-              height: 6,
-              backgroundColor: i === active ? "#131313" : "#d9d9d9",
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function MobileMessenger() {
   return (
     <div className="flex flex-col w-full">
@@ -253,7 +164,7 @@ export default function MobileMessenger() {
       <WorkflowSection />
 
       <MobileTeamsUseCases />
-      <MobileIndustries />
+      <MobileIndustriesStack />
     </div>
   );
 }

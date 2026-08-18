@@ -8,12 +8,14 @@ import { floatToPCM16, pcm16ToFloat, resample } from "./audioUtils";
 const MIC_SEND_RATE = 16000;
 
 const API_BASE = "https://api.dev.shruti.vihresearchlabs.ai";
-// This is an `pk_...`-prefixed "publishable" key (mirrors Stripe's
-// pk_/sk_ convention) — the assumption is it's meant to be embedded in a
-// browser, unlike a secret key. Centralized here so it's a one-line swap
-// if that assumption turns out wrong and this needs to move behind a
-// server-side proxy instead.
-const API_KEY = "pk_-u9o5URgW0mnGcJ6mN9LiK1XC0oWCC8HZhrLabmKmE4";
+// Configured via .env.local (see .env.example) instead of a literal string
+// here — this key was previously hardcoded in source, which ships it to
+// every browser that loads this bundle and to anyone who reads the repo.
+// It's still ultimately visible to the browser at request time either way
+// (there's no server-side proxy in front of this call), so this isn't a
+// secrecy fix so much as a "don't commit it to git history / let it be
+// swapped without a code change" fix.
+const API_KEY = import.meta.env.VITE_SHRUTI_API_KEY;
 
 export type Turn = { from: "agent" | "user"; text: string; final: boolean };
 export type CallState = "idle" | "connecting" | "active" | "ended" | "error";
@@ -77,20 +79,32 @@ export function useVoiceCall() {
       setTurns([]);
       setWarnings([]);
       try {
-        const qs = new URLSearchParams(templateParams).toString();
-        const res = await fetch(
-          `${API_BASE}/agent/${encodeURIComponent(agentId)}/call${qs ? `?${qs}` : ""}`,
-          { headers: { "X-API-Key": API_KEY } },
-        );
+        if (!API_KEY) {
+          throw new Error(
+            "Shruti voice API is not configured — set VITE_SHRUTI_API_KEY in .env.local (see .env.example).",
+          );
+        }
+        // Every call needs its own fresh session — a `joinUrl` is single-use
+        // and tied to one `call_id`, so this POSTs a new one each time
+        // `start()` is invoked rather than reusing a URL across calls.
+        // templateParams go in the JSON body, not the query string — this
+        // POST creates a resource (a call session), and query params on a
+        // resource-creating POST are unusual/easy to mix up with the
+        // create payload itself.
+        const res = await fetch(`${API_BASE}/api/agents/${encodeURIComponent(agentId)}/calls`, {
+          method: "POST",
+          headers: { "X-API-Key": API_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify(templateParams ?? {}),
+        });
         if (!res.ok) throw new Error(`Call setup failed (${res.status})`);
-        const { url } = await res.json();
+        const { joinUrl } = await res.json();
 
         // Mic first — if the user declines the permission prompt, there's
         // no point opening the call at all.
         const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         micStreamRef.current = micStream;
 
-        const ws = new WebSocket(url);
+        const ws = new WebSocket(joinUrl);
         ws.binaryType = "arraybuffer";
         wsRef.current = ws;
 
