@@ -129,7 +129,20 @@ export default function EnterpriseSection() {
           {FEATURES.map((feature, i) => (
             <div
               key={feature.title}
-              className="flex flex-col justify-between gap-6 h-[276px] rounded-xl border border-[#8e8e8e] bg-[rgba(54,54,54,0.64)] px-5 py-6"
+              // `md:h-[276px] md:justify-between` (not unconditional) — a
+              // fixed 276px height with the description pinned to the
+              // bottom via `justify-between` only reads right in desktop's
+              // 3-column grid, where each card is wide enough that the
+              // title wraps to at most 2 short lines. Stacked single-column
+              // on mobile, the SAME card is much narrower, so the title
+              // wraps to 3 lines — but the card stayed exactly 276px tall
+              // regardless, so `justify-between` shoved the description
+              // down to the bottom of that fixed box, opening up a big
+              // empty gap between it and the title instead of sitting
+              // directly under it (Figma's actual mobile card, node
+              // 345:2700, has no such gap — it's just a natural-height
+              // `gap-6` stack).
+              className="flex flex-col gap-6 md:h-[276px] md:justify-between rounded-xl border border-[#8e8e8e] bg-[rgba(54,54,54,0.64)] px-5 py-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <p className="text-2xl leading-[25px] tracking-[0.24px] text-white">{feature.title}</p>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Reveal, CtaButton } from "../home/MobileHome";
+import { Reveal } from "../home/MobileHome";
 import { INDUSTRIES } from "./IndustriesSection";
 import EnterpriseSection from "./EnterpriseSection";
 import WorkflowSection from "./WorkflowSection";
@@ -59,16 +59,16 @@ function MobileHero() {
         className="pointer-events-none absolute -left-[304px] top-[287px] w-[873px] rotate-[13.57deg] opacity-90"
         src={polygonBlob}
       />
-      <div className="relative flex flex-col gap-[24px]">
-        <div className="flex flex-col gap-[12px]">
-          <h1 className="font-light leading-[33px] text-[30px] text-[#292941] tracking-[-1.2px] m-0">
-            One inbox for everything your business send
-          </h1>
-          <p className="font-normal leading-[22px] text-[#8a8ca9] text-[16px] m-0">
-            Integrate with your app. Transform it into an AI-powered communication hub.
-          </p>
-        </div>
-        <CtaButton />
+      {/* No hero CTA here — "Contact us" already lives in the nav bar
+          (Header.tsx), matching the same change made on Home/Shruti's
+          hero. */}
+      <div className="relative flex flex-col gap-[12px]">
+        <h1 className="font-light leading-[33px] text-[30px] text-[#292941] tracking-[-1.2px] m-0">
+          One inbox for everything your business send
+        </h1>
+        <p className="font-normal leading-[22px] text-[#8a8ca9] text-[16px] m-0">
+          Integrate with your app. Transform it into an AI-powered communication hub.
+        </p>
       </div>
 
       <div className="relative flex flex-col gap-[24px] pt-[16px]">

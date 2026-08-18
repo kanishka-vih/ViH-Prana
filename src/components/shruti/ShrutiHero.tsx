@@ -34,7 +34,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "nbfc",
-    name: "NBFC",
+    name: "Payment Reminder",
     description: "Payment reminders and collections, in the customer's own language.",
     image: nbfcShowcase,
     orbPreset: multiColorPreset,
