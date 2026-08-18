@@ -4,7 +4,7 @@ import { floatToPCM16, pcm16ToFloat, resample } from "./audioUtils";
 // The rate we send mic audio at. Not confirmed by docs (there are none —
 // see the empirical protocol probe), but 16kHz mono is the standard input
 // rate for speech ASR pipelines; if it's wrong, the server's own
-// `diagnostic` messages should flag it, which we surface in `warnings`.
+// `diagnostic` messages should flag it — check the console.
 const MIC_SEND_RATE = 16000;
 
 const API_BASE = "https://api.dev.shruti.vihresearchlabs.ai";
@@ -144,7 +144,13 @@ export function useVoiceCall() {
             if (msg.type === "ready") {
               setState("active");
             } else if (msg.type === "diagnostic") {
-              setWarnings((w) => [...w, msg.text]);
+              // Backend-internal (prompt-length warnings, unsubstituted
+              // template placeholders, etc.) — useful in devtools, not
+              // something a caller should ever see rendered as if it were
+              // part of the call, so this only goes to the console rather
+              // than into `warnings` (which the UI renders as user-facing
+              // red text under the call controls).
+              console.warn("[Shruti diagnostic]", msg.text);
             } else if (msg.type === "response_text") {
               setTurns((prev) => {
                 const last = prev[prev.length - 1];
