@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MobileHero, Reveal } from "../home/MobileHome";
+import { MobileHero, Reveal, SectionChord } from "../home/MobileHome";
 import { CATEGORIES, LANGUAGES, type Lang } from "./ShrutiHero";
 import { useLocalDemoCall } from "./voice/useLocalDemoCall";
 import {
@@ -18,6 +18,7 @@ import {
   polygon33,
 } from "../../assets";
 import { rectangleAvatar, playRing, playIcon, iconFileSystem } from "../../assets/shruti";
+import { sectionChordNavyDotted } from "../../assets/mobile";
 import { dashboard1, dashboard2, dashboard3, iconHeadset, iconUsers, iconWorkflow, glowBubble } from "../../assets/shruti-mobile";
 import { scrollToContactForm } from "../../lib/scrollToContact";
 
@@ -429,7 +430,20 @@ export default function MobileShruti() {
         <MobileVoiceChatCarousel />
         <MobileTrustedBy />
       </div>
-      <MobileOutcomes />
+      {/* Figma nests a chord cap ("Ellipse 2292", same shape as Enterprise
+          Problems' own chord, just recolored to this panel's own navy
+          instead of Enterprise Problems' charcoal) right above this panel,
+          overlapping its top edge by 32px (node 333:2083 sits at y:1231,
+          the panel starts at y:1301, and the chord's own visible half is
+          ~102px tall — 1301+102-1231... i.e. the chord's bottom edge lands
+          32px inside the panel). Without it, the panel was a flat
+          rectangle starting right at the white trusted-by section above —
+          reading as extra square dark corners poking into the white area
+          that the actual curved dome shouldn't have covered. */}
+      <SectionChord src={sectionChordNavyDotted} />
+      <div className="-mt-[32px]">
+        <MobileOutcomes />
+      </div>
       <MobileRealtimeVisibility />
     </div>
   );

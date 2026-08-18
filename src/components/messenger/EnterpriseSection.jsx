@@ -5,6 +5,29 @@ import orb2 from '../../assets/messenger-figma/orb-2.webp'
 import iconSupport from '../../assets/messenger-figma/icon-support-solid.svg'
 import iconGrowth from '../../assets/messenger-figma/icon-growth-solid.svg'
 import iconFileSystem from '../../assets/messenger-figma/icon-file-system.svg'
+import { SectionChord } from '../home/MobileHome'
+import { sectionChordNavyDotted } from '../../assets/mobile'
+
+// Same breakpoint the rest of the mobile/desktop splits in this codebase use
+// (IndustriesSection.jsx, HowWeDoItSection.jsx, MessengerPage.tsx).
+const MOBILE_BREAKPOINT = 768
+
+// Figma's flattened dome export (`sectionBg`, positioned via
+// `-top-[6%] w-full h-[122%]`) is cropped to a wide desktop aspect ratio, so
+// it renders correctly at desktop widths but distorts into jagged polygon
+// facets once squeezed into a narrow portrait mobile viewport. Figma's own
+// mobile frame for this exact section (node 345:2700, "outcomes-section-
+// mobile") is a near-duplicate of ShrutiOutcomes' mobile frame (340:2408) —
+// same 3-ring dome, same chord cap above it — just with these 3 cards
+// instead of ShrutiOutcomes' 3 cards. Reusing that exact ring/chord
+// technique here (rather than the desktop image) fixes the distortion and
+// matches Figma's real mobile design instead of a stretched desktop asset.
+const MOBILE_RING_SCALE = 390 / 1440
+const MOBILE_RINGS = [
+  { diameter: 2385 * MOBILE_RING_SCALE, top: 0, color: '#0a1c38' },
+  { diameter: 2100 * MOBILE_RING_SCALE, top: 265 * MOBILE_RING_SCALE, color: '#071428' },
+  { diameter: 1550 * MOBILE_RING_SCALE, top: 460 * MOBILE_RING_SCALE, color: '#040c1c' },
+]
 
 const GRADIENTS = {
   pink: 'linear-gradient(135deg, rgb(255, 222, 254) 0%, rgb(255, 103, 249) 35%, rgb(154, 0, 255) 60%, rgb(149, 44, 246) 80%, rgb(99, 40, 241) 100%)',
@@ -68,6 +91,7 @@ const FEATURES = [
 export default function EnterpriseSection() {
   const sectionRef = useRef(null)
   const [active, setActive] = useState(false)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT)
 
   useEffect(() => {
     const el = sectionRef.current
@@ -80,23 +104,38 @@ export default function EnterpriseSection() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
   return (
-    // No extra margin here — DashboardShowcase's own min-h-[979px] already
-    // reserves the exact trailing space Figma has after the "Four channels"
-    // cards (up through where this section's frame actually starts, which
-    // overlaps the tail of the hero frame slightly). Adding a separate gap
-    // here on top of that double-counted the same space and produced way
-    // too much white area between the two sections.
-    // `bg-[#0a1c38]` (the same outer-ring tone ShrutiOutcomes.tsx's RINGS
-    // array uses for its own analogous dome) instead of `bg-white` — the
-    // dome background image tapers inward toward its top, and on a narrow
-    // mobile viewport that taper is narrower than the heading text at the
-    // height the text sits at. With a white section bg, wherever the dome's
-    // dark pixels don't reach, the white text became invisible against the
-    // white page background showing through — reading as "cut off" at both
-    // edges when it was actually just unreadable, not clipped. A dark
-    // fallback bg (safe on desktop too, where the dome already reaches the
-    // edges by then) means there's never a white gap for that to happen in.
+    <>
+    {/* Same chord cap as ShrutiOutcomes' own mobile panel (MobileShruti.tsx)
+        — Figma's mobile frame for this section (345:2700) nests the exact
+        same "Ellipse 2292" chord above it that ShrutiOutcomes' mobile frame
+        does, overlapping the panel's top edge by 32px. Desktop doesn't get
+        one — Figma's desktop frame (88:952) has no separate chord, the
+        dome image itself already reaches the section's top edge there. */}
+    {isMobile && <SectionChord src={sectionChordNavyDotted} />}
+    <div className={isMobile ? '-mt-[32px]' : undefined}>
+    {/* No extra margin here — DashboardShowcase's own min-h-[979px] already
+        reserves the exact trailing space Figma has after the "Four channels"
+        cards (up through where this section's frame actually starts, which
+        overlaps the tail of the hero frame slightly). Adding a separate gap
+        here on top of that double-counted the same space and produced way
+        too much white area between the two sections.
+        `bg-[#0a1c38]` (the same outer-ring tone ShrutiOutcomes.tsx's RINGS
+        array uses for its own analogous dome) instead of `bg-white` — the
+        dome background image tapers inward toward its top, and on a narrow
+        mobile viewport that taper is narrower than the heading text at the
+        height the text sits at. With a white section bg, wherever the dome's
+        dark pixels don't reach, the white text became invisible against the
+        white page background showing through — reading as "cut off" at both
+        edges when it was actually just unreadable, not clipped. A dark
+        fallback bg (safe on desktop too, where the dome already reaches the
+        edges by then) means there's never a white gap for that to happen in. */}
     <section ref={sectionRef} className="relative isolate w-full overflow-hidden bg-[#0a1c38]">
       {/* Same shruti-ring-rise bounce ShrutiOutcomes.tsx uses for its own
           three semicircle rings — this dome is one flattened image rather
@@ -105,12 +144,34 @@ export default function EnterpriseSection() {
           same animation/easing. (The class this used before, "success-
           layer-1", was never defined anywhere in this project's CSS, so it
           had no actual animation at all.) */}
-      <div className="absolute inset-0 -z-10">
-        <img
-          src={sectionBg}
-          alt=""
-          className={`absolute left-0 -top-[6%] w-full h-[122%] max-w-none ${active ? 'shruti-ring-rise' : 'opacity-0'}`}
-        />
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        {isMobile ? (
+          // Discrete circles (same technique/values as MobileShruti.tsx's
+          // MobileOutcomes) instead of the desktop's flattened image — a
+          // raster image can't be split into independently-staggered ring
+          // layers, and its fixed wide-aspect crop is what distorted into
+          // jagged facets on a narrow portrait viewport in the first place.
+          MOBILE_RINGS.map((ring, i) => (
+            <div
+              key={ring.color}
+              className={`absolute rounded-full left-1/2 ${active ? 'shruti-ring-rise' : 'opacity-0'}`}
+              style={{
+                width: ring.diameter,
+                height: ring.diameter,
+                top: ring.top,
+                marginLeft: -ring.diameter / 2,
+                backgroundColor: ring.color,
+                animationDelay: active ? `${i * 0.18}s` : undefined,
+              }}
+            />
+          ))
+        ) : (
+          <img
+            src={sectionBg}
+            alt=""
+            className={`absolute left-0 -top-[6%] w-full h-[122%] max-w-none ${active ? 'shruti-ring-rise' : 'opacity-0'}`}
+          />
+        )}
       </div>
 
       <div className="relative flex flex-col items-center gap-16 px-6 md:px-[100px] py-24">
@@ -162,5 +223,7 @@ export default function EnterpriseSection() {
         </div>
       </div>
     </section>
+    </div>
+    </>
   )
 }

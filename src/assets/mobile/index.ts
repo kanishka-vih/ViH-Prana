@@ -10,6 +10,13 @@ import voicechatAvatarRingMobile from "./voicechat-avatar-ring.svg";
 // just two different fills (dotted charcoal on top, solid navy on bottom).
 import sectionChordTop from "./section-chord-top.svg";
 import sectionChordBottom from "./section-chord-bottom.svg";
+// Same "Ellipse 2292" chord path again (Figma nodes 333:2083 for Shruti's
+// outcomes panel, 345:2699 for Messenger's Enterprise AI panel — both named
+// "Ellipse 2292" and sized identically to the Enterprise-Problems chord
+// above), just recolored to the dome's own outer-ring navy (#0a1c38)
+// instead of Enterprise Problems' charcoal, since it caps a navy ring-based
+// panel instead of a charcoal one.
+import sectionChordNavyDotted from "./section-chord-navy-dotted.svg";
 
 export {
   hamburger,
@@ -20,4 +27,5 @@ export {
   voicechatAvatarRingMobile,
   sectionChordTop,
   sectionChordBottom,
+  sectionChordNavyDotted,
 };

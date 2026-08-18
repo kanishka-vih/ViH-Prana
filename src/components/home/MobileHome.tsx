@@ -287,7 +287,7 @@ function StatCard({
 // flipped, flat-edge-up/round-edge-down instead of flat-edge-down/
 // round-edge-up. Rendering it unflipped (what shipped before) was the
 // "chord is placed opposite" bug.
-function SectionChord({ src, flip = false, children }: { src: string; flip?: boolean; children?: ReactNode }) {
+export function SectionChord({ src, flip = false, children }: { src: string; flip?: boolean; children?: ReactNode }) {
   // The downloaded asset is already cropped to just the visible top-half
   // dome (viewBox 412x98.5 — Figma only shows the top half of a full
   // ellipse), so this just renders it directly at its own intrinsic ratio
@@ -341,11 +341,6 @@ function MobileEnterpriseProblems() {
           backgroundSize: "16px 16px",
         }}
       >
-        {/* Top glow */}
-      <div className="pointer-events-none absolute -top-[100px] left-1/2 -translate-x-1/2 h-[197px] w-[412px] opacity-70">
-        <div className="size-full bg-[radial-gradient(closest-side,rgba(177,91,252,0.5),transparent)]" />
-      </div>
-
       {/* Figma's own local layout (node 324:1451) has ONE dot-cluster
           graphic sitting behind both cards — the $8M card overlaps its top
           edge, the 42% card overlaps its bottom edge — not the graphic
@@ -402,13 +397,18 @@ function MobileEnterpriseProblems() {
         </Reveal>
       </div>
 
-      {/* The ecosystem/sphere panel — same dark-to-blue gradient Figma's
-          "component-9-mobile" frame uses. */}
+      {/* The ecosystem/sphere panel — Figma's "component-9-mobile" frame
+          (node 324:1497) stacks TWO gradients here, not one: a diagonal
+          184deg dark-navy-to-blue wash underneath, plus a second, subtler
+          180deg vertical one on top (dark charcoal fading to a pale gray by
+          its final stop) that softens the sphere-visualization area lower
+          in the panel. Only the first was here before, which read flatter/
+          bluer than Figma's actual blended tone. */}
       <div
         className="relative flex flex-col items-center gap-[32px] px-[16px] pt-[30px] pb-[40px]"
         style={{
           backgroundImage:
-            "linear-gradient(184deg, rgb(23,23,23) 1.6%, rgb(26,31,37) 45.2%, rgb(3,10,52) 88.7%, rgb(20,52,105) 175.8%)",
+            "linear-gradient(184deg, rgb(23,23,23) 1.6%, rgb(26,31,37) 45.2%, rgb(3,10,52) 88.7%, rgb(20,52,105) 175.8%), linear-gradient(180deg, rgb(23,23,23) 0%, rgb(26,31,37) 43.25%, rgb(31,35,41) 86.5%, rgba(125,125,125,0.8) 125.75%)",
         }}
       >
         <p className="font-normal text-[#b1b1b1] text-[13px] text-center leading-[22px] max-w-[312px] m-0">
