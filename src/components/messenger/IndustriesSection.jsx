@@ -9,7 +9,11 @@ import industryHealthcare from '../../assets/messenger-figma/industry-healthcare
 
 // Append new entries here — the stack/scroll animation below reads this
 // array by length and needs no changes when more industries are added.
-const INDUSTRIES = [
+// Exported for reuse by MobileMessenger.tsx's sliding-carousel version of
+// this same section — same 6 industries/copy/images, just a different
+// interaction (horizontal swipe instead of vertical scroll-stack) to match
+// Figma's own mobile frame (node 91:1025) rather than the desktop one.
+export const INDUSTRIES = [
   {
     title: 'Telecom Operators',
     description:
@@ -150,6 +154,10 @@ function IndustryCardVisual({ industry, zIndex, initialTranslateY, cardRef, over
 // written directly to each card's DOM node via refs instead of through
 // React state, so 6 cards animating at once doesn't mean 6 re-renders per
 // frame.
+// Same breakpoint ScaledCanvas.tsx/Header.tsx use for the mobile/desktop
+// split site-wide.
+const MOBILE_BREAKPOINT = 768
+
 export default function IndustriesSection() {
   const trackRef = useRef(null)
   const pinnedRef = useRef(null)
@@ -162,6 +170,20 @@ export default function IndustriesSection() {
   const [pinnedHeight, setPinnedHeight] = useState(0)
   const [geo, setGeo] = useState({ docTop: 0, left: 0, width: 0, scale: 1 })
   const trackHeight = pinnedHeight + pinDistance
+  // Desktop-only (mobile uses MobileMessenger.tsx's own sliding-carousel
+  // version instead) — but this component stays MOUNTED even inside a
+  // `hidden md:flex` wrapper, and a CSS `display:none` ancestor doesn't stop
+  // React effects or `createPortal` from still inserting into <body>. Without
+  // this guard the portal below fired anyway, measured its own hidden
+  // (zero-size) track, and rendered a phantom industry-card stack floating
+  // near the top of the real mobile page instead of never mounting.
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT)
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   useEffect(() => {
     const track = trackRef.current
@@ -226,6 +248,11 @@ export default function IndustriesSection() {
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
   }, [n, pinDistance])
+
+  // All hooks above are called unconditionally either way (React's rules of
+  // hooks) — they just no-op forever since trackRef/pinnedRef never attach
+  // to anything when this returns null instead of the JSX below.
+  if (isMobile) return null
 
   const panel = (
     <div ref={pinnedRef} className="flex flex-col gap-[62px] w-[1240px] bg-white" style={{ zoom: geo.scale }}>

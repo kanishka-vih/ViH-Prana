@@ -87,7 +87,17 @@ export default function EnterpriseSection() {
     // overlaps the tail of the hero frame slightly). Adding a separate gap
     // here on top of that double-counted the same space and produced way
     // too much white area between the two sections.
-    <section ref={sectionRef} className="relative isolate w-full overflow-hidden bg-white">
+    // `bg-[#0a1c38]` (the same outer-ring tone ShrutiOutcomes.tsx's RINGS
+    // array uses for its own analogous dome) instead of `bg-white` — the
+    // dome background image tapers inward toward its top, and on a narrow
+    // mobile viewport that taper is narrower than the heading text at the
+    // height the text sits at. With a white section bg, wherever the dome's
+    // dark pixels don't reach, the white text became invisible against the
+    // white page background showing through — reading as "cut off" at both
+    // edges when it was actually just unreadable, not clipped. A dark
+    // fallback bg (safe on desktop too, where the dome already reaches the
+    // edges by then) means there's never a white gap for that to happen in.
+    <section ref={sectionRef} className="relative isolate w-full overflow-hidden bg-[#0a1c38]">
       {/* Same shruti-ring-rise bounce ShrutiOutcomes.tsx uses for its own
           three semicircle rings — this dome is one flattened image rather
           than separable ring layers, so the whole thing rises and settles
@@ -104,7 +114,14 @@ export default function EnterpriseSection() {
       </div>
 
       <div className="relative flex flex-col items-center gap-16 px-6 md:px-[100px] py-24">
-        <h2 className="max-w-[600px] text-center font-light text-3xl md:text-[36px] leading-[40px] tracking-[-1.2px] text-[#fefefe]">
+        {/* `w-full` (not just `max-w-[600px]`) — a flex child's implicit
+            `min-width: auto` otherwise keeps it at its own shrink-to-fit
+            content width instead of respecting the flex container's actual
+            (narrower, on mobile) width, so it overflowed symmetrically past
+            both edges of a phone screen while still centering correctly on
+            wide desktop viewports where 600px never exceeded the space
+            available. */}
+        <h2 className="w-full max-w-[600px] text-center font-light text-3xl md:text-[36px] leading-[40px] tracking-[-1.2px] text-[#fefefe]">
           Enterprise AI built for intelligence and data sovereignty
         </h2>
 

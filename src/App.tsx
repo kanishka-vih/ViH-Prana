@@ -11,7 +11,7 @@ import ScrollToTop from "./components/ScrollToTop";
 // other route still only has desktop-1440px markup, so they need
 // ScaledCanvas to keep shrinking them to fit a phone screen until they get
 // their own mobile layouts too. Add a route here once it does.
-const MOBILE_READY_ROUTES = ["/", "/shruti"];
+const MOBILE_READY_ROUTES = ["/", "/shruti", "/messenger"];
 
 function AppRoutes() {
   const { pathname } = useLocation();

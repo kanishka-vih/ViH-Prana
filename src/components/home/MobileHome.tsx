@@ -320,7 +320,27 @@ function MobileEnterpriseProblems() {
           <p className="font-normal text-[#c2bdbd] text-[16px] whitespace-nowrap m-0">Enterprise Problems</p>
         </div>
       </SectionChord>
-      <div className="relative bg-[#191a1c] overflow-hidden -mt-[6px]">
+      {/* The same tiny-dot texture the top chord's own fill uses (Figma's
+          `pattern0_0_4`: a repeating 16px grid of ~0.4px dots) — but there
+          it's baked into that one SVG asset's own fill, whereas here it's
+          Figma's actual PAGE BACKGROUND for the whole "Corporate amnesia →
+          Brain drain" block (node 324:1451), not just a small patch behind
+          the two stat cards. It was scoped to just a 280px band around the
+          cards before, so the rest of the section — the paragraph text top
+          and bottom, and the gaps between cards — showed flat `#191a1c`
+          instead of this texture. A CSS radial-gradient tile reproduces the
+          same look without shipping another raster asset, and naturally
+          disappears wherever the ecosystem/globe panel below (which has its
+          own opaque gradient fill) sits on top of it — matching the user's
+          confirmation that section correctly has no dots. */}
+      <div
+        className="relative overflow-hidden -mt-[6px]"
+        style={{
+          backgroundColor: "#191a1c",
+          backgroundImage: "radial-gradient(circle, #8b8b8b 0.8px, transparent 0.8px)",
+          backgroundSize: "16px 16px",
+        }}
+      >
         {/* Top glow */}
       <div className="pointer-events-none absolute -top-[100px] left-1/2 -translate-x-1/2 h-[197px] w-[412px] opacity-70">
         <div className="size-full bg-[radial-gradient(closest-side,rgba(177,91,252,0.5),transparent)]" />
@@ -333,7 +353,9 @@ function MobileEnterpriseProblems() {
           Both cards keep StatCard's `backdrop-blur-md` so the dots read as
           visible-but-frosted behind them (a glass effect) instead of the
           graphic just disappearing wherever a card happened to sit on it. */}
-      <div className="relative px-[20px] pb-[24px]">
+      {/* Figma's own gap between this paragraph and the $8M card (node
+          324:1490, a flex-col with gap-[32px]) is 32px, not 24. */}
+      <div className="relative px-[20px] pb-[32px]">
         <Reveal>
           <p className="font-normal text-[#b1b1b1] text-[14px] leading-[22px] m-0">
             <span className="font-semibold text-white">Corporate amnesia</span> is the loss of organisational

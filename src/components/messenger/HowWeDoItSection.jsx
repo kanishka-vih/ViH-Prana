@@ -50,6 +50,10 @@ const PIN_DISTANCE = STAGES.length * SEGMENT_HEIGHT
 // works normally. The portal wrapper is placed at the track's real
 // document-space offset — measured on resize/settle, not per scroll frame —
 // so it occupies the exact slot the track reserves inside the scaled page.
+// Same breakpoint ScaledCanvas.tsx/Header.tsx use for the mobile/desktop
+// split site-wide.
+const MOBILE_BREAKPOINT = 768
+
 export default function HowWeDoItSection() {
   const trackRef = useRef(null)
   const pinnedRef = useRef(null)
@@ -59,6 +63,21 @@ export default function HowWeDoItSection() {
   const captionRef = useRef(null)
 
   const [geo, setGeo] = useState({ docTop: 0, scale: 1 })
+  // This is a desktop-only component (mobile uses CccaaaSection.tsx via
+  // HomeBottomSections instead) that's still MOUNTED even while its parent
+  // wrapper is hidden via `hidden md:flex` — a CSS `display:none` ancestor
+  // doesn't stop React from running effects or `createPortal` from
+  // inserting into <body>, so without this the portal below still fired,
+  // measured its own hidden (zero-size) track, and rendered a phantom
+  // "CCCAAA" panel floating at the top of the real mobile page instead of
+  // never mounting at all.
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT)
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   useEffect(() => {
     const track = trackRef.current
@@ -136,6 +155,11 @@ export default function HowWeDoItSection() {
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
   }, [])
+
+  // All hooks above are called unconditionally either way (React's rules of
+  // hooks) — they just no-op forever since trackRef/pinnedRef never attach
+  // to anything when this returns null instead of the JSX below.
+  if (isMobile) return null
 
   // Figma's frame (node 88:831, "Desktop - 5") is 1440x684 — the exact same
   // fixed size as CccaaaSection.tsx's own panel, right down to the button's

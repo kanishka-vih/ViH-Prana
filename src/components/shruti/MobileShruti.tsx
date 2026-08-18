@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MobileHero, Reveal } from "../home/MobileHome";
 import { CATEGORIES, LANGUAGES, type Lang } from "./ShrutiHero";
 import { useLocalDemoCall } from "./voice/useLocalDemoCall";
@@ -267,10 +267,57 @@ function MobileTrustedBy() {
   );
 }
 
+// Same 3 concentric domes ShrutiOutcomes.tsx (desktop) rises up on scroll —
+// that component built them as plain circles (a flattened Figma export
+// can't be split into independently animated pieces) rather than a static
+// image, reusing the same `shruti-ring-rise`/`shruti-orb-bounce` keyframes
+// this just scales down for mobile's width instead of the desktop 1440px
+// canvas (0.2708 = 390/1440, so the same relative arc/curve shows through
+// at this width instead of a smaller or larger slice of it).
+const MOBILE_RING_SCALE = 390 / 1440;
+const RINGS = [
+  { diameter: 2385 * MOBILE_RING_SCALE, top: 0, color: "#0a1c38" },
+  { diameter: 2100 * MOBILE_RING_SCALE, top: 265 * MOBILE_RING_SCALE, color: "#071428" },
+  { diameter: 1550 * MOBILE_RING_SCALE, top: 460 * MOBILE_RING_SCALE, color: "#040c1c" },
+];
+
 function MobileOutcomes() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [bounced, setBounced] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setBounced(entry.isIntersecting), { threshold: 0.25 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="relative bg-[#050b14] overflow-hidden flex flex-col gap-[24px] px-[20px] py-[48px]">
-      <div className="pointer-events-none absolute -top-[80px] left-1/2 -translate-x-1/2 h-[300px] w-[500px] opacity-40 bg-[radial-gradient(closest-side,rgba(90,90,220,0.5),transparent)]" />
+    <div ref={sectionRef} className="relative bg-[#050b14] overflow-hidden flex flex-col gap-[24px] px-[20px] py-[48px]">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {RINGS.map((ring, i) => (
+          <div
+            key={ring.color}
+            className={`absolute rounded-full left-1/2 ${bounced ? "shruti-ring-rise" : "opacity-0"}`}
+            style={{
+              width: ring.diameter,
+              height: ring.diameter,
+              top: ring.top,
+              marginLeft: -ring.diameter / 2,
+              backgroundColor: ring.color,
+              animationDelay: bounced ? `${i * 0.18}s` : undefined,
+            }}
+          />
+        ))}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px)",
+            backgroundSize: "16px 16px",
+          }}
+        />
+      </div>
       <p className="relative font-light leading-[32px] text-[#fefefe] text-[26px] text-center tracking-[-0.8px] m-0">
         Voice and chat agents built to improve support, sales and operational outcomes
       </p>
@@ -281,11 +328,12 @@ function MobileOutcomes() {
               <div className="flex items-center justify-between w-full">
                 <p className="flex-1 font-medium leading-[24px] text-[#fefefe] text-[20px] tracking-[0.1px] m-0">{card.title}</p>
                 <div
-                  className="relative shrink-0 size-[42px] rounded-full overflow-hidden flex items-center justify-center"
+                  className={`relative shrink-0 size-[42px] rounded-full overflow-hidden flex items-center justify-center ${bounced ? "shruti-orb-bounce" : "opacity-0"}`}
                   style={{
                     backgroundImage: card.orb
                       ? undefined
                       : "linear-gradient(129.75deg, rgb(234,225,255) 16.142%, rgb(78,30,231) 71.691%, rgb(149,44,246) 124.25%, rgb(172,57,248) 126.14%, rgb(255,103,249) 156.79%, rgb(234,225,255) 356.13%)",
+                    animationDelay: bounced ? `${i * 0.15}s` : undefined,
                   }}
                 >
                   {card.orb && (

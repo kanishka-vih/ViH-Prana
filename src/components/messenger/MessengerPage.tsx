@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Hero from "./Hero";
 import DashboardShowcase from "./DashboardShowcase";
 import EnterpriseSection from "./EnterpriseSection";
@@ -8,6 +9,12 @@ import HowWeDoItSection from "./HowWeDoItSection";
 import TestimonialsSection from "./TestimonialsSection";
 import ContactSection from "./ContactSection";
 import Footer from "./Footer";
+import MobileMessenger from "./MobileMessenger";
+import HomeBottomSections from "../home/HomeBottomSections";
+
+// Same breakpoint ScaledCanvas.tsx/Header.tsx use for the mobile/desktop
+// split site-wide.
+const MOBILE_BREAKPOINT = 768;
 
 // Navbar.jsx and AnnouncementBar.jsx are intentionally not rendered here —
 // the site already has one global fixed nav (FixedHeader, in App.tsx) shared
@@ -35,6 +42,43 @@ import Footer from "./Footer";
 // WorkflowSection already compose them internally in a specific layout, so
 // rendering them again would show each one twice.
 export default function MessengerPage() {
+  // Both HowWeDoItSection and HomeBottomSections' own CccaaaSection pin
+  // themselves via `createPortal` straight onto <body>, and each decides
+  // desktop-vs-mobile rendering by checking the REAL window width itself —
+  // neither one knows or cares whether some CSS class up its own ancestor
+  // chain happens to be `display:none`. So a plain `hidden md:flex` /
+  // `md:hidden` split here doesn't actually stop the "wrong" one from still
+  // running: at a desktop width, HomeBottomSections would still correctly
+  // detect "I'm on desktop" and portal its panel — even while sitting under
+  // an ancestor CSS-hidden specifically to keep it mobile-only — measuring
+  // its own hidden (zero-size) track and rendering a phantom CCCAAA panel
+  // floating at the wrong spot on top of the real desktop page. Using an
+  // actual JS mobile check to conditionally MOUNT one or the other (instead
+  // of mounting both and hiding one with CSS) means the "wrong" one is never
+  // in the DOM to begin with, so its effects/portal never run at all.
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  if (isMobile) {
+    // Mobile — real markup (MobileMessenger.tsx) built from Figma's own
+    // mobile frames instead of a shrunk desktop copy. The CCCAAA →
+    // testimonials/partner-logos → contact form → footer tail is identical
+    // to Home/Shruti's, so this reuses HomeBottomSections rather than
+    // Messenger's own separate desktop-only HowWeDoItSection/
+    // TestimonialsSection/ContactSection/Footer for that part.
+    return (
+      <div className="bg-white flex flex-col items-center w-full">
+        <MobileMessenger />
+        <HomeBottomSections />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white flex flex-col items-center w-full">
       {/* Hero and DashboardShowcase are the only two sections with no
